@@ -43,6 +43,7 @@ function AppRoutes() {
       <Route path="/closet/agregar" element={<AgregarPrendaPage />} />
       <Route path="/outfits" element={<OutfitsPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
+      <Route path="/colorimetria" element={<ColorimetriaPage />} />
       <Route path="*" element={<Navigate to="/closet" replace />} />
     </Routes>
   )

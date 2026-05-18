@@ -11,3 +11,9 @@ export const analizarColorimetria = (foto: File) => {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 }
+
+export const consultarColor = (pregunta: string) =>
+  client.post<{ compatible: boolean; colorNombre: string; respuesta: string }>('/api/user/consultar-color', { pregunta })
+
+export const agregarApaleta = (color: string) =>
+  client.post<{ yaExiste: boolean; perfil: import('../types').User }>('/api/user/paleta/agregar', { color })

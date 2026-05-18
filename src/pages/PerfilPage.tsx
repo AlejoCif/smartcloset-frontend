@@ -1,8 +1,10 @@
 import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 
 export default function PerfilPage() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const temporadaEmoji: Record<string, string> = {
     PRIMAVERA: '🌸', VERANO: '☀️', OTOÑO: '🍂', INVIERNO: '❄️',
@@ -65,6 +67,14 @@ export default function PerfilPage() {
             )}
           </div>
         )}
+
+        {/* Colorimetría - rehacer */}
+        <button
+          onClick={() => navigate('/colorimetria')}
+          className="w-full py-4 rounded-xl border border-accent/30 text-accent font-body font-medium text-sm hover:bg-accent/5 transition-colors"
+        >
+          {user?.temporadaColor ? 'Rehacer análisis de colorimetría' : 'Hacer análisis de colorimetría'}
+        </button>
 
         {/* Botón cerrar sesión */}
         <button

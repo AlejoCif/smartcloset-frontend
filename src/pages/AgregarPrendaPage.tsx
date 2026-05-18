@@ -1,8 +1,9 @@
-import { useState, useRef, type ChangeEvent } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analizarPrenda, confirmarPrenda } from '../api/prendas'
 import type { AnalisisPrenda } from '../types'
 import { CATEGORIAS, CATEGORIA_LABELS } from '../types'
+import PhotoSelector from '../components/PhotoSelector'
 
 type Step = 'guia' | 'upload' | 'loading' | 'confirmacion'
 
@@ -14,12 +15,9 @@ export default function AgregarPrendaPage() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
-  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
+  const handleFile = (f: File) => {
     setFile(f)
     setPreview(URL.createObjectURL(f))
     setStep('upload')
@@ -94,13 +92,7 @@ export default function AgregarPrendaPage() {
               ))}
             </div>
 
-            <button
-              onClick={() => inputRef.current?.click()}
-              className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl"
-            >
-              Tomar o subir foto
-            </button>
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+            <PhotoSelector onFile={handleFile} captureMode="environment" />
           </div>
         )}
 
@@ -108,12 +100,9 @@ export default function AgregarPrendaPage() {
           <div className="flex flex-col gap-5">
             <div className="relative">
               <img src={preview} alt="Prenda" className="w-full aspect-square object-cover rounded-2xl" />
-              <button
-                onClick={() => inputRef.current?.click()}
-                className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-body text-primary"
-              >
-                Cambiar
-              </button>
+              <div className="absolute top-3 right-3">
+                <PhotoSelector onFile={handleFile} captureMode="environment" compact />
+              </div>
             </div>
             {error && (
               <p className="text-red-500 text-sm font-body bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
@@ -121,7 +110,6 @@ export default function AgregarPrendaPage() {
             <button onClick={handleAnalizar} className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl">
               Analizar prenda
             </button>
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
           </div>
         )}
 

@@ -1,7 +1,8 @@
-import { useState, useRef, type ChangeEvent } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analizarColorimetria } from '../api/user'
 import { useAuth } from '../context/AuthContext'
+import PhotoSelector from '../components/PhotoSelector'
 import type { User } from '../types'
 
 type Step = 'instrucciones' | 'upload' | 'loading' | 'resultado'
@@ -12,13 +13,10 @@ export default function ColorimetriaPage() {
   const [file, setFile] = useState<File | null>(null)
   const [resultado, setResultado] = useState<User | null>(null)
   const [error, setError] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
   const { refreshUser } = useAuth()
   const navigate = useNavigate()
 
-  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
+  const handleFile = (f: File) => {
     setFile(f)
     setPreview(URL.createObjectURL(f))
     setStep('upload')
@@ -75,20 +73,7 @@ export default function ColorimetriaPage() {
               ))}
             </div>
 
-            <button
-              onClick={() => inputRef.current?.click()}
-              className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl text-sm tracking-wide"
-            >
-              Tomar o subir foto
-            </button>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              capture="user"
-              className="hidden"
-              onChange={handleFile}
-            />
+            <PhotoSelector onFile={handleFile} captureMode="user" />
           </div>
         )}
 
@@ -100,12 +85,9 @@ export default function ColorimetriaPage() {
                 alt="Tu foto"
                 className="w-full aspect-square object-cover rounded-2xl"
               />
-              <button
-                onClick={() => inputRef.current?.click()}
-                className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-body text-primary"
-              >
-                Cambiar
-              </button>
+              <div className="absolute top-3 right-3">
+                <PhotoSelector onFile={handleFile} captureMode="user" compact />
+              </div>
             </div>
 
             {error && (
@@ -120,14 +102,6 @@ export default function ColorimetriaPage() {
             >
               Analizar con IA
             </button>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              capture="user"
-              className="hidden"
-              onChange={handleFile}
-            />
           </div>
         )}
 

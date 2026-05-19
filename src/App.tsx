@@ -6,6 +6,7 @@ import ClosetPage from './pages/ClosetPage'
 import AgregarPrendaPage from './pages/AgregarPrendaPage'
 import OutfitsPage from './pages/OutfitsPage'
 import InspirationPage from './pages/InspirationPage'
+import ComprarPage from './pages/ComprarPage'
 import PerfilPage from './pages/PerfilPage'
 import LoadingSpinner from './components/LoadingSpinner'
 
@@ -44,6 +45,7 @@ function AppRoutes() {
       <Route path="/closet/agregar" element={<AgregarPrendaPage />} />
       <Route path="/outfits" element={<OutfitsPage />} />
       <Route path="/inspiracion" element={<InspirationPage />} />
+      <Route path="/comprar" element={<ComprarPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
       <Route path="/colorimetria" element={<ColorimetriaPage />} />
       <Route path="*" element={<Navigate to="/closet" replace />} />

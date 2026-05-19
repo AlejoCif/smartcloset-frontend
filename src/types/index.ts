@@ -143,6 +143,16 @@ export interface OutfitGuardado {
   createdAt: string
 }
 
+export interface AnalizarCompraResponse {
+  fotoUrl: string
+  veredicto: 'NECESARIO' | 'UTIL' | 'INNECESARIO' | 'NO_RECOMENDADO'
+  titulo: string
+  explicacion: string
+  prendaSimilarId?: number
+  prendaSimilarUrl?: string
+  consejo: string
+}
+
 export interface InspirationImage {
   imageUrl: string
   thumbnailUrl: string

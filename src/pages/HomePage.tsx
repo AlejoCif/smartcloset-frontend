@@ -6,9 +6,11 @@ interface Section {
   number: string
   label: string
   desc: string
-  gradient: string
+  hero?: boolean
   icon: React.ReactNode
 }
+
+const iconStroke = { fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
 
 const sections: Section[] = [
   {
@@ -16,9 +18,9 @@ const sections: Section[] = [
     number: '01',
     label: 'Mi Closet',
     desc: 'Tus prendas guardadas',
-    gradient: 'linear-gradient(145deg, #0E0906 0%, #2A1810 50%, #4A3420 100%)',
+    hero: true,
     icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" className="w-6 h-6" {...iconStroke}>
         <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
       </svg>
     ),
@@ -28,9 +30,8 @@ const sections: Section[] = [
     number: '02',
     label: 'Outfits IA',
     desc: 'Combinaciones con IA',
-    gradient: 'linear-gradient(145deg, #120A04 0%, #3A1E0C 50%, #6B3A18 100%)',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" className="w-6 h-6" {...iconStroke}>
         <path d="M12 2L2 7l10 5 10-5-10-5z"/>
         <path d="M2 17l10 5 10-5"/>
         <path d="M2 12l10 5 10-5"/>
@@ -42,12 +43,10 @@ const sections: Section[] = [
     number: '03',
     label: 'Mis Looks',
     desc: 'Califica tus outfits',
-    gradient: 'linear-gradient(145deg, #0C0A07 0%, #241808 50%, #3D2A18 100%)',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <circle cx="8.5" cy="8.5" r="1.5"/>
-        <path d="M21 15l-5-5L5 21"/>
+      <svg viewBox="0 0 24 24" className="w-6 h-6" {...iconStroke}>
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
       </svg>
     ),
   },
@@ -56,9 +55,8 @@ const sections: Section[] = [
     number: '04',
     label: '¿Lo compro?',
     desc: 'Asesora de compras',
-    gradient: 'linear-gradient(145deg, #080E06 0%, #1A2E10 50%, #345224 100%)',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" className="w-6 h-6" {...iconStroke}>
         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
         <line x1="3" y1="6" x2="21" y2="6"/>
         <path d="M16 10a4 4 0 0 1-8 0"/>
@@ -70,9 +68,8 @@ const sections: Section[] = [
     number: '05',
     label: 'Inspiración',
     desc: 'Busca looks con IA',
-    gradient: 'linear-gradient(145deg, #200608 0%, #5C1418 50%, #952430 100%)',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" className="w-6 h-6" {...iconStroke}>
         <circle cx="11" cy="11" r="8"/>
         <path d="m21 21-4.35-4.35"/>
       </svg>
@@ -83,9 +80,8 @@ const sections: Section[] = [
     number: '06',
     label: 'Perfil',
     desc: 'Tu cuenta y ajustes',
-    gradient: 'linear-gradient(145deg, #0C0C0C 0%, #1E1E1E 50%, #303030 100%)',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" className="w-6 h-6" {...iconStroke}>
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
       </svg>
@@ -96,46 +92,70 @@ const sections: Section[] = [
 interface CardProps {
   section: Section
   className?: string
-  large?: boolean
 }
 
-function Card({ section, className = '', large = false }: CardProps) {
+function Card({ section, className = '' }: CardProps) {
   const navigate = useNavigate()
+
+  if (section.hero) {
+    return (
+      <button
+        onClick={() => navigate(section.to)}
+        className={`relative overflow-hidden rounded-2xl text-left flex flex-col justify-between active:scale-[0.98] transition-all duration-150 ${className}`}
+        style={{
+          backgroundColor: '#4A3420',
+          boxShadow: '0 4px 20px rgba(74,52,32,0.22)',
+          minHeight: '160px',
+        }}
+      >
+        {/* Textura sutil */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, #FAF7F2 0%, transparent 60%)' }}
+        />
+
+        <div className="relative flex items-start justify-between p-5 pb-0">
+          <span className="font-body text-[10px] tracking-[0.22em] uppercase" style={{ color: 'rgba(250,247,242,0.35)' }}>
+            {section.number}
+          </span>
+          <span style={{ color: 'rgba(250,247,242,0.7)' }}>{section.icon}</span>
+        </div>
+
+        <div className="relative p-5 pt-3">
+          <p className="font-display text-[1.6rem] font-light leading-tight" style={{ color: '#FAF7F2' }}>
+            {section.label}
+          </p>
+          <p className="font-body text-xs mt-1 tracking-wide" style={{ color: 'rgba(250,247,242,0.45)' }}>
+            {section.desc}
+          </p>
+        </div>
+      </button>
+    )
+  }
+
   return (
     <button
       onClick={() => navigate(section.to)}
-      className={`relative overflow-hidden rounded-2xl active:scale-[0.97] transition-all duration-150 text-left flex flex-col justify-between ${className}`}
-      style={{ background: section.gradient }}
+      className={`relative rounded-2xl text-left flex flex-col justify-between active:scale-[0.98] transition-all duration-150 ${className}`}
+      style={{
+        backgroundColor: '#F2EBE0',
+        border: '1px solid #D4BFA4',
+        boxShadow: '0 2px 12px rgba(74,52,32,0.06)',
+        minHeight: '140px',
+      }}
     >
-      {/* Shimmer diagonal */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.09] via-transparent to-transparent pointer-events-none" />
-      {/* Subtle ring */}
-      <div className="absolute inset-0 rounded-2xl ring-1 ring-white/[0.07] pointer-events-none" />
-      {/* Decorative arcs (solo en tarjeta grande) */}
-      {large && (
-        <div className="absolute -top-8 -right-8 w-40 h-40 opacity-[0.06] pointer-events-none">
-          <svg viewBox="0 0 100 100" fill="none">
-            <circle cx="100" cy="0" r="70" stroke="white" strokeWidth="1"/>
-            <circle cx="100" cy="0" r="50" stroke="white" strokeWidth="0.8"/>
-            <circle cx="100" cy="0" r="30" stroke="white" strokeWidth="0.6"/>
-          </svg>
-        </div>
-      )}
-
-      {/* Top row: number + icon */}
-      <div className="relative flex items-start justify-between p-4 pb-0">
-        <span className="font-body text-[10px] tracking-[0.2em] text-white/20 font-light">
+      <div className="flex items-start justify-between p-4 pb-0">
+        <span className="font-body text-[10px] tracking-[0.22em] uppercase" style={{ color: '#9E9690' }}>
           {section.number}
         </span>
-        <span className="text-white/40 mt-0.5">{section.icon}</span>
+        <span style={{ color: '#C4956A' }}>{section.icon}</span>
       </div>
 
-      {/* Bottom: label + desc */}
-      <div className="relative p-4 pt-2">
-        <p className={`font-display font-light text-white leading-tight ${large ? 'text-2xl' : 'text-lg'}`}>
+      <div className="p-4 pt-3">
+        <p className="font-display text-[1.25rem] font-light leading-tight" style={{ color: '#4A3420' }}>
           {section.label}
         </p>
-        <p className="font-body text-[10px] text-white/35 mt-0.5 tracking-wide leading-snug">
+        <p className="font-body text-[11px] mt-0.5 tracking-wide leading-snug" style={{ color: '#9E9690' }}>
           {section.desc}
         </p>
       </div>
@@ -146,47 +166,41 @@ function Card({ section, className = '', large = false }: CardProps) {
 export default function HomePage() {
   const { user } = useAuth()
   const name = user?.nombre?.split(' ')[0] ?? 'Bienvenida'
-  const [closet, outfits, misOutfits, comprar, inspiracion, perfil] = sections
+  const [closet, ...rest] = sections
 
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
+    <div className="min-h-screen flex flex-col max-w-lg mx-auto" style={{ backgroundColor: '#FAF7F2' }}>
 
-      {/* Header editorial */}
-      <header className="px-5 pt-14 pb-7">
-        <p className="font-body text-[10px] tracking-[0.28em] text-primary/35 uppercase mb-3">
+      {/* Header */}
+      <header className="px-6 pt-14 pb-8">
+        <p className="font-body text-[10px] tracking-[0.3em] uppercase mb-4" style={{ color: '#9E9690' }}>
           Hola, {name}
         </p>
-        <h1 className="font-display text-[2.8rem] font-light text-primary leading-none">
-          Smart<span className="italic">Closet</span>
-        </h1>
-        <div className="flex items-center gap-3 mt-4">
-          <div className="h-px flex-1 bg-primary/10" />
-          <p className="font-body text-[9px] tracking-[0.32em] text-primary/25 uppercase">
-            Guardarropa inteligente
-          </p>
-          <div className="h-px flex-1 bg-primary/10" />
+
+        <div className="flex items-center gap-4">
+          <div className="h-px flex-1" style={{ backgroundColor: '#D4BFA4' }} />
+          <h1 className="font-display text-[2.2rem] font-light leading-none whitespace-nowrap" style={{ color: '#4A3420' }}>
+            Smart<span className="italic">Closet</span>
+          </h1>
+          <div className="h-px flex-1" style={{ backgroundColor: '#D4BFA4' }} />
         </div>
+
+        <p className="font-body text-[11px] tracking-[0.18em] text-center mt-3" style={{ color: '#9E9690' }}>
+          Tu guardarropa inteligente
+        </p>
       </header>
 
-      {/* Grid editorial asimétrico */}
-      <div className="px-3 pb-10 flex flex-col gap-2">
+      {/* Grid */}
+      <div className="px-6 pb-12 flex flex-col gap-3">
 
-        {/* Fila 1: grande + vertical */}
-        <div className="grid grid-cols-3 gap-2" style={{ height: '196px' }}>
-          <Card section={closet} className="col-span-2" large />
-          <Card section={outfits} />
-        </div>
+        {/* Hero card — Mi Closet full width */}
+        <Card section={closet} />
 
-        {/* Fila 2: dos iguales */}
-        <div className="grid grid-cols-2 gap-2" style={{ height: '138px' }}>
-          <Card section={misOutfits} />
-          <Card section={comprar} />
-        </div>
-
-        {/* Fila 3: ancha + estrecha */}
-        <div className="grid grid-cols-3 gap-2" style={{ height: '138px' }}>
-          <Card section={inspiracion} className="col-span-2" />
-          <Card section={perfil} />
+        {/* Resto en 2 columnas */}
+        <div className="grid grid-cols-2 gap-3">
+          {rest.map(s => (
+            <Card key={s.to} section={s} />
+          ))}
         </div>
 
       </div>

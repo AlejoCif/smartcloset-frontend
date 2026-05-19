@@ -1,136 +1,210 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const sections = [
+interface Section {
+  to: string
+  number: string
+  label: string
+  desc: string
+  gradient: string
+  icon: React.ReactNode
+}
+
+const sections: Section[] = [
   {
     to: '/closet',
+    number: '01',
     label: 'Mi Closet',
     desc: 'Tus prendas guardadas',
-    color: '#4A3420',
-    textColor: 'text-white',
+    gradient: 'linear-gradient(145deg, #0E0906 0%, #2A1810 50%, #4A3420 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <path d="M38.7 6.9 32 4a8 8 0 0 1-16 0L9.3 6.9a4 4 0 0 0-2.7 4.5l1.2 7.1a2 2 0 0 0 2 1.7H12v20a4 4 0 0 0 4 4h16a4 4 0 0 0 4-4v-20h2.2a2 2 0 0 0 2-1.7l1.2-7.1a4 4 0 0 0-2.7-4.5z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
       </svg>
     ),
   },
   {
     to: '/outfits',
-    label: 'Outfits',
+    number: '02',
+    label: 'Outfits IA',
     desc: 'Combinaciones con IA',
-    color: '#C4956A',
-    textColor: 'text-white',
+    gradient: 'linear-gradient(145deg, #120A04 0%, #3A1E0C 50%, #6B3A18 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <path d="M6 14l18-10 18 10-18 10z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M6 24l18 10 18-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M6 34l18 10 18-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
       </svg>
     ),
   },
   {
     to: '/mis-outfits',
-    label: 'Mis Outfits',
-    desc: 'Sube y califica tus looks',
-    color: '#8B6F57',
-    textColor: 'text-white',
+    number: '03',
+    label: 'Mis Looks',
+    desc: 'Califica tus outfits',
+    gradient: 'linear-gradient(145deg, #0C0A07 0%, #241808 50%, #3D2A18 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <rect x="6" y="6" width="36" height="36" rx="4" stroke="white" strokeWidth="2.5"/>
-        <circle cx="17" cy="17" r="5" stroke="white" strokeWidth="2.5"/>
-        <path d="M6 32l10-10 8 8 6-6 12 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M21 15l-5-5L5 21"/>
       </svg>
     ),
   },
   {
     to: '/colorimetria',
+    number: '04',
     label: 'Colorimetría',
     desc: 'Tu paleta personal',
-    color: '#E8A87C',
-    textColor: 'text-white',
+    gradient: 'linear-gradient(145deg, #1E0C04 0%, #5C3010 50%, #9B5828 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <circle cx="24" cy="24" r="18" stroke="white" strokeWidth="2.5"/>
-        <circle cx="16" cy="20" r="4" fill="white" fillOpacity="0.5"/>
-        <circle cx="32" cy="20" r="4" fill="white" fillOpacity="0.5"/>
-        <circle cx="24" cy="32" r="4" fill="white" fillOpacity="0.5"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <circle cx="9" cy="10" r="2" fill="currentColor" fillOpacity="0.5"/>
+        <circle cx="15" cy="10" r="2" fill="currentColor" fillOpacity="0.5"/>
+        <circle cx="12" cy="15" r="2" fill="currentColor" fillOpacity="0.5"/>
       </svg>
     ),
   },
   {
     to: '/comprar',
+    number: '05',
     label: '¿Lo compro?',
-    desc: 'Asesora de compras IA',
-    color: '#6B7C3A',
-    textColor: 'text-white',
+    desc: 'Asesora de compras',
+    gradient: 'linear-gradient(145deg, #080E06 0%, #1A2E10 50%, #345224 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <path d="M12 4L6 12v28a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4V12l-6-8z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <line x1="6" y1="12" x2="42" y2="12" stroke="white" strokeWidth="2.5"/>
-        <path d="M32 20a8 8 0 0 1-16 0" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
       </svg>
     ),
   },
   {
     to: '/inspiracion',
+    number: '06',
     label: 'Inspiración',
     desc: 'Busca looks con IA',
-    color: '#C9856D',
-    textColor: 'text-white',
+    gradient: 'linear-gradient(145deg, #200608 0%, #5C1418 50%, #952430 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <circle cx="22" cy="22" r="14" stroke="white" strokeWidth="2.5"/>
-        <path d="m42 42-7-7" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M22 16v12M16 22h12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
       </svg>
     ),
   },
   {
     to: '/perfil',
+    number: '07',
     label: 'Perfil',
     desc: 'Tu cuenta y ajustes',
-    color: '#9E9E9E',
-    textColor: 'text-white',
+    gradient: 'linear-gradient(145deg, #0C0C0C 0%, #1E1E1E 50%, #303030 100%)',
     icon: (
-      <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none">
-        <circle cx="24" cy="16" r="8" stroke="white" strokeWidth="2.5"/>
-        <path d="M8 42a16 16 0 0 1 32 0" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
       </svg>
     ),
   },
 ]
 
-export default function HomePage() {
+interface CardProps {
+  section: Section
+  className?: string
+  large?: boolean
+}
+
+function Card({ section, className = '', large = false }: CardProps) {
   const navigate = useNavigate()
+  return (
+    <button
+      onClick={() => navigate(section.to)}
+      className={`relative overflow-hidden rounded-2xl active:scale-[0.97] transition-all duration-150 text-left flex flex-col justify-between ${className}`}
+      style={{ background: section.gradient }}
+    >
+      {/* Shimmer diagonal */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.09] via-transparent to-transparent pointer-events-none" />
+      {/* Subtle ring */}
+      <div className="absolute inset-0 rounded-2xl ring-1 ring-white/[0.07] pointer-events-none" />
+      {/* Decorative arcs (solo en tarjeta grande) */}
+      {large && (
+        <div className="absolute -top-8 -right-8 w-40 h-40 opacity-[0.06] pointer-events-none">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="100" cy="0" r="70" stroke="white" strokeWidth="1"/>
+            <circle cx="100" cy="0" r="50" stroke="white" strokeWidth="0.8"/>
+            <circle cx="100" cy="0" r="30" stroke="white" strokeWidth="0.6"/>
+          </svg>
+        </div>
+      )}
+
+      {/* Top row: number + icon */}
+      <div className="relative flex items-start justify-between p-4 pb-0">
+        <span className="font-body text-[10px] tracking-[0.2em] text-white/20 font-light">
+          {section.number}
+        </span>
+        <span className="text-white/40 mt-0.5">{section.icon}</span>
+      </div>
+
+      {/* Bottom: label + desc */}
+      <div className="relative p-4 pt-2">
+        <p className={`font-display font-light text-white leading-tight ${large ? 'text-2xl' : 'text-lg'}`}>
+          {section.label}
+        </p>
+        <p className="font-body text-[10px] text-white/35 mt-0.5 tracking-wide leading-snug">
+          {section.desc}
+        </p>
+      </div>
+    </button>
+  )
+}
+
+export default function HomePage() {
   const { user } = useAuth()
+  const name = user?.nombre?.split(' ')[0] ?? 'Bienvenida'
+  const [closet, outfits, misOutfits, colorimetria, comprar, inspiracion, perfil] = sections
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
-      {/* Header */}
-      <header className="px-5 pt-14 pb-6">
-        <p className="text-accent text-xs font-body tracking-widest uppercase mb-1">Hola, {user?.nombre?.split(' ')[0] ?? 'Bienvenida'}</p>
-        <h1 className="font-display text-4xl font-light text-primary leading-tight">
+
+      {/* Header editorial */}
+      <header className="px-5 pt-14 pb-7">
+        <p className="font-body text-[10px] tracking-[0.28em] text-primary/35 uppercase mb-3">
+          Hola, {name}
+        </p>
+        <h1 className="font-display text-[2.8rem] font-light text-primary leading-none">
           Smart<span className="italic">Closet</span>
         </h1>
-        <p className="text-primary/40 font-body text-sm mt-1">¿Qué quieres hacer hoy?</p>
+        <div className="flex items-center gap-3 mt-4">
+          <div className="h-px flex-1 bg-primary/10" />
+          <p className="font-body text-[9px] tracking-[0.32em] text-primary/25 uppercase">
+            Guardarropa inteligente
+          </p>
+          <div className="h-px flex-1 bg-primary/10" />
+        </div>
       </header>
 
-      {/* Grid de secciones */}
-      <div className="px-4 pb-10 grid grid-cols-2 gap-3">
-        {sections.map(({ to, label, desc, color, textColor, icon }) => (
-          <button
-            key={to}
-            onClick={() => navigate(to)}
-            className="relative rounded-2xl p-5 flex flex-col gap-3 text-left active:scale-95 transition-transform shadow-sm"
-            style={{ backgroundColor: color }}
-          >
-            {icon}
-            <div>
-              <p className={`font-body font-semibold text-sm ${textColor}`}>{label}</p>
-              <p className={`font-body text-xs ${textColor} opacity-70 mt-0.5`}>{desc}</p>
-            </div>
-          </button>
-        ))}
+      {/* Grid editorial asimétrico */}
+      <div className="px-3 pb-10 flex flex-col gap-2">
+
+        {/* Fila 1: grande + vertical */}
+        <div className="grid grid-cols-3 gap-2" style={{ height: '196px' }}>
+          <Card section={closet} className="col-span-2" large />
+          <Card section={outfits} />
+        </div>
+
+        {/* Fila 2: tres iguales */}
+        <div className="grid grid-cols-3 gap-2" style={{ height: '138px' }}>
+          <Card section={misOutfits} />
+          <Card section={colorimetria} />
+          <Card section={comprar} />
+        </div>
+
+        {/* Fila 3: ancha + estrecha */}
+        <div className="grid grid-cols-3 gap-2" style={{ height: '138px' }}>
+          <Card section={inspiracion} className="col-span-2" />
+          <Card section={perfil} />
+        </div>
+
       </div>
     </div>
   )

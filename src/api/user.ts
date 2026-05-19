@@ -17,3 +17,6 @@ export const consultarColor = (pregunta: string) =>
 
 export const agregarApaleta = (color: string) =>
   client.post<{ yaExiste: boolean; perfil: import('../types').User }>('/api/user/paleta/agregar', { color })
+
+export const guardarTonosFavoritos = (tonos: string[]) =>
+  client.post<import('../types').User>('/api/user/tonos-favoritos', { tonos })

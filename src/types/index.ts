@@ -5,6 +5,7 @@ export interface User {
   temporadaColor: string | null
   paletaColores: string[] | null
   coloresEvitar: string[] | null
+  tonosFavoritos: string[] | null
 }
 
 export interface Prenda {
@@ -108,6 +109,45 @@ export interface OutfitSugerido {
   prendaFaltante?: string
   estiloClimatico?: string
   estilo: string
+}
+
+export interface OutfitMetadata {
+  score: number
+  scoreRazon: string
+  razonamiento: string
+  explicacion?: {
+    color: string
+    silueta: string
+    ocasion: string
+    temporada: string
+    mejoras?: string
+  }
+  armoniaColor?: {
+    colorScore: number
+    colorReason: string
+    coloresDominantes: string[]
+    coloresNeutros: string[]
+    coloresAcento: string[]
+  }
+  warnings: string[]
+  prendaFaltante?: string
+  estiloClimatico?: string
+}
+
+export interface OutfitGuardado {
+  id: number
+  nombre: string
+  prendas: OutfitPrenda[]
+  estilo: string
+  metadata?: OutfitMetadata
+  createdAt: string
+}
+
+export interface AnalizarLookResponse {
+  calificacion: number
+  resumen: string
+  puntosPositivos: string[]
+  sugerencias: string[]
 }
 
 export interface CapsuleResponse {

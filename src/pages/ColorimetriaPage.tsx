@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { analizarColorimetria, consultarColor, agregarApaleta } from '../api/user'
+import { analizarColorimetria, consultarColor, agregarApaleta, guardarTonosFavoritos } from '../api/user'
 import { useAuth } from '../context/AuthContext'
 import PhotoSelector from '../components/PhotoSelector'
 
-type Step = 'instrucciones' | 'upload' | 'loading' | 'resultado'
+type Step = 'instrucciones' | 'upload' | 'loading' | 'resultado' | 'tonos'
 
 export default function ColorimetriaPage() {
   const [step, setStep] = useState<Step>('instrucciones')
@@ -16,8 +16,28 @@ export default function ColorimetriaPage() {
   const [consultaRes, setConsultaRes] = useState<{ compatible: boolean; colorNombre: string; respuesta: string } | null>(null)
   const [agregando, setAgregando] = useState(false)
   const [agregado, setAgregado] = useState(false)
+  const [tonoInput, setTonoInput] = useState('')
+  const [tonos, setTonos] = useState<string[]>([])
+  const [savingTonos, setSavingTonos] = useState(false)
   const { refreshUser, user } = useAuth()
   const navigate = useNavigate()
+
+  const agregarTono = () => {
+    const t = tonoInput.trim()
+    if (t && !tonos.includes(t)) setTonos(prev => [...prev, t])
+    setTonoInput('')
+  }
+
+  const handleGuardarTonos = async () => {
+    setSavingTonos(true)
+    try {
+      if (tonos.length > 0) await guardarTonosFavoritos(tonos)
+      await refreshUser()
+      navigate('/closet', { replace: true })
+    } finally {
+      setSavingTonos(false)
+    }
+  }
 
   const handleFile = (f: File) => {
     setFile(f)
@@ -254,10 +274,65 @@ export default function ColorimetriaPage() {
             </div>
 
             <button
-              onClick={() => navigate('/closet', { replace: true })}
+              onClick={() => setStep('tonos')}
               className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl mt-2"
             >
-              Ir a mi closet →
+              Continuar →
+            </button>
+          </div>
+        )}
+
+        {/* ── Paso: tonos favoritos ── */}
+        {step === 'tonos' && (
+          <div className="flex flex-col gap-6">
+            <div className="bg-surface rounded-2xl p-5">
+              <p className="text-accent text-xs font-body tracking-widest uppercase mb-1">Último paso</p>
+              <h2 className="font-display text-2xl font-light text-primary mb-2">
+                ¿Qué tonos te gustan?
+              </h2>
+              <p className="text-primary/50 font-body text-sm leading-relaxed">
+                Agrega colores que te gusten usar, independientemente de tu colorimetría. Los tendremos en cuenta para sugerirte outfits.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={tonoInput}
+                onChange={e => setTonoInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && agregarTono()}
+                placeholder="Ej: terracota, verde oliva, camel..."
+                className="flex-1 bg-surface border border-accent/20 rounded-xl px-4 py-3 font-body text-sm text-primary placeholder:text-primary/30 outline-none focus:border-accent/50"
+              />
+              <button
+                onClick={agregarTono}
+                disabled={!tonoInput.trim()}
+                className="bg-accent text-white font-body font-medium px-4 py-3 rounded-xl text-sm disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+
+            {tonos.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {tonos.map(t => (
+                  <span
+                    key={t}
+                    className="flex items-center gap-1.5 bg-surface border border-accent/20 text-primary font-body text-sm px-3 py-1.5 rounded-full"
+                  >
+                    {t}
+                    <button onClick={() => setTonos(prev => prev.filter(x => x !== t))} className="text-primary/40 hover:text-red-400">×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={handleGuardarTonos}
+              disabled={savingTonos}
+              className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl disabled:opacity-60"
+            >
+              {savingTonos ? 'Guardando...' : tonos.length > 0 ? 'Guardar y entrar a mi closet →' : 'Saltar e ir a mi closet →'}
             </button>
           </div>
         )}

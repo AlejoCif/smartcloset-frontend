@@ -143,6 +143,22 @@ export interface OutfitGuardado {
   createdAt: string
 }
 
+export interface InspirationImage {
+  imageUrl: string
+  thumbnailUrl: string
+  titulo: string
+  fuente: string
+  sourceUrl: string
+}
+
+export interface InspirationAnalisisResponse {
+  descripcionLook: string
+  prendaIds: number[]
+  prendas: OutfitPrenda[]
+  similitud: number
+  consejo: string
+}
+
 export interface AnalizarLookResponse {
   calificacion: number
   resumen: string

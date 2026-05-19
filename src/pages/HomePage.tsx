@@ -52,23 +52,8 @@ const sections: Section[] = [
     ),
   },
   {
-    to: '/colorimetria',
-    number: '04',
-    label: 'Colorimetría',
-    desc: 'Tu paleta personal',
-    gradient: 'linear-gradient(145deg, #1E0C04 0%, #5C3010 50%, #9B5828 100%)',
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="9"/>
-        <circle cx="9" cy="10" r="2" fill="currentColor" fillOpacity="0.5"/>
-        <circle cx="15" cy="10" r="2" fill="currentColor" fillOpacity="0.5"/>
-        <circle cx="12" cy="15" r="2" fill="currentColor" fillOpacity="0.5"/>
-      </svg>
-    ),
-  },
-  {
     to: '/comprar',
-    number: '05',
+    number: '04',
     label: '¿Lo compro?',
     desc: 'Asesora de compras',
     gradient: 'linear-gradient(145deg, #080E06 0%, #1A2E10 50%, #345224 100%)',
@@ -82,7 +67,7 @@ const sections: Section[] = [
   },
   {
     to: '/inspiracion',
-    number: '06',
+    number: '05',
     label: 'Inspiración',
     desc: 'Busca looks con IA',
     gradient: 'linear-gradient(145deg, #200608 0%, #5C1418 50%, #952430 100%)',
@@ -95,7 +80,7 @@ const sections: Section[] = [
   },
   {
     to: '/perfil',
-    number: '07',
+    number: '06',
     label: 'Perfil',
     desc: 'Tu cuenta y ajustes',
     gradient: 'linear-gradient(145deg, #0C0C0C 0%, #1E1E1E 50%, #303030 100%)',
@@ -161,7 +146,7 @@ function Card({ section, className = '', large = false }: CardProps) {
 export default function HomePage() {
   const { user } = useAuth()
   const name = user?.nombre?.split(' ')[0] ?? 'Bienvenida'
-  const [closet, outfits, misOutfits, colorimetria, comprar, inspiracion, perfil] = sections
+  const [closet, outfits, misOutfits, comprar, inspiracion, perfil] = sections
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
@@ -192,10 +177,9 @@ export default function HomePage() {
           <Card section={outfits} />
         </div>
 
-        {/* Fila 2: tres iguales */}
-        <div className="grid grid-cols-3 gap-2" style={{ height: '138px' }}>
+        {/* Fila 2: dos iguales */}
+        <div className="grid grid-cols-2 gap-2" style={{ height: '138px' }}>
           <Card section={misOutfits} />
-          <Card section={colorimetria} />
           <Card section={comprar} />
         </div>
 

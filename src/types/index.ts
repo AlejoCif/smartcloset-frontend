@@ -2,6 +2,7 @@ export interface User {
   id: number
   email: string
   nombre: string
+  fotoUrl: string | null
   temporadaColor: string | null
   paletaColores: string[] | null
   coloresEvitar: string[] | null

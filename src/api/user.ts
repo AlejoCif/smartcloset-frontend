@@ -20,3 +20,11 @@ export const agregarApaleta = (color: string) =>
 
 export const guardarTonosFavoritos = (tonos: string[]) =>
   client.post<import('../types').User>('/api/user/tonos-favoritos', { tonos })
+
+export const subirFotoPerfil = (foto: File) => {
+  const form = new FormData()
+  form.append('foto', foto)
+  return client.post<import('../types').User>('/api/user/foto-perfil', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}

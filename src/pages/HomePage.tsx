@@ -79,14 +79,18 @@ export default function HomePage() {
           </p>
           <button
             onClick={() => navigate('/perfil')}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors active:scale-95"
-            style={{ backgroundColor: '#F2EBE0', border: '1px solid #D4BFA4', color: '#C4956A' }}
+            className="w-9 h-9 rounded-full overflow-hidden active:scale-95 transition-transform flex items-center justify-center"
+            style={{ border: '1px solid #D4BFA4', backgroundColor: '#F2EBE0' }}
             aria-label="Perfil"
           >
-            <svg viewBox="0 0 24 24" className="w-5 h-5" {...iconStroke}>
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
+            {user?.fotoUrl ? (
+              <img src={user.fotoUrl} alt="Perfil" className="w-full h-full object-cover" />
+            ) : (
+              <svg viewBox="0 0 24 24" className="w-5 h-5" style={{ color: '#C4956A' }} {...iconStroke}>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            )}
           </button>
         </div>
 

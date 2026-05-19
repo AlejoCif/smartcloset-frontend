@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import LoginPage from './pages/LoginPage'
+import HomePage from './pages/HomePage'
 import ColorimetriaPage from './pages/ColorimetriaPage'
 import ClosetPage from './pages/ClosetPage'
 import AgregarPrendaPage from './pages/AgregarPrendaPage'
@@ -42,6 +43,7 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/" element={<HomePage />} />
       <Route path="/closet" element={<ClosetPage />} />
       <Route path="/closet/agregar" element={<AgregarPrendaPage />} />
       <Route path="/outfits" element={<OutfitsPage />} />
@@ -50,7 +52,7 @@ function AppRoutes() {
       <Route path="/mis-outfits" element={<MisOutfitsPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
       <Route path="/colorimetria" element={<ColorimetriaPage />} />
-      <Route path="*" element={<Navigate to="/closet" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

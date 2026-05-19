@@ -65,6 +65,7 @@ export interface SugerirRequest {
   evento?: EventoInput
   useMultimodal?: boolean
   prendaIdsExcluir?: number[]
+  prendaAnclaId?: number;
 }
 
 export interface GrupoVisual {

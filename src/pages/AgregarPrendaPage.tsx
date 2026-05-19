@@ -157,9 +157,21 @@ export default function AgregarPrendaPage() {
               </div>
             </div>
 
+            {error && (
+              <p className="text-red-500 text-sm font-body bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
+            )}
+
+            <button
+              onClick={handleGuardar}
+              disabled={saving}
+              className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl disabled:opacity-60"
+            >
+              {saving ? 'Guardando...' : 'Guardar en mi closet'}
+            </button>
+
             <div>
               <p className="text-primary/50 text-xs font-body tracking-widest uppercase mb-3">
-                ¿No es correcto? Selecciona la categoría
+                ¿No es correcto? Cambia la categoría
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {CATEGORIAS.map((cat) => (
@@ -177,18 +189,6 @@ export default function AgregarPrendaPage() {
                 ))}
               </div>
             </div>
-
-            {error && (
-              <p className="text-red-500 text-sm font-body bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
-            )}
-
-            <button
-              onClick={handleGuardar}
-              disabled={saving}
-              className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl disabled:opacity-60"
-            >
-              {saving ? 'Guardando...' : 'Guardar en mi closet'}
-            </button>
           </div>
         )}
       </div>

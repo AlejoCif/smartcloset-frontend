@@ -103,7 +103,14 @@ export default function ClosetPage() {
                   <p className="font-body text-xs font-medium text-primary truncate">
                     {CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria}
                   </p>
-                  <p className="font-body text-xs text-primary/40 truncate">{prenda.colorPrincipal}</p>
+                  <p className="font-body text-xs text-primary/40 truncate mb-2">{prenda.colorPrincipal}</p>
+                  <button
+                    onClick={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
+                    className="w-full flex items-center justify-center gap-1.5 bg-accent/10 hover:bg-accent/20 text-accent font-body font-medium text-xs py-1.5 rounded-lg transition-colors"
+                  >
+                    <span>✨</span>
+                    <span>Crear outfit</span>
+                  </button>
                 </div>
 
                 {/* Botón eliminar */}

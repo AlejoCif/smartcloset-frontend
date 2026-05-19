@@ -2,8 +2,11 @@ import axios from 'axios'
 
 // En dev: vacío → el proxy de Vite redirige /api → localhost:8080
 // En producción: VITE_API_URL apunta al backend en Railway
+const rawUrl = import.meta.env.VITE_API_URL ?? ''
+const baseURL = rawUrl && !rawUrl.startsWith('http') ? `https://${rawUrl}` : rawUrl
+
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '',
+  baseURL,
   timeout: 30000,
 })
 

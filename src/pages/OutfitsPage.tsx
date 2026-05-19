@@ -4,6 +4,7 @@ import { sugerirOutfitsAvanzado, guardarOutfit, getOutfits, getCapsule, eliminar
 import Layout from '../components/Layout'
 import LoadingSpinner from '../components/LoadingSpinner'
 import PhotoSelector from '../components/PhotoSelector'
+import ImageModal from '../components/ImageModal'
 import type { OutfitSugerido, OutfitGuardado, CapsuleResponse, Estilo, SugerirRequest, AnalizarLookResponse } from '../types'
 import { ESTILOS, CATEGORIA_LABELS } from '../types'
 
@@ -22,9 +23,10 @@ function ScoreBadge({ score }: { score: number }) {
   )
 }
 
-function GrupoSection({ titulo, prendas }: {
+function GrupoSection({ titulo, prendas, onImgClick }: {
   titulo: string
   prendas: { id: number; fotoUrl: string; categoria: string }[]
+  onImgClick?: (src: string) => void
 }) {
   if (!prendas.length) return null
   return (
@@ -32,7 +34,10 @@ function GrupoSection({ titulo, prendas }: {
       <p className="text-[10px] font-body text-primary/40 tracking-widest uppercase mb-1.5">{titulo}</p>
       <div className="flex gap-2 flex-wrap">
         {prendas.map(p => (
-          <div key={p.id} className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-surface flex-shrink-0">
+          <div key={p.id}
+            className={`w-16 h-16 rounded-xl overflow-hidden bg-white border border-surface flex-shrink-0 ${onImgClick ? 'cursor-zoom-in' : ''}`}
+            onClick={() => onImgClick?.(p.fotoUrl)}
+          >
             <img src={p.fotoUrl} alt={CATEGORIA_LABELS[p.categoria] ?? p.categoria} className="w-full h-full object-cover" />
           </div>
         ))}
@@ -49,6 +54,7 @@ function OutfitSugeridoCard({
   saving: boolean
 }) {
   const [expandido, setExpandido] = useState(false)
+  const [modalImg, setModalImg] = useState<string | null>(null)
   const g = outfit.grupoVisual
 
   return (
@@ -81,14 +87,16 @@ function OutfitSugeridoCard({
         </div>
       )}
 
+      {modalImg && <ImageModal src={modalImg} onClose={() => setModalImg(null)} />}
+
       <div className="flex flex-col gap-3">
-        <GrupoSection titulo="Superior" prendas={g.parteSuperior} />
-        <GrupoSection titulo="Inferior" prendas={g.parteInferior} />
-        <GrupoSection titulo="Calzado" prendas={g.calzado} />
-        <GrupoSection titulo="Abrigo" prendas={g.abrigo} />
-        <GrupoSection titulo="Accesorios" prendas={g.accesorios} />
-        <GrupoSection titulo="Bolso" prendas={g.bolso} />
-        <GrupoSection titulo="Opcionales" prendas={g.opcionales} />
+        <GrupoSection titulo="Superior" prendas={g.parteSuperior} onImgClick={setModalImg} />
+        <GrupoSection titulo="Inferior" prendas={g.parteInferior} onImgClick={setModalImg} />
+        <GrupoSection titulo="Calzado" prendas={g.calzado} onImgClick={setModalImg} />
+        <GrupoSection titulo="Abrigo" prendas={g.abrigo} onImgClick={setModalImg} />
+        <GrupoSection titulo="Accesorios" prendas={g.accesorios} onImgClick={setModalImg} />
+        <GrupoSection titulo="Bolso" prendas={g.bolso} onImgClick={setModalImg} />
+        <GrupoSection titulo="Opcionales" prendas={g.opcionales} onImgClick={setModalImg} />
       </div>
 
       <div className="bg-white/60 rounded-xl px-3 py-2.5 flex items-center justify-between">
@@ -270,6 +278,7 @@ function CapsuleSection({ titulo, emoji, children }: {
 
 function OutfitGuardadoCard({ outfit, onEliminar }: { outfit: OutfitGuardado; onEliminar: () => void }) {
   const [expandido, setExpandido] = useState(false)
+  const [modalImg, setModalImg] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [chatMsg, setChatMsg] = useState('')
@@ -315,10 +324,13 @@ function OutfitGuardadoCard({ outfit, onEliminar }: { outfit: OutfitGuardado; on
         </div>
       </div>
 
+      {modalImg && <ImageModal src={modalImg} onClose={() => setModalImg(null)} />}
+
       {/* Fotos */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar">
         {outfit.prendas.map(p => (
-          <div key={p.id} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white">
+          <div key={p.id} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-white cursor-zoom-in"
+               onClick={() => setModalImg(p.fotoUrl)}>
             <img src={p.fotoUrl} alt={CATEGORIA_LABELS[p.categoria] ?? p.categoria} className="w-full h-full object-cover" />
           </div>
         ))}

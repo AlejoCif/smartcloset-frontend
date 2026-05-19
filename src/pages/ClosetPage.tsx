@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getPrendas, deletePrenda } from '../api/prendas'
 import Layout from '../components/Layout'
 import LoadingSpinner from '../components/LoadingSpinner'
+import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
 import { FILTROS_CATEGORIA, CATEGORIA_LABELS } from '../types'
 
@@ -13,6 +14,7 @@ export default function ClosetPage() {
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+  const [modalImg, setModalImg] = useState<{ src: string; alt: string } | null>(null)
   const navigate = useNavigate()
 
   const cargar = useCallback(async () => {
@@ -92,7 +94,10 @@ export default function ClosetPage() {
           <div className="grid grid-cols-2 gap-3">
             {prendas.map((prenda) => (
               <div key={prenda.id} className="relative group">
-                <div className="bg-surface rounded-2xl overflow-hidden aspect-square">
+                <div
+                  className="bg-surface rounded-2xl overflow-hidden aspect-square cursor-zoom-in"
+                  onClick={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
+                >
                   <img
                     src={prenda.fotoUrl}
                     alt={CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria}
@@ -138,6 +143,8 @@ export default function ClosetPage() {
           <path d="M12 5v14M5 12h14" />
         </svg>
       </button>
+
+      {modalImg && <ImageModal src={modalImg.src} alt={modalImg.alt} onClose={() => setModalImg(null)} />}
 
       {/* Modal confirmar eliminación */}
       {confirmDelete !== null && (

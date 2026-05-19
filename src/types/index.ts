@@ -143,6 +143,16 @@ export interface OutfitGuardado {
   createdAt: string
 }
 
+export interface MiOutfitItem {
+  id: number
+  fotoUrl: string
+  calificacion: number
+  resumen: string
+  puntosPositivos: string[]
+  sugerencias: string[]
+  createdAt: string
+}
+
 export interface AnalizarCompraResponse {
   fotoUrl: string
   veredicto: 'NECESARIO' | 'UTIL' | 'INNECESARIO' | 'NO_RECOMENDADO'

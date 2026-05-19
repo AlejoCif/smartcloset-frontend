@@ -5,3 +5,6 @@ export const register = (email: string, password: string, nombre: string) =>
 
 export const login = (email: string, password: string) =>
   client.post<{ token: string }>('/api/auth/login', { email, password })
+
+export const loginConGoogle = (idToken: string) =>
+  client.post<{ token: string }>('/api/auth/google', { idToken })

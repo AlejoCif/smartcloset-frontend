@@ -1,0 +1,18 @@
+{
+  "name": "SmartCloset",
+  "short_name": "SmartCloset",
+  "description": "Tu guardarropa inteligente con IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#4A3420",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

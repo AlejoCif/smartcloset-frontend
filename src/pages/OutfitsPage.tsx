@@ -25,8 +25,9 @@ function useWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null)
 
   const fetchWeather = async (lat: number, lon: number) => {
+    const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY
     try {
-      const res  = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=da0514c8a157c1d39296b5ff6fc58f49&units=metric&lang=es`)
+      const res  = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`)
       const data = await res.json()
       const desc = data.weather?.[0]?.description ?? ''
       const icon = /lluvia|rain|drizzle/i.test(desc) ? '🌧️'

@@ -1,99 +1,91 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-// ── Iconos ───────────────────────────────────────────────────
-const s = { fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+// ── SVG Icons ────────────────────────────────────────────────
+const sk = { fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
 
-function IconHome({ size = 22, color = 'currentColor' }) {
+function IcHome({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...s} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
       <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
       <path d="M9 21V12h6v9"/>
     </svg>
   )
 }
-function IconHanger({ size = 22, color = 'currentColor' }) {
+function IcHanger({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...s} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
       <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
     </svg>
   )
 }
-function IconSparkles({ size = 22, color = 'currentColor' }) {
+function IcSparkles({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...s} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
       <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/>
       <path d="M19 3l.8 2.2L22 6l-2.2.8L19 9l-.8-2.2L16 6l2.2-.8z"/>
-      <path d="M5 17l.6 1.4L7 19l-1.4.6L5 21l-.6-1.4L3 19l1.4-.6z"/>
+      <path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5z"/>
     </svg>
   )
 }
-function IconHeart({ size = 22, color = 'currentColor' }) {
+function IcHeart({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...s} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
     </svg>
   )
 }
-function IconBag({ size = 22, color = 'currentColor' }) {
+function IcBag({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...s} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
       <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
       <line x1="3" y1="6" x2="21" y2="6" stroke={color} strokeWidth="1.5"/>
       <path d="M16 10a4 4 0 0 1-8 0"/>
     </svg>
   )
 }
-function IconMenu({ size = 22, color = 'currentColor' }) {
+function IcMenu({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...s} stroke={color}>
-      <line x1="3" y1="6" x2="21" y2="6" stroke={color} strokeWidth="1.5"/>
-      <line x1="3" y1="12" x2="21" y2="12" stroke={color} strokeWidth="1.5"/>
-      <line x1="3" y1="18" x2="15" y2="18" stroke={color} strokeWidth="1.5"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round">
+      <line x1="3" y1="6"  x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="15" y2="18"/>
+    </svg>
+  )
+}
+function IcChart({ size = 20, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 20V10M12 20V4M6 20v-6"/>
     </svg>
   )
 }
 
 // ── Bottom Nav ───────────────────────────────────────────────
-const navItems = [
-  { to: '/home',      label: 'Inicio',   Icon: IconHome },
-  { to: '/closet',    label: 'Closet',   Icon: IconHanger },
-  { to: '/outfits',   label: 'IA',       Icon: IconSparkles },
-  { to: '/mis-outfits', label: 'Looks',  Icon: IconHeart },
-  { to: '/comprar',   label: 'Compras',  Icon: IconBag },
+const NAV = [
+  { to: '/home',        label: 'Inicio',  Icon: IcHome },
+  { to: '/closet',      label: 'Closet',  Icon: IcHanger },
+  { to: '/outfits',     label: 'IA',      Icon: IcSparkles },
+  { to: '/mis-outfits', label: 'Looks',   Icon: IcHeart },
+  { to: '/comprar',     label: 'Compras', Icon: IcBag },
 ]
 
 function BottomNav() {
-  const navigate = useNavigate()
-  const location = useLocation()
-
+  const navigate  = useNavigate()
+  const { pathname } = useLocation()
   return (
     <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50"
-      style={{
-        width: '100%',
-        maxWidth: '430px',
-        backgroundColor: '#fff',
-        borderTop: '1px solid #F0EBE3',
-        paddingBottom: 'env(safe-area-inset-bottom, 12px)',
-      }}
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full"
+      style={{ maxWidth: '430px', backgroundColor: '#fff', borderTop: '1px solid #EDE8E1', paddingBottom: 'env(safe-area-inset-bottom, 10px)' }}
     >
-      <div className="flex items-center justify-around pt-2 pb-1">
-        {navItems.map(({ to, label, Icon }) => {
-          const active = location.pathname === to
+      <div className="flex justify-around items-center pt-2 pb-1">
+        {NAV.map(({ to, label, Icon }) => {
+          const active = pathname === to
+          const col = active ? '#C4956A' : '#9E9690'
           return (
-            <button
-              key={to}
-              onClick={() => navigate(to)}
-              className="flex flex-col items-center gap-0.5 px-4 py-1 transition-all active:scale-90"
-            >
-              <Icon size={22} color={active ? '#C4956A' : '#9E9690'} />
-              <span
-                className="font-body text-[10px] font-medium tracking-wide"
-                style={{ color: active ? '#C4956A' : '#9E9690' }}
-              >
-                {label}
-              </span>
+            <button key={to} onClick={() => navigate(to)} className="flex flex-col items-center gap-0.5 px-3 py-1 active:scale-90 transition-transform">
+              <Icon size={22} color={col} />
+              <span style={{ fontSize: '10px', color: col, fontFamily: 'Jost, sans-serif', fontWeight: active ? 600 : 400 }}>{label}</span>
             </button>
           )
         })}
@@ -102,242 +94,233 @@ function BottomNav() {
   )
 }
 
-// ── HomePage ─────────────────────────────────────────────────
-export default function HomePage() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const name = user?.nombre?.split(' ')[0] ?? 'Bienvenida'
-  const initial = user?.nombre?.charAt(0).toUpperCase() ?? '?'
-
-  return (
-    <div
-      className="flex flex-col mx-auto"
-      style={{ backgroundColor: '#FAF7F2', maxWidth: '430px', minHeight: '100vh', paddingBottom: '88px' }}
-    >
-
-      {/* ── Header ─────────────────────────────────────────── */}
-      <header className="flex items-center justify-between px-4 pt-12 pb-4">
-        <button className="w-10 h-10 flex items-center justify-center rounded-xl" style={{ backgroundColor: '#F2EBE0' }}>
-          <IconMenu size={20} color="#4A3420" />
-        </button>
-
-        <button onClick={() => navigate('/perfil')} className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center active:scale-95 transition-transform" style={{ border: '2px solid #D4BFA4' }}>
-          {user?.fotoUrl
-            ? <img src={user.fotoUrl} alt="Perfil" className="w-full h-full object-cover" />
-            : <span className="font-display text-lg" style={{ color: '#C4956A', backgroundColor: '#F2EBE0', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{initial}</span>
-          }
-        </button>
-      </header>
-
-      {/* ── Saludo ─────────────────────────────────────────── */}
-      <div className="px-4 pb-5">
-        <p className="font-body text-sm font-medium mb-0.5" style={{ color: '#C4956A' }}>
-          Hola, {name} 👋
-        </p>
-        <h1 className="font-display font-light leading-none mb-1" style={{ fontSize: '2.4rem', color: '#1A1A1A' }}>
-          Smart<span className="italic">Closet</span>
-        </h1>
-        <p className="font-body text-sm" style={{ color: '#9E9690' }}>
-          Tu guardarropa inteligente ✨
-        </p>
-      </div>
-
-      <div className="px-4 flex flex-col gap-3">
-
-        {/* ── Card principal — Mi Closet ──────────────────── */}
-        <button
-          onClick={() => navigate('/closet')}
-          className="relative overflow-hidden w-full active:scale-[0.98] transition-transform"
-          style={{ borderRadius: '20px', height: '220px' }}
-        >
-          {/* Imagen de fondo */}
-          <img
-            src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800"
-            alt="Mi Closet"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          {/* Overlay gradiente */}
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to right, rgba(15,8,3,0.82) 0%, rgba(15,8,3,0.35) 70%, rgba(15,8,3,0.1) 100%)' }}
-          />
-
-          {/* Contenido izquierdo */}
-          <div className="absolute inset-0 flex flex-col justify-between p-5">
-            <div>
-              <p className="font-body text-xs tracking-widest uppercase mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                01 · Mi Closet
-              </p>
-              <h2 className="font-display font-light text-white leading-tight" style={{ fontSize: '1.9rem' }}>
-                Mi Closet
-              </h2>
-              <p className="font-body text-xs leading-relaxed mt-2 max-w-[180px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                Tus prendas organizadas y siempre a tu alcance.
-              </p>
-            </div>
-
-            <div className="flex items-end justify-between">
-              <div
-                className="flex items-center gap-2 px-4 py-2 rounded-full"
-                style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
-              >
-                <span className="font-body text-white text-xs font-medium">Ver mi closet</span>
-                <span className="text-white text-sm">→</span>
-              </div>
-
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
-              >
-                <IconHanger size={18} color="white" />
-              </div>
-            </div>
-          </div>
-        </button>
-
-        {/* ── Grid 2×2 ───────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-3">
-
-          {/* Outfits IA */}
-          <MediumCard
-            to="/outfits"
-            num="02"
-            title="Outfits IA"
-            desc="Crea combinaciones perfectas con IA"
-            imgSrc="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400"
-            icon={<IconSparkles size={16} color="white" />}
-          />
-
-          {/* Mis Looks */}
-          <MediumCard
-            to="/mis-outfits"
-            num="03"
-            title="Mis Looks"
-            desc="Guarda y califica tus outfits"
-            imgSrc="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400"
-            icon={<IconHeart size={16} color="white" />}
-          />
-
-          {/* ¿Lo compro? */}
-          <MediumCard
-            to="/comprar"
-            num="04"
-            title="¿Lo compro?"
-            desc="Asesora de compras inteligente"
-            imgSrc="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400"
-            icon={<IconBag size={16} color="white" />}
-          />
-
-          {/* Inspiración */}
-          <MediumCard
-            to="/inspiracion"
-            num="05"
-            title="Inspiración"
-            desc="Descubre looks con IA"
-            imgSrc="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400"
-            icon={<IconSparkles size={16} color="white" />}
-          />
-        </div>
-
-        {/* ── Banner resumen ──────────────────────────────── */}
-        <button
-          onClick={() => navigate('/outfits')}
-          className="w-full flex items-center justify-between px-4 py-4 active:scale-[0.98] transition-transform"
-          style={{ backgroundColor: '#F2EBE0', border: '1px solid #D4BFA4', borderRadius: '16px' }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: 'rgba(196,149,106,0.15)' }}
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#C4956A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 20V10M12 20V4M6 20v-6"/>
-              </svg>
-            </div>
-            <div className="text-left">
-              <p className="font-body text-sm font-semibold" style={{ color: '#1A1A1A' }}>Tu resumen de hoy</p>
-              <p className="font-body text-xs" style={{ color: '#9E9690' }}>Descubre insights de tu closet</p>
-            </div>
-          </div>
-          <span
-            className="font-body text-xs font-medium px-3 py-1.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: '#C4956A', color: '#fff' }}
-          >
-            Ver →
-          </span>
-        </button>
-
-      </div>
-
-      {/* ── Bottom Nav ─────────────────────────────────────── */}
-      <BottomNav />
-    </div>
-  )
-}
-
-// ── Card mediana del grid ────────────────────────────────────
-function MediumCard({
-  to, num, title, desc, imgSrc, icon,
-}: {
+// ── Card pequeña del grid ────────────────────────────────────
+interface SmallCardProps {
   to: string
   num: string
   title: string
   desc: string
   imgSrc: string
   icon: React.ReactNode
-}) {
-  const navigate = useNavigate()
+}
 
+function SmallCard({ to, num, title, desc, imgSrc, icon }: SmallCardProps) {
+  const navigate = useNavigate()
   return (
     <button
       onClick={() => navigate(to)}
-      className="relative flex flex-col justify-between overflow-hidden text-left active:scale-[0.97] transition-transform"
-      style={{
-        backgroundColor: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
-        height: '170px',
-        padding: '14px',
-      }}
+      className="active:scale-[0.97] transition-transform text-left"
+      style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 14px rgba(0,0,0,0.07)', display: 'flex', height: '170px' }}
     >
-      {/* Imagen decorativa derecha */}
-      <div className="absolute right-0 top-0 bottom-0 w-[50%] overflow-hidden" style={{ borderRadius: '0 16px 16px 0' }}>
-        <img src={imgSrc} alt={title} className="w-full h-full object-cover" />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to right, #fff 0%, rgba(255,255,255,0.3) 60%, rgba(255,255,255,0) 100%)' }}
-        />
-      </div>
+      {/* Lado izquierdo: texto */}
+      <div
+        style={{
+          flex: '0 0 58%',
+          backgroundColor: '#fff',
+          padding: '12px 10px 12px 12px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', color: '#C9BFB5', letterSpacing: '0.12em' }}>{num}</span>
 
-      {/* Contenido */}
-      <div className="relative flex flex-col justify-between h-full z-10">
-        {/* Parte superior: número + ícono */}
-        <div className="flex items-start justify-between">
-          <span className="font-body text-[10px] tracking-widest" style={{ color: '#9E9690' }}>{num}</span>
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: '#C4956A' }}
-          >
-            {icon}
-          </div>
-        </div>
-
-        {/* Parte inferior: título + desc + flecha */}
-        <div>
-          <p className="font-display font-light leading-tight mb-1" style={{ fontSize: '1.15rem', color: '#1A1A1A' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', fontWeight: 400, color: '#1A1A1A', lineHeight: 1.15 }}>
             {title}
           </p>
-          <p className="font-body leading-snug mb-3" style={{ fontSize: '10px', color: '#9E9690' }}>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', lineHeight: 1.35 }}>
             {desc}
           </p>
-          <div
-            className="w-6 h-6 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: '#C4956A' }}
-          >
-            <span className="text-white font-body" style={{ fontSize: '11px', lineHeight: 1 }}>→</span>
-          </div>
+        </div>
+
+        {/* Flecha cobre */}
+        <div style={{ width: '26px', height: '26px', backgroundColor: '#C4956A', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ color: '#fff', fontSize: '12px', lineHeight: 1, marginTop: '1px' }}>→</span>
+        </div>
+      </div>
+
+      {/* Lado derecho: imagen + ícono */}
+      <div style={{ flex: '0 0 42%', position: 'relative' }}>
+        <img src={imgSrc} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        {/* Ícono arriba derecha */}
+        <div style={{
+          position: 'absolute', top: '10px', right: '10px',
+          width: '32px', height: '32px', backgroundColor: '#C4956A',
+          borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(196,149,106,0.4)',
+        }}>
+          {icon}
         </div>
       </div>
     </button>
+  )
+}
+
+// ── HomePage principal ───────────────────────────────────────
+export default function HomePage() {
+  const navigate = useNavigate()
+  const { user }  = useAuth()
+  const name    = user?.nombre?.split(' ')[0] ?? 'Bienvenida'
+  const initial = user?.nombre?.charAt(0).toUpperCase() ?? '?'
+
+  return (
+    <div style={{ backgroundColor: '#FAF7F2', maxWidth: '430px', margin: '0 auto', minHeight: '100vh', paddingBottom: '80px' }}>
+
+      {/* ── Header ─────────────────────────────────────────── */}
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '52px 16px 8px' }}>
+        <button
+          style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
+        >
+          <IcMenu size={20} color="#4A3420" />
+        </button>
+
+        {/* Avatar */}
+        <button
+          onClick={() => navigate('/perfil')}
+          style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #D4BFA4', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          {user?.fotoUrl
+            ? <img src={user.fotoUrl} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', color: '#fff', backgroundColor: '#C4956A', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {initial}
+              </span>
+          }
+        </button>
+      </header>
+
+      {/* ── Saludo ─────────────────────────────────────────── */}
+      <div style={{ padding: '4px 16px 20px' }}>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, color: '#C4956A', marginBottom: '2px' }}>
+          Hola, {name} 👋
+        </p>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '38px', fontWeight: 400, color: '#1A1A1A', lineHeight: 1, margin: '0 0 4px' }}>
+          Smart<span style={{ fontStyle: 'italic' }}>Closet</span>
+        </h1>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690' }}>
+          Tu guardarropa inteligente ✨
+        </p>
+      </div>
+
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+        {/* ── Card principal Mi Closet ────────────────────── */}
+        <button
+          onClick={() => navigate('/closet')}
+          className="active:scale-[0.98] transition-transform"
+          style={{ borderRadius: '20px', overflow: 'hidden', height: '220px', display: 'flex', width: '100%', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          {/* Mitad izquierda: fondo oscuro + texto */}
+          <div style={{
+            flex: '0 0 50%', backgroundColor: '#3D2B1F',
+            padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          }}>
+            <div>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', marginBottom: '10px' }}>01 · CLOSET</p>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: 400, color: '#fff', lineHeight: 1.1, marginBottom: '8px' }}>
+                Mi Closet
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.45 }}>
+                Tus prendas organizadas y siempre a tu alcance.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: '20px',
+              padding: '7px 14px', alignSelf: 'flex-start',
+            }}>
+              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500, color: '#fff' }}>Ver mi closet →</span>
+            </div>
+          </div>
+
+          {/* Mitad derecha: imagen */}
+          <div style={{ flex: '0 0 50%', position: 'relative' }}>
+            <img
+              src="https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=400&q=80"
+              alt="Mi Closet"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+            {/* Ícono percha */}
+            <div style={{
+              position: 'absolute', bottom: '14px', right: '14px',
+              width: '36px', height: '36px', backgroundColor: 'rgba(255,255,255,0.92)',
+              borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            }}>
+              <IcHanger size={18} color="#3D2B1F" />
+            </div>
+          </div>
+        </button>
+
+        {/* ── Grid 2×2 ───────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <SmallCard
+            to="/outfits"
+            num="02"
+            title="Outfits IA"
+            desc="Crea combinaciones perfectas con IA"
+            imgSrc="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80"
+            icon={<IcSparkles size={15} color="white" />}
+          />
+          <SmallCard
+            to="/mis-outfits"
+            num="03"
+            title="Mis Looks"
+            desc="Guarda y califica tus outfits"
+            imgSrc="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80"
+            icon={<IcHeart size={15} color="white" />}
+          />
+          <SmallCard
+            to="/comprar"
+            num="04"
+            title="¿Lo compro?"
+            desc="Asesora de compras inteligente"
+            imgSrc="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&q=80"
+            icon={<IcBag size={15} color="white" />}
+          />
+          <SmallCard
+            to="/inspiracion"
+            num="05"
+            title="Inspiración"
+            desc="Descubre looks con IA"
+            imgSrc="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&q=80"
+            icon={<IcSparkles size={15} color="white" />}
+          />
+        </div>
+
+        {/* ── Banner resumen ──────────────────────────────── */}
+        <button
+          onClick={() => navigate('/outfits')}
+          className="active:scale-[0.98] transition-transform"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            backgroundColor: '#F2EBE0', borderRadius: '14px', padding: '14px 16px',
+            border: '1px solid #D9CEBF', width: '100%', cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', backgroundColor: 'rgba(196,149,106,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <IcChart size={18} color="#C4956A" />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>Tu resumen de hoy</p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: 0 }}>Descubre insights de tu closet</p>
+            </div>
+          </div>
+          <span style={{
+            fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
+            color: '#fff', backgroundColor: '#C4956A', borderRadius: '20px',
+            padding: '7px 14px', flexShrink: 0,
+          }}>
+            Ver insights →
+          </span>
+        </button>
+
+      </div>
+
+      {/* ── Bottom Navigation ──────────────────────────────── */}
+      <BottomNav />
+    </div>
   )
 }

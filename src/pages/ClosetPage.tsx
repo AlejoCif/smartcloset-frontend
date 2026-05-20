@@ -161,14 +161,15 @@ function PrendaCard({
 
 // ── ClosetPage ───────────────────────────────────────────────
 export default function ClosetPage() {
-  const [prendas,       setPrendas]       = useState<Prenda[]>([])
-  const [filtro,        setFiltro]        = useState('')
-  const [loading,       setLoading]       = useState(true)
-  const [error,         setError]         = useState('')
-  const [deletingId,    setDeletingId]    = useState<number | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [modalImg,      setModalImg]      = useState<{ src: string; alt: string } | null>(null)
-  const [favoritos,     setFavoritos]     = useState<Set<number>>(new Set())
+  const [prendas,         setPrendas]         = useState<Prenda[]>([])
+  const [filtro,          setFiltro]          = useState('')
+  const [categoriaActiva, setCategoriaActiva] = useState<string | null>(null)
+  const [loading,         setLoading]         = useState(true)
+  const [error,           setError]           = useState('')
+  const [deletingId,      setDeletingId]      = useState<number | null>(null)
+  const [confirmDelete,   setConfirmDelete]   = useState<number | null>(null)
+  const [modalImg,        setModalImg]        = useState<{ src: string; alt: string } | null>(null)
+  const [favoritos,       setFavoritos]       = useState<Set<number>>(new Set())
   const navigate = useNavigate()
 
   const cargar = useCallback(async () => {
@@ -253,7 +254,7 @@ export default function ClosetPage() {
           return (
             <button
               key={value}
-              onClick={() => setFiltro(value)}
+              onClick={() => { setFiltro(value); setCategoriaActiva(null) }}
               style={{
                 flexShrink: 0,
                 fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
@@ -354,35 +355,83 @@ export default function ClosetPage() {
           </div>
         )}
 
-        {/* Vista agrupada — cuando filtro es "Todo" */}
-        {!loading && prendas.length > 0 && filtro === '' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-            {agruparPorCategoria(prendas).map(([cat, items]) => (
-              <div key={cat}>
-                {/* Cabecera de categoría */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 400, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>
-                    {CATEGORIA_LABELS[cat] ?? cat}
-                  </h3>
-                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: '#9E9690', backgroundColor: '#F2EBE0', padding: '3px 10px', borderRadius: '20px' }}>
-                    {items.length}
-                  </span>
-                </div>
-                {/* Grid de la categoría */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  {items.map(prenda => (
-                    <PrendaCard
-                      key={prenda.id}
-                      prenda={prenda}
-                      favorito={favoritos.has(prenda.id)}
-                      onToggleFav={() => toggleFav(prenda.id)}
-                      onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
-                      onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
-                      onEliminar={() => setConfirmDelete(prenda.id)}
-                    />
-                  ))}
-                </div>
+        {/* Vista de cajas por categoría — "Todo" sin categoría activa */}
+        {!loading && prendas.length > 0 && filtro === '' && categoriaActiva === null && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            {agruparPorCategoria(prendas).map(([cat, items]) => {
+              const preview = items.slice(0, 4)
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setCategoriaActiva(cat)}
+                  style={{ border: 'none', cursor: 'pointer', padding: 0, borderRadius: '16px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column' }}
+                >
+                  {/* Mosaico de fotos */}
+                  <div style={{ height: '110px', display: 'grid', gridTemplateColumns: preview.length >= 2 ? '1fr 1fr' : '1fr', gridTemplateRows: preview.length >= 3 ? '1fr 1fr' : '1fr', gap: '2px', overflow: 'hidden' }}>
+                    {preview.map((p, i) => (
+                      <div key={i} style={{ overflow: 'hidden', backgroundColor: '#F2EBE0' }}>
+                        <img src={p.fotoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      </div>
+                    ))}
+                    {/* Relleno si hay menos de 4 fotos */}
+                    {Array.from({ length: Math.max(0, (preview.length >= 3 ? 4 : preview.length >= 2 ? 2 : 1) - preview.length) }).map((_, i) => (
+                      <div key={`empty-${i}`} style={{ backgroundColor: '#F2EBE0' }} />
+                    ))}
+                  </div>
+                  {/* Info */}
+                  <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', fontWeight: 400, color: '#1A1A1A', margin: 0, lineHeight: 1.2, textAlign: 'left' }}>
+                      {CATEGORIA_LABELS[cat] ?? cat}
+                    </p>
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: '#9E9690', backgroundColor: '#F2EBE0', padding: '2px 8px', borderRadius: '20px', flexShrink: 0 }}>
+                      {items.length}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Vista de fotos dentro de una categoría */}
+        {!loading && prendas.length > 0 && filtro === '' && categoriaActiva !== null && (() => {
+          const items = prendas.filter(p => p.categoria === categoriaActiva)
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Cabecera de la categoría con botón volver */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  onClick={() => setCategoriaActiva(null)}
+                  style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 12H5M12 5l-7 7 7 7"/>
+                  </svg>
+                </button>
+                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 400, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>
+                  {CATEGORIA_LABELS[categoriaActiva] ?? categoriaActiva}
+                </h3>
+                <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: '#9E9690', backgroundColor: '#F2EBE0', padding: '3px 10px', borderRadius: '20px' }}>
+                  {items.length}
+                </span>
               </div>
+              {/* Grid de prendas */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {items.map(prenda => (
+                  <PrendaCard
+                    key={prenda.id}
+                    prenda={prenda}
+                    favorito={favoritos.has(prenda.id)}
+                    onToggleFav={() => toggleFav(prenda.id)}
+                    onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
+                    onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
+                    onEliminar={() => setConfirmDelete(prenda.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )
+        })()}
             ))}
           </div>
         )}

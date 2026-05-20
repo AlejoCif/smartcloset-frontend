@@ -1,21 +1,32 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analizarPrenda, confirmarPrenda } from '../api/prendas'
 import type { AnalisisPrenda } from '../types'
 import { CATEGORIAS, CATEGORIA_LABELS } from '../types'
 import PhotoSelector from '../components/PhotoSelector'
+import PhotoGuide from '../components/PhotoGuide'
 
-type Step = 'guia' | 'upload' | 'loading' | 'confirmacion'
+const GUIDE_KEY = 'photoGuideShown'
+
+type Step = 'upload' | 'loading' | 'confirmacion'
 
 export default function AgregarPrendaPage() {
-  const [step, setStep] = useState<Step>('guia')
+  const [step, setStep] = useState<Step>('upload')
   const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [analisis, setAnalisis] = useState<AnalisisPrenda | null>(null)
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  // Muestra la guía automáticamente la primera vez
+  const [showGuide, setShowGuide] = useState(() => !localStorage.getItem(GUIDE_KEY))
   const navigate = useNavigate()
+  const photoSelectorRef = useRef<{ openCamera: () => void; openGallery: () => void } | null>(null)
+
+  const handleGuideConfirm = () => {
+    localStorage.setItem(GUIDE_KEY, '1')
+    setShowGuide(false)
+  }
 
   const handleFile = (f: File) => {
     setFile(f)
@@ -61,37 +72,48 @@ export default function AgregarPrendaPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
-      <header className="sticky top-0 z-30 bg-background border-b border-surface px-5 py-4 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="text-primary/60 hover:text-primary p-1">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
-        </button>
-        <h1 className="font-display text-2xl font-light text-primary">Agregar prenda</h1>
+
+      {/* Modal guía */}
+      {showGuide && (
+        <PhotoGuide
+          onConfirm={handleGuideConfirm}
+          onClose={handleGuideConfirm}
+        />
+      )}
+
+      <header className="sticky top-0 z-30 bg-background border-b border-surface px-5 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="text-primary/60 hover:text-primary p-1">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+          </button>
+          <h1 className="font-display text-2xl font-light text-primary">Agregar prenda</h1>
+        </div>
+
+        {/* Botón "Ver guía" — solo cuando el modal ya fue cerrado */}
+        {!showGuide && (
+          <button
+            onClick={() => setShowGuide(true)}
+            className="flex items-center gap-1.5 font-body text-xs px-3 py-1.5 rounded-full transition-colors"
+            style={{ color: '#C4956A', backgroundColor: 'rgba(196,149,106,0.1)' }}
+          >
+            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            Ver guía
+          </button>
+        )}
       </header>
 
       <div className="flex-1 px-5 py-6">
-        {step === 'guia' && (
-          <div className="flex flex-col gap-6">
-            <p className="text-primary/70 font-body text-sm leading-relaxed">
-              Para que la IA analice correctamente tu prenda, sigue estas recomendaciones:
+
+        {step === 'upload' && !preview && (
+          <div className="flex flex-col gap-5">
+            <p className="text-primary/60 font-body text-sm leading-relaxed">
+              Sube la foto de tu prenda para que la IA la analice y clasifique automáticamente.
             </p>
-
-            <div className="bg-surface rounded-2xl p-5 flex flex-col gap-4">
-              {[
-                { num: '01', text: 'Fondo blanco o muy claro y uniforme' },
-                { num: '02', text: 'Prenda completamente extendida, sin arrugas' },
-                { num: '03', text: 'Luz natural, evita sombras fuertes' },
-                { num: '04', text: 'Foto desde arriba, centrada en la prenda' },
-                { num: '05', text: 'Una prenda a la vez' },
-              ].map(({ num, text }) => (
-                <div key={num} className="flex gap-4 items-start">
-                  <span className="font-display text-accent text-lg leading-none mt-0.5">{num}</span>
-                  <p className="text-primary/70 font-body text-sm leading-relaxed">{text}</p>
-                </div>
-              ))}
-            </div>
-
             <PhotoSelector onFile={handleFile} captureMode="environment" />
           </div>
         )}
@@ -139,18 +161,12 @@ export default function AgregarPrendaPage() {
               )}
               <div className="flex gap-4 mt-3">
                 <div className="flex items-center gap-2">
-                  <div
-                    className="w-5 h-5 rounded-full border border-white shadow-sm"
-                    style={{ backgroundColor: analisis.colorPrincipal }}
-                  />
+                  <div className="w-5 h-5 rounded-full border border-white shadow-sm" style={{ backgroundColor: analisis.colorPrincipal }} />
                   <span className="text-xs font-body text-primary/60">{analisis.colorPrincipal}</span>
                 </div>
                 {analisis.colorSecundario && (
                   <div className="flex items-center gap-2">
-                    <div
-                      className="w-5 h-5 rounded-full border border-white shadow-sm"
-                      style={{ backgroundColor: analisis.colorSecundario }}
-                    />
+                    <div className="w-5 h-5 rounded-full border border-white shadow-sm" style={{ backgroundColor: analisis.colorSecundario }} />
                     <span className="text-xs font-body text-primary/60">{analisis.colorSecundario}</span>
                   </div>
                 )}

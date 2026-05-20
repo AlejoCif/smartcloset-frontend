@@ -1,37 +1,56 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { subirMiOutfit, getMisOutfits, eliminarMiOutfit, chatMiOutfit } from '../api/misOutfits'
-import Layout from '../components/Layout'
-import PhotoSelector from '../components/PhotoSelector'
 import ImageModal from '../components/ImageModal'
+import AppBottomNav from '../components/AppBottomNav'
 import type { MiOutfitItem } from '../types'
 
-function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 80 ? 'bg-green-100 text-green-700 border-green-200'
-    : score >= 60 ? 'bg-amber-100 text-amber-700 border-amber-200'
-    : 'bg-red-100 text-red-700 border-red-200'
-  return (
-    <span className={`text-xs font-body font-semibold px-2.5 py-1 rounded-full border ${color}`}>
-      {score}/100
-    </span>
-  )
-}
+// ── Preguntas sugeridas ──────────────────────────────────────
+const SUGERIDAS = [
+  '¿Qué zapatos combinan mejor?',
+  '¿Qué color me favorece?',
+  '¿Cómo hacerlo más elegante?',
+]
 
-function MiOutfitCard({ item, onEliminar }: { item: MiOutfitItem; onEliminar: () => void }) {
-  const [expandido, setExpandido] = useState(false)
-  const [modalImg, setModalImg] = useState(false)
-  const [chatMsg, setChatMsg] = useState('')
-  const [chatRes, setChatRes] = useState('')
-  const [chatLoading, setChatLoading] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const [deleting, setDeleting] = useState(false)
+const ACCIONES = [
+  { label: '✦ Mejorar look',      pregunta: '¿Cómo puedo mejorar este look?' },
+  { label: 'Versión elegante',    pregunta: '¿Cómo haría este look más elegante?' },
+  { label: 'Versión noche',       pregunta: '¿Cómo adapto este look para salir de noche?' },
+  { label: 'Versión oficina',     pregunta: '¿Cómo adapto este look para la oficina?' },
+]
 
-  const handleChat = async () => {
-    if (!chatMsg.trim()) return
+// ── AnalysisCard ─────────────────────────────────────────────
+function AnalysisCard({
+  item,
+  onEliminar,
+}: {
+  item: MiOutfitItem
+  onEliminar: () => void
+}) {
+  const [modalImg,     setModalImg]     = useState(false)
+  const [chatMsg,      setChatMsg]      = useState('')
+  const [chatRes,      setChatRes]      = useState('')
+  const [chatLoading,  setChatLoading]  = useState(false)
+  const [confirmDel,   setConfirmDel]   = useState(false)
+  const [deleting,     setDeleting]     = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleChat = async (msg?: string) => {
+    const texto = (msg ?? chatMsg).trim()
+    if (!texto) return
+    setChatMsg(texto)
     setChatLoading(true)
+    setChatRes('')
     try {
-      const res = await chatMiOutfit(item.id, chatMsg.trim())
-      setChatRes(res.data.respuesta)
+      const r = await chatMiOutfit(item.id, texto)
+      setChatRes(r.data.respuesta)
     } finally { setChatLoading(false) }
+  }
+
+  const fillChat = (pregunta: string) => {
+    setChatMsg(pregunta)
+    setChatRes('')
+    setTimeout(() => inputRef.current?.focus(), 50)
   }
 
   const handleEliminar = async () => {
@@ -40,102 +59,168 @@ function MiOutfitCard({ item, onEliminar }: { item: MiOutfitItem; onEliminar: ()
     finally { setDeleting(false) }
   }
 
+  // Construir 3 insights del análisis IA
+  const insights: { icon: string; iconColor: string; bg: string; title: string; desc: string }[] = []
+  if (item.puntosPositivos[0]) insights.push({ icon: '✦', iconColor: '#6B8F5E', bg: 'rgba(107,143,94,0.12)', title: 'Favorece tu estilo', desc: item.puntosPositivos[0] })
+  if (item.puntosPositivos[1]) insights.push({ icon: '☀', iconColor: '#C4956A', bg: 'rgba(196,149,106,0.12)', title: 'Punto destacado', desc: item.puntosPositivos[1] })
+  if (item.sugerencias[0])     insights.push({ icon: '⊟', iconColor: '#C4614A', bg: 'rgba(196,97,74,0.10)', title: 'Sugerencia stylist', desc: item.sugerencias[0] })
+
   return (
-    <div className="bg-surface rounded-2xl overflow-hidden">
+    <div style={{ backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
       {modalImg && <ImageModal src={item.fotoUrl} onClose={() => setModalImg(false)} />}
 
-      {/* Foto */}
-      <div className="relative cursor-zoom-in" onClick={() => setModalImg(true)}>
-        <img src={item.fotoUrl} alt="Mi outfit" className="w-full h-56 object-cover" />
-        <div className="absolute top-3 right-3">
-          <ScoreBadge score={item.calificacion} />
+      {/* Top: foto + análisis */}
+      <div style={{ display: 'flex', gap: '12px', padding: '16px 16px 0' }}>
+
+        {/* Foto con badge */}
+        <div style={{ position: 'relative', flex: '0 0 42%', cursor: 'zoom-in' }} onClick={() => setModalImg(true)}>
+          <img src={item.fotoUrl} alt="Mi outfit" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: '12px', display: 'block' }} />
+          <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '20px', padding: '4px 10px', backdropFilter: 'blur(4px)' }}>
+            <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 700, color: '#1A1A1A' }}>{item.calificacion}/100 Style ✦</span>
+          </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-4 py-3">
-          <p className="text-white font-body text-sm leading-snug">{item.resumen}</p>
+
+        {/* Texto análisis */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '4px' }}>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '9px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>Análisis IA</p>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#1A1A1A', margin: 0, lineHeight: 1.5 }}>{item.resumen}</p>
         </div>
       </div>
 
-      <div className="p-4 flex flex-col gap-3">
-        {/* Puntos positivos y sugerencias */}
-        <button onClick={() => setExpandido(!expandido)}
-          className="text-xs font-body text-primary/40 hover:text-primary text-left transition-colors">
-          {expandido ? '▲ Ocultar análisis' : '▼ Ver análisis completo'}
-        </button>
+      {/* Insights */}
+      {insights.length > 0 && (
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {insights.map((ins, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: ins.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ fontSize: '14px', color: ins.iconColor }}>{ins.icon}</span>
+              </div>
+              <div>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 2px' }}>{ins.title}</p>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#9E9690', margin: 0, lineHeight: 1.4 }}>{ins.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        {expandido && (
-          <div className="flex flex-col gap-3 border-t border-primary/10 pt-3">
-            {item.puntosPositivos.length > 0 && (
-              <div>
-                <p className="text-[10px] font-body text-primary/40 tracking-widest uppercase mb-1.5">Lo que funciona</p>
-                {item.puntosPositivos.map((p, i) => (
-                  <p key={i} className="text-green-700 font-body text-sm">✓ {p}</p>
-                ))}
-              </div>
-            )}
-            {item.sugerencias.length > 0 && (
-              <div>
-                <p className="text-[10px] font-body text-primary/40 tracking-widest uppercase mb-1.5">Sugerencias</p>
-                {item.sugerencias.map((s, i) => (
-                  <p key={i} className="text-amber-700 font-body text-sm">→ {s}</p>
-                ))}
-              </div>
-            )}
+      {/* Botones de acción */}
+      <div style={{ padding: '0 16px 16px', display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+        {ACCIONES.map(({ label, pregunta }, i) => (
+          <button key={i} onClick={() => fillChat(pregunta)} style={{
+            flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
+            padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', border: 'none',
+            backgroundColor: i === 0 ? '#3D2B1F' : 'transparent',
+            color: i === 0 ? '#fff' : '#9E9690',
+            outline: i === 0 ? 'none' : '1.5px solid #E0D5C8',
+          }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Chat con stylist IA */}
+      <div style={{ padding: '16px', backgroundColor: '#FAF7F2', borderTop: '1px solid #F0EBE3' }}>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '9px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '8px' }}>💬 Consulta a tu stylist IA</p>
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '16px', fontWeight: 400, color: '#1A1A1A', marginBottom: '12px' }}>¿Qué te gustaría saber sobre este outfit?</p>
+
+        {/* Chips sugeridos */}
+        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', scrollbarWidth: 'none', marginBottom: '12px' }}>
+          {SUGERIDAS.map((s, i) => (
+            <button key={i} onClick={() => fillChat(s)} style={{ flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#C4956A', backgroundColor: 'rgba(196,149,106,0.1)', border: '1px solid rgba(196,149,106,0.25)', borderRadius: '20px', padding: '5px 12px', cursor: 'pointer' }}>
+              {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Input */}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input
+            ref={inputRef}
+            type="text"
+            value={chatMsg}
+            onChange={e => { setChatMsg(e.target.value); setChatRes('') }}
+            onKeyDown={e => e.key === 'Enter' && handleChat()}
+            placeholder="Escribe tu pregunta..."
+            style={{ flex: 1, border: '1.5px solid #E0D5C8', borderRadius: '12px', padding: '10px 14px', fontFamily: 'Jost, sans-serif', fontSize: '13px', outline: 'none', backgroundColor: '#fff' }}
+          />
+          <button onClick={() => handleChat()} disabled={chatLoading || !chatMsg.trim()} style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: '#C4956A', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (chatLoading || !chatMsg.trim()) ? 0.5 : 1 }}>
+            {chatLoading
+              ? <div style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/></svg>
+            }
+          </button>
+        </div>
+
+        {chatRes && (
+          <div style={{ marginTop: '12px', backgroundColor: '#fff', borderRadius: '12px', padding: '12px 14px', border: '1px solid #F0EBE3' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#1A1A1A', margin: 0, lineHeight: 1.6 }}>{chatRes}</p>
           </div>
         )}
+      </div>
 
-        {/* Chat */}
-        <div className="border-t border-primary/10 pt-3">
-          <p className="text-xs font-body text-primary/40 uppercase tracking-widest mb-2">💬 Consulta sobre este outfit</p>
-          <div className="flex gap-2">
-            <input type="text" value={chatMsg}
-              onChange={e => { setChatMsg(e.target.value); setChatRes('') }}
-              onKeyDown={e => e.key === 'Enter' && handleChat()}
-              placeholder="¿Qué me falta para completarlo?"
-              className="flex-1 bg-white border border-surface rounded-xl px-3 py-2 font-body text-sm text-primary placeholder:text-primary/30 outline-none focus:border-accent/40"
-            />
-            <button onClick={handleChat} disabled={chatLoading || !chatMsg.trim()}
-              className="bg-accent text-white font-body text-xs px-3 py-2 rounded-xl disabled:opacity-40">
-              {chatLoading ? '...' : 'Preguntar'}
-            </button>
-          </div>
-          {chatRes && (
-            <p className="text-primary/70 font-body text-sm mt-2 bg-white rounded-xl px-3 py-2.5 leading-relaxed">{chatRes}</p>
-          )}
-        </div>
-
-        {/* Eliminar */}
-        <div className="border-t border-primary/10 pt-2">
-          {!confirmDelete ? (
-            <button onClick={() => setConfirmDelete(true)}
-              className="text-xs font-body text-primary/30 hover:text-red-400 transition-colors">
-              Eliminar
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <button onClick={() => setConfirmDelete(false)}
-                className="flex-1 py-2 rounded-xl border border-surface text-primary/60 font-body text-xs">Cancelar</button>
-              <button onClick={handleEliminar} disabled={deleting}
-                className="flex-1 py-2 rounded-xl bg-red-500 text-white font-body text-xs font-medium disabled:opacity-60">
-                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
-              </button>
+      {/* Eliminar */}
+      <div style={{ padding: '10px 16px 14px', display: 'flex', justifyContent: 'flex-end' }}>
+        {!confirmDel
+          ? <button onClick={() => setConfirmDel(true)} style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#C9BFB5', background: 'none', border: 'none', cursor: 'pointer' }}>Eliminar</button>
+          : <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setConfirmDel(false)} style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#9E9690', background: 'none', border: '1px solid #E0D5C8', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={handleEliminar} disabled={deleting} style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#fff', backgroundColor: '#E05555', border: 'none', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', opacity: deleting ? 0.6 : 1 }}>{deleting ? 'Eliminando...' : 'Sí, eliminar'}</button>
             </div>
-          )}
-        </div>
+        }
       </div>
     </div>
   )
 }
 
+// ── Upload Sheet ─────────────────────────────────────────────
+function UploadSheet({ onFile, onClose }: { onFile: (f: File) => void; onClose: () => void }) {
+  const cameraRef  = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (f) { onFile(f); onClose() }
+    e.target.value = ''
+  }
+
+  return (
+    <>
+      <input ref={cameraRef}  type="file" accept="image/*" capture="user"  className="hidden" onChange={handleChange} />
+      <input ref={galleryRef} type="file" accept="image/*"                  className="hidden" onChange={handleChange} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 60, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '0 16px 32px' }} onClick={onClose}>
+        <div style={{ width: '100%', maxWidth: '400px', backgroundColor: '#fff', borderRadius: '24px', padding: '24px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ width: '36px', height: '4px', backgroundColor: '#E0D5C8', borderRadius: '2px', margin: '0 auto 20px' }} />
+          <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', color: '#1A1A1A', textAlign: 'center', marginBottom: '6px' }}>Subir mi outfit</p>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', textAlign: 'center', marginBottom: '20px' }}>Elige cómo quieres subir la foto</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <button onClick={() => cameraRef.current?.click()} style={{ width: '100%', padding: '14px', borderRadius: '14px', backgroundColor: '#3D2B1F', color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              📷 Tomar foto con cámara
+            </button>
+            <button onClick={() => galleryRef.current?.click()} style={{ width: '100%', padding: '14px', borderRadius: '14px', backgroundColor: 'transparent', color: '#3D2B1F', fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500, border: '1.5px solid #D4BFA4', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              🖼 Elegir de galería
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ── MisOutfitsPage ───────────────────────────────────────────
 export default function MisOutfitsPage() {
-  const [outfits, setOutfits] = useState<MiOutfitItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [subiendo, setSubiendo] = useState(false)
-  const [error, setError] = useState('')
+  const navigate   = useNavigate()
+  const [outfits,   setOutfits]   = useState<MiOutfitItem[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [subiendo,  setSubiendo]  = useState(false)
+  const [error,     setError]     = useState('')
+  const [showSheet, setShowSheet] = useState(false)
 
   useEffect(() => {
     getMisOutfits().then(r => setOutfits(r.data)).finally(() => setLoading(false))
   }, [])
 
+  // ── Lógica existente intacta ──────────────────────────────
   const handleFile = async (file: File) => {
     setSubiendo(true)
     setError('')
@@ -150,48 +235,125 @@ export default function MisOutfitsPage() {
   }
 
   return (
-    <Layout title="Mis Outfits">
-      <div className="px-4 py-4 flex flex-col gap-4">
+    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
 
-        {/* Subir nuevo */}
-        <div className="bg-surface rounded-2xl p-4 flex flex-col gap-3">
+      {showSheet && <UploadSheet onFile={handleFile} onClose={() => setShowSheet(false)} />}
+
+      {/* ── Header ─────────────────────────────────────────── */}
+      <header style={{ padding: '52px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
           <div>
-            <p className="font-body text-sm font-medium text-primary">Sube un outfit que te pusiste</p>
-            <p className="font-body text-xs text-primary/40 mt-0.5">La IA lo califica y te da sugerencias reales</p>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', fontWeight: 600, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>Mis Outfits</h1>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: '2px 0 0' }}>{loading ? '...' : `${outfits.length} look${outfits.length !== 1 ? 's' : ''} analizados`}</p>
           </div>
-          {subiendo ? (
-            <div className="flex items-center gap-2 py-2">
-              <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-              <p className="text-primary/50 font-body text-sm">Analizando tu outfit...</p>
-            </div>
-          ) : (
-            <PhotoSelector onFile={handleFile} captureMode="user" compact />
-          )}
-          {error && <p className="text-red-500 text-xs font-body">{error}</p>}
         </div>
+        <button onClick={() => setShowSheet(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500, color: '#3D2B1F', backgroundColor: 'transparent', border: '1.5px solid #D4BFA4', borderRadius: '20px', padding: '7px 14px', cursor: 'pointer' }}>
+          <span>✦</span> Analizar look
+        </button>
+      </header>
 
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+        {/* ── Card hero de upload ─────────────────────────── */}
+        {!subiendo && (
+          <div style={{ backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 2px 14px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'flex', height: '180px' }}>
+
+            {/* Izquierda: texto + botones */}
+            <div style={{ flex: '0 0 55%', padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', fontWeight: 600, color: '#1A1A1A', margin: 0, lineHeight: 1.25 }}>
+                Descubre cómo te percibe tu outfit ✦
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: 0, lineHeight: 1.4 }}>
+                La IA analiza tu look y te da insights reales.
+              </p>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => setShowSheet(true)}
+                  style={{ flex: 1, fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: '#fff', backgroundColor: '#3D2B1F', border: 'none', borderRadius: '20px', padding: '7px 8px', cursor: 'pointer' }}
+                >
+                  📷 Cámara
+                </button>
+                <button
+                  onClick={() => setShowSheet(true)}
+                  style={{ flex: 1, fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: '#3D2B1F', backgroundColor: 'transparent', border: '1.5px solid #D4BFA4', borderRadius: '20px', padding: '7px 8px', cursor: 'pointer' }}
+                >
+                  🖼 Galería
+                </button>
+              </div>
+            </div>
+
+            {/* Derecha: imagen decorativa */}
+            <div style={{ flex: '0 0 45%', position: 'relative' }}>
+              <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&q=80" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #fff 0%, transparent 50%)' }} />
+            </div>
+          </div>
+        )}
+
+        {/* ── Analizando ─────────────────────────────────── */}
+        {subiendo && (
+          <div style={{ backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 2px 14px rgba(0,0,0,0.07)', padding: '32px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', border: '3px solid #F2EBE0', borderTopColor: '#C4956A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', color: '#1A1A1A', margin: 0 }}>Analizando tu outfit...</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>La IA está evaluando tu look</p>
+          </div>
+        )}
+
+        {/* ── Error ──────────────────────────────────────── */}
+        {error && <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#E05555', backgroundColor: '#FEE', borderRadius: '12px', padding: '12px 16px', textAlign: 'center', margin: 0 }}>{error}</p>}
+
+        {/* ── Loading inicial ─────────────────────────────── */}
         {loading && (
-          <div className="flex justify-center py-8">
-            <div className="w-8 h-8 border-2 border-surface border-t-accent rounded-full animate-spin" />
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+            <div style={{ width: '32px', height: '32px', border: '3px solid #F2EBE0', borderTopColor: '#C4956A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           </div>
         )}
 
+        {/* ── Vacío ──────────────────────────────────────── */}
         {!loading && outfits.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-            <div className="text-5xl">👗</div>
-            <p className="font-display text-2xl font-light text-primary">Sin outfits aún</p>
-            <p className="text-primary/50 font-body text-sm">Sube una foto de lo que llevas puesto y la IA te dice cómo quedó</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '48px 0', gap: '10px' }}>
+            <span style={{ fontSize: '48px' }}>👗</span>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: '#1A1A1A', margin: 0 }}>Sin looks analizados aún</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>Sube una foto de lo que llevas puesto y la IA te dice cómo quedó</p>
           </div>
         )}
 
-        {outfits.map(o => (
-          <MiOutfitCard
-            key={o.id}
-            item={o}
-            onEliminar={() => setOutfits(prev => prev.filter(x => x.id !== o.id))}
+        {/* ── Outfit más reciente (análisis expandido) ──── */}
+        {!loading && outfits.length > 0 && (
+          <AnalysisCard
+            key={outfits[0].id}
+            item={outfits[0]}
+            onEliminar={() => setOutfits(prev => prev.filter(x => x.id !== outfits[0].id))}
           />
-        ))}
+        )}
+
+        {/* ── Últimos análisis (scroll horizontal) ────────── */}
+        {!loading && outfits.length > 1 && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>Tus últimos análisis</p>
+              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#C4956A', cursor: 'pointer' }}>Ver todos ›</span>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
+              {outfits.slice(1).map(o => (
+                <div key={o.id} style={{ flexShrink: 0, position: 'relative', width: '90px' }}>
+                  <img src={o.fotoUrl} alt="outfit" style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '12px', display: 'block' }} />
+                  <div style={{ position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: '10px', padding: '2px 7px' }}>
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 700, color: '#1A1A1A', whiteSpace: 'nowrap' }}>{o.calificacion}/100</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
-    </Layout>
+
+      <AppBottomNav />
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    </div>
   )
 }

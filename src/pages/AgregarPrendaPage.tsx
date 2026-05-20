@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analizarPrenda, confirmarPrenda } from '../api/prendas'
 import type { AnalisisPrenda } from '../types'
@@ -21,8 +21,6 @@ export default function AgregarPrendaPage() {
   // Muestra la guía automáticamente la primera vez
   const [showGuide, setShowGuide] = useState(() => !localStorage.getItem(GUIDE_KEY))
   const navigate = useNavigate()
-  const photoSelectorRef = useRef<{ openCamera: () => void; openGallery: () => void } | null>(null)
-
   const handleGuideConfirm = () => {
     localStorage.setItem(GUIDE_KEY, '1')
     setShowGuide(false)

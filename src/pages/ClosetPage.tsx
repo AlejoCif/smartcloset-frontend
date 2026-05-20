@@ -5,33 +5,40 @@ import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
 import { FILTROS_CATEGORIA, CATEGORIA_LABELS } from '../types'
 
-// Imágenes de referencia por categoría (Unsplash)
+// Imágenes de moda femenina por categoría (Unsplash)
 const CAT_IMAGES: Record<string, string> = {
-  BLUSA:         'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80',
-  CAMISETA:      'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&q=80',
-  CAMISA:        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
-  PANTALON:      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80',
-  JEAN:          'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&q=80',
-  LEGGINS:       'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&q=80',
-  SHORT:         'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80',
-  VESTIDO:       'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80',
-  FALDA:         'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&q=80',
-  FALDA_CORTA:   'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&q=80',
-  FALDA_LARGA:   'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400&q=80',
-  BLAZER:        'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80',
-  CHAQUETA:      'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=400&q=80',
-  ABRIGO:        'https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=400&q=80',
-  ZAPATO_TACO:   'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80',
-  ZAPATO_PLANO:  'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80',
-  BOTA:          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
-  TENIS:         'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&q=80',
-  SANDALIA:      'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80',
-  BOLSO:         'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80',
-  CARTERA:       'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80',
-  COLLAR:        'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80',
-  ARETES:        'https://images.unsplash.com/photo-1630019852942-f89202989a59?w=400&q=80',
-  CINTURON:      'https://images.unsplash.com/photo-1553754538-466add009c05?w=400&q=80',
-  OTRO:          'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80',
+  // Tops
+  BLUSA:         'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&q=80', // mujer blusa boho
+  CAMISETA:      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80', // mujer casual
+  CAMISA:        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80', // mujer camisa oficina
+  // Pantalones
+  PANTALON:      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&q=80', // mujer pantalón elegante
+  JEAN:          'https://images.unsplash.com/photo-1475178626620-a4d074967452?w=400&q=80', // mujer piernas jeans
+  LEGGINS:       'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&q=80', // mujer deportiva
+  SHORT:         'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80', // street style mujer
+  // Vestidos y faldas
+  VESTIDO:       'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80', // mujer vestido blanco
+  FALDA:         'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400&q=80', // mujer falda noche
+  FALDA_CORTA:   'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80', // street style
+  FALDA_LARGA:   'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80', // mujer maxi look
+  // Exterior
+  BLAZER:        'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80', // flat lay blazer beige
+  CHAQUETA:      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&q=80', // mujer chaqueta
+  ABRIGO:        'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&q=80', // mujer abrigo
+  // Calzado femenino
+  ZAPATO_TACO:   'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80', // tacones mujer
+  ZAPATO_PLANO:  'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80', // zapatos planos
+  BOTA:          'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80', // botas tacón
+  TENIS:         'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80', // tenis blancos mujer
+  SANDALIA:      'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&q=80', // sandalias mujer
+  // Bolsos
+  BOLSO:         'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80', // bolso beige elegante
+  CARTERA:       'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80', // cartera mujer
+  // Accesorios
+  COLLAR:        'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80', // collar mujer
+  ARETES:        'https://images.unsplash.com/photo-1630019852942-f89202989a59?w=400&q=80', // aretes mujer
+  CINTURON:      'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80', // closet mujer
+  OTRO:          'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80', // closet general
 }
 const CAT_IMG_FALLBACK = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80'
 

@@ -1,27 +1,18 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import AppBottomNav from '../components/AppBottomNav'
 
-// ── SVG Icons ────────────────────────────────────────────────
-const sk = { fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
-
-function IcHome({ size = 22, color = 'currentColor' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
-      <path d="M9 21V12h6v9"/>
-    </svg>
-  )
-}
+// ── SVG Icons (locales) ──────────────────────────────────────
 function IcHanger({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
     </svg>
   )
 }
 function IcSparkles({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/>
       <path d="M19 3l.8 2.2L22 6l-2.2.8L19 9l-.8-2.2L16 6l2.2-.8z"/>
       <path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5z"/>
@@ -30,14 +21,14 @@ function IcSparkles({ size = 22, color = 'currentColor' }) {
 }
 function IcHeart({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
     </svg>
   )
 }
 function IcBag({ size = 22, color = 'currentColor' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" {...sk} stroke={color}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
       <line x1="3" y1="6" x2="21" y2="6" stroke={color} strokeWidth="1.5"/>
       <path d="M16 10a4 4 0 0 1-8 0"/>
@@ -61,38 +52,6 @@ function IcChart({ size = 20, color = 'currentColor' }) {
   )
 }
 
-// ── Bottom Nav ───────────────────────────────────────────────
-const NAV = [
-  { to: '/home',        label: 'Inicio',  Icon: IcHome },
-  { to: '/closet',      label: 'Closet',  Icon: IcHanger },
-  { to: '/outfits',     label: 'IA',      Icon: IcSparkles },
-  { to: '/mis-outfits', label: 'Looks',   Icon: IcHeart },
-  { to: '/comprar',     label: 'Compras', Icon: IcBag },
-]
-
-function BottomNav() {
-  const navigate  = useNavigate()
-  const { pathname } = useLocation()
-  return (
-    <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full"
-      style={{ maxWidth: '430px', backgroundColor: '#fff', borderTop: '1px solid #EDE8E1', paddingBottom: 'env(safe-area-inset-bottom, 10px)' }}
-    >
-      <div className="flex justify-around items-center pt-2 pb-1">
-        {NAV.map(({ to, label, Icon }) => {
-          const active = pathname === to
-          const col = active ? '#C4956A' : '#9E9690'
-          return (
-            <button key={to} onClick={() => navigate(to)} className="flex flex-col items-center gap-0.5 px-3 py-1 active:scale-90 transition-transform">
-              <Icon size={22} color={col} />
-              <span style={{ fontSize: '10px', color: col, fontFamily: 'Jost, sans-serif', fontWeight: active ? 600 : 400 }}>{label}</span>
-            </button>
-          )
-        })}
-      </div>
-    </nav>
-  )
-}
 
 // ── Card pequeña del grid ────────────────────────────────────
 interface SmallCardProps {
@@ -320,7 +279,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Bottom Navigation ──────────────────────────────── */}
-      <BottomNav />
+      <AppBottomNav />
     </div>
   )
 }

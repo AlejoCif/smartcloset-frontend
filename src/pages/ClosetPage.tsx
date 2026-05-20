@@ -432,9 +432,7 @@ export default function ClosetPage() {
             </div>
           )
         })()}
-            ))}
-          </div>
-        )}
+
       </div>
 
       {/* ── FAB agregar ─────────────────────────────────────── */}

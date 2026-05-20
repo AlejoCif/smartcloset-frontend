@@ -8,7 +8,199 @@ import ImageModal from '../components/ImageModal'
 import type { OutfitSugerido, OutfitGuardado, CapsuleResponse, Estilo, SugerirRequest, AnalizarLookResponse } from '../types'
 import { ESTILOS, CATEGORIA_LABELS } from '../types'
 
-type Tab = 'sugerir' | 'guardados' | 'capsule'
+type Tab = 'sugerir' | 'guardados' | 'capsule' | 'semana'
+
+const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+
+function DiaCard({
+  dia, outfit, onGuardar, saving, guardado,
+}: {
+  dia: string
+  outfit: OutfitSugerido
+  onGuardar: () => void
+  saving: boolean
+  guardado: boolean
+}) {
+  const [modalImg, setModalImg] = useState<string | null>(null)
+  const g = outfit.grupoVisual
+  const prendas = [
+    ...g.parteSuperior, ...g.parteInferior, ...g.calzado,
+    ...g.abrigo, ...g.accesorios, ...g.bolso,
+  ]
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #D4BFA4' }}>
+      {modalImg && <ImageModal src={modalImg} onClose={() => setModalImg(null)} />}
+
+      {/* Cabecera del día */}
+      <div className="px-4 py-3 flex items-center justify-between" style={{ backgroundColor: '#F2EBE0' }}>
+        <div className="flex items-center gap-2">
+          <span className="font-display text-xl font-light" style={{ color: '#4A3420' }}>{dia}</span>
+          <span className="text-[10px] font-body text-accent bg-accent/10 px-2 py-0.5 rounded-full">
+            {ESTILOS.find(e => e.value === outfit.estilo)?.label ?? outfit.estilo}
+          </span>
+        </div>
+        <ScoreBadge score={outfit.score} />
+      </div>
+
+      {/* Cuerpo */}
+      <div className="bg-surface px-4 pt-3 pb-4 flex flex-col gap-3">
+        <p className="font-display text-lg font-light text-primary leading-tight">{outfit.nombre}</p>
+
+        {outfit.razonamiento && (
+          <p className="text-primary/55 font-body text-xs leading-relaxed">{outfit.razonamiento}</p>
+        )}
+
+        {/* Fotos de prendas */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {prendas.slice(0, 6).map((p, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-white cursor-zoom-in"
+              onClick={() => setModalImg(p.fotoUrl)}
+            >
+              <img src={p.fotoUrl} alt={CATEGORIA_LABELS[p.categoria] ?? p.categoria} className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+
+        {outfit.prendaFaltante && (
+          <p className="text-xs font-body text-accent/80 bg-accent/8 rounded-lg px-3 py-1.5">
+            🛍️ {outfit.prendaFaltante}
+          </p>
+        )}
+
+        {guardado ? (
+          <p className="text-center text-green-600 font-body text-sm py-1.5 font-medium">✓ Guardado</p>
+        ) : (
+          <button
+            onClick={onGuardar}
+            disabled={saving}
+            className="w-full border border-accent/40 text-accent font-body text-sm py-2.5 rounded-xl disabled:opacity-60 hover:bg-accent hover:text-white transition-colors"
+          >
+            {saving ? 'Guardando...' : 'Guardar outfit'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SemanaTab() {
+  const [outfits, setOutfits] = useState<OutfitSugerido[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [estilo, setEstilo] = useState<Estilo>('CASUAL')
+  const [savingIndex, setSavingIndex] = useState<number | null>(null)
+  const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set())
+
+  const generar = async () => {
+    setLoading(true)
+    setError('')
+    setOutfits([])
+    setSavedIndices(new Set())
+    try {
+      const res = await sugerirOutfitsAvanzado({ estilo, limit: 5 })
+      setOutfits(res.data.slice(0, 5))
+    } catch {
+      setError('No pudimos generar el plan. Verifica que tengas prendas en tu closet.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGuardar = async (outfit: OutfitSugerido, index: number) => {
+    setSavingIndex(index)
+    try {
+      await guardarOutfit(outfit.nombre, outfit.prendaIds, outfit.estilo, {
+        score: outfit.score,
+        scoreRazon: outfit.scoreRazon,
+        razonamiento: outfit.razonamiento,
+        explicacion: outfit.explicacion,
+        armoniaColor: outfit.armoniaColor,
+        warnings: outfit.warnings,
+        prendaFaltante: outfit.prendaFaltante,
+      })
+      setSavedIndices(prev => new Set([...prev, index]))
+    } catch {
+      setError('No se pudo guardar el outfit.')
+    } finally {
+      setSavingIndex(null)
+    }
+  }
+
+  if (!outfits.length && !loading) {
+    return (
+      <div className="px-4 py-6 flex flex-col gap-6">
+        <div>
+          <p className="text-xs font-body text-primary/50 tracking-widest uppercase mb-3">Estilo de la semana</p>
+          <div className="flex flex-wrap gap-2">
+            {ESTILOS.map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setEstilo(value)}
+                className={`px-4 py-2 rounded-full text-sm font-body font-medium transition-all ${
+                  estilo === value ? 'bg-accent text-white' : 'bg-surface text-primary/60 hover:text-primary'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center text-center gap-3 py-6">
+          <div className="text-5xl">📅</div>
+          <p className="font-display text-2xl font-light text-primary">Plan semanal</p>
+          <p className="text-primary/50 font-body text-sm leading-relaxed max-w-xs">
+            La IA te arma un outfit diferente para cada día de lunes a viernes
+          </p>
+        </div>
+
+        {error && (
+          <p className="text-red-500 text-sm font-body bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
+        )}
+
+        <button
+          onClick={generar}
+          className="w-full bg-accent text-white font-body font-medium py-4 rounded-xl"
+        >
+          Planear mi semana ✨
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="px-4 py-4 flex flex-col gap-3">
+      {loading && <LoadingSpinner text="Armando tu semana..." />}
+
+      {error && (
+        <p className="text-red-500 text-sm font-body bg-red-50 rounded-xl px-4 py-3 text-center">{error}</p>
+      )}
+
+      {outfits.map((outfit, i) => (
+        <DiaCard
+          key={i}
+          dia={DIAS[i]}
+          outfit={outfit}
+          onGuardar={() => handleGuardar(outfit, i)}
+          saving={savingIndex === i}
+          guardado={savedIndices.has(i)}
+        />
+      ))}
+
+      {outfits.length > 0 && !loading && (
+        <button
+          onClick={generar}
+          className="w-full border border-accent/40 text-accent font-body font-medium py-3.5 rounded-xl text-sm hover:bg-accent/5 transition-colors"
+        >
+          Regenerar semana →
+        </button>
+      )}
+    </div>
+  )
+}
 
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 80
@@ -570,6 +762,7 @@ export default function OutfitsPage() {
           { key: 'sugerir' as Tab, label: 'Sugerir' },
           { key: 'guardados' as Tab, label: 'Guardados' },
           { key: 'capsule' as Tab, label: 'Cápsula' },
+          { key: 'semana' as Tab, label: 'Semana' },
         ]).map(({ key, label }) => (
           <button
             key={key}
@@ -743,6 +936,7 @@ export default function OutfitsPage() {
       )}
 
       {tab === 'capsule' && <CapsuleTab />}
+      {tab === 'semana' && <SemanaTab />}
     </Layout>
   )
 }

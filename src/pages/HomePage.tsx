@@ -227,7 +227,7 @@ export default function HomePage() {
             num="03"
             title="Mis Looks"
             desc="Guarda y califica tus outfits"
-            imgSrc="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80"
+            imgSrc="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&q=80"
             icon={<IcHeart size={15} color="white" />}
           />
           <SmallCard

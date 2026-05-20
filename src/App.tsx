@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import ColorimetriaPage from './pages/ColorimetriaPage'
@@ -23,15 +24,19 @@ function AppRoutes() {
     )
   }
 
+  // No autenticada: landing + login + register
   if (!token) {
     return (
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/register" element={<LoginPage initialMode="register" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     )
   }
 
+  // Autenticada sin colorimetría
   if (user && user.temporadaColor === null) {
     return (
       <Routes>
@@ -41,9 +46,11 @@ function AppRoutes() {
     )
   }
 
+  // Autenticada completa
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/home" element={<HomePage />} />
       <Route path="/closet" element={<ClosetPage />} />
       <Route path="/closet/agregar" element={<AgregarPrendaPage />} />
       <Route path="/outfits" element={<OutfitsPage />} />
@@ -52,7 +59,7 @@ function AppRoutes() {
       <Route path="/mis-outfits" element={<MisOutfitsPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
       <Route path="/colorimetria" element={<ColorimetriaPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )
 }

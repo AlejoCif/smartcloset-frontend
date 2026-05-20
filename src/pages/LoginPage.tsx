@@ -16,8 +16,12 @@ const seasons = [
   { label: 'Invierno Profundo', color: '#1A1A2E' },
 ]
 
-export default function LoginPage() {
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+interface LoginPageProps {
+  initialMode?: 'login' | 'register'
+}
+
+export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nombre, setNombre] = useState('')
@@ -33,7 +37,7 @@ export default function LoginPage() {
     try {
       const res = await loginConGoogle(credential)
       setToken(res.data.token)
-      navigate('/closet', { replace: true })
+      navigate('/', { replace: true })
     } catch {
       setError('No pudimos iniciar sesión con Google. Intenta de nuevo.')
     } finally {
@@ -50,7 +54,7 @@ export default function LoginPage() {
         ? await login(email, password)
         : await register(email, password, nombre)
       setToken(res.data.token)
-      navigate('/closet', { replace: true })
+      navigate('/', { replace: true })
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { mensaje?: string } } })?.response?.data?.mensaje
       setError(msg ?? 'Algo salió mal. Intenta de nuevo.')

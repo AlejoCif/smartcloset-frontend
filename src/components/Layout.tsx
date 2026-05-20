@@ -11,7 +11,7 @@ function HomeButton() {
   const navigate = useNavigate()
   return (
     <button
-      onClick={() => navigate('/')}
+      onClick={() => navigate('/home')}
       className="p-2 -mr-1 text-primary/40 hover:text-primary transition-colors"
       aria-label="Inicio"
     >

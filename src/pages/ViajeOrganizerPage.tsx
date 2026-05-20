@@ -14,17 +14,17 @@ const DURACIONES = ['3 días', '5 días', '7 días', '10+ días']
 
 export default function ViajeOrganizerPage() {
   const navigate = useNavigate()
-  const [messages,  setMessages]  = useState<ViajeMessage[]>([])
-  const [input,     setInput]     = useState('')
-  const [loading,   setLoading]   = useState(false)
-  const [initiated, setInitiated] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef  = useRef<HTMLInputElement>(null)
+  const [messages, setMessages] = useState<ViajeMessage[]>([])
+  const [input,    setInput]    = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const initiatedRef = useRef(false)   // useRef evita el doble disparo de React Strict Mode
+  const bottomRef    = useRef<HTMLDivElement>(null)
+  const inputRef     = useRef<HTMLInputElement>(null)
 
   // Arranca la conversación automáticamente al entrar
   useEffect(() => {
-    if (!initiated) {
-      setInitiated(true)
+    if (!initiatedRef.current) {
+      initiatedRef.current = true
       sendMessage([], '')   // primer turno → IA saluda y pregunta destino
     }
   }, [])
@@ -132,7 +132,10 @@ export default function ViajeOrganizerPage() {
                 <div>
                   {msg.content.split('\n').map((line, li) => {
                     if (line.startsWith('📅')) return (
-                      <p key={li} style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', fontWeight: 600, color: '#1A1A1A', margin: '12px 0 4px' }}>{line}</p>
+                      <p key={li} style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '17px', fontWeight: 600, color: '#1A1A1A', margin: '14px 0 4px' }}>{line}</p>
+                    )
+                    if (line.startsWith('🛍️')) return (
+                      <p key={li} style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 700, color: '#C4956A', margin: '14px 0 4px' }}>{line}</p>
                     )
                     if (line.startsWith('👗') || line.startsWith('✦')) return (
                       <p key={li} style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#4A3420', margin: '2px 0', lineHeight: 1.5 }}>{line}</p>

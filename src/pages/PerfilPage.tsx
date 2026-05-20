@@ -144,6 +144,16 @@ export default function PerfilPage() {
           Cerrar sesión
         </button>
 
+        {/* Versión */}
+        <div className="flex flex-col items-center gap-1 pb-2">
+          <p className="font-display text-lg font-light" style={{ color: '#D4BFA4' }}>
+            Smart<span className="italic">Closet</span>
+          </p>
+          <p className="font-body text-xs" style={{ color: '#D4BFA4' }}>
+            v{__APP_VERSION__}
+          </p>
+        </div>
+
       </div>
     </Layout>
   )

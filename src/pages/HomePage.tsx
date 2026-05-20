@@ -248,6 +248,34 @@ export default function HomePage() {
           />
         </div>
 
+        {/* ── Card Viaje — ancho completo ─────────────────── */}
+        <button
+          onClick={() => navigate('/viaje')}
+          className="active:scale-[0.98] transition-transform"
+          style={{ borderRadius: '20px', overflow: 'hidden', height: '110px', display: 'flex', width: '100%', border: 'none', cursor: 'pointer', padding: 0, position: 'relative' }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80"
+            alt="Organiza tu viaje"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 70%)' }} />
+          <div style={{ position: 'absolute', inset: 0, padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase', margin: '0 0 4px' }}>06 · IA</p>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 400, color: '#fff', margin: 0, lineHeight: 1.1 }}>
+                Organiza tu <span style={{ fontStyle: 'italic' }}>viaje</span>
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.6)', margin: '3px 0 0' }}>
+                Outfits para cada día con IA ✈️
+              </p>
+            </div>
+            <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: '18px' }}>✈️</span>
+            </div>
+          </div>
+        </button>
+
         {/* ── Banner resumen ──────────────────────────────── */}
         <button
           onClick={() => navigate('/outfits')}

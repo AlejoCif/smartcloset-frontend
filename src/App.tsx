@@ -11,6 +11,7 @@ import InspirationPage from './pages/InspirationPage'
 import ComprarPage from './pages/ComprarPage'
 import MisOutfitsPage from './pages/MisOutfitsPage'
 import PerfilPage from './pages/PerfilPage'
+import ViajeOrganizerPage from './pages/ViajeOrganizerPage'
 import LoadingSpinner from './components/LoadingSpinner'
 
 function AppRoutes() {
@@ -59,6 +60,7 @@ function AppRoutes() {
       <Route path="/mis-outfits" element={<MisOutfitsPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
       <Route path="/colorimetria" element={<ColorimetriaPage />} />
+      <Route path="/viaje" element={<ViajeOrganizerPage />} />
       <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )

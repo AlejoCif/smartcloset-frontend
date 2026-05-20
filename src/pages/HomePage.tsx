@@ -142,8 +142,8 @@ export default function HomePage() {
           style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #D4BFA4', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
           title="Cambiar perfil"
         >
-          {activeProfile?.fotoUrl
-            ? <img src={activeProfile.fotoUrl} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {(activeProfile?.fotoUrl ?? user?.fotoUrl)
+            ? <img src={activeProfile?.fotoUrl ?? user?.fotoUrl ?? ''} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', color: '#fff', backgroundColor: '#C4956A', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {initial}
               </span>

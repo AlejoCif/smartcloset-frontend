@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useProfile } from '../context/ProfileContext'
 import AppBottomNav from '../components/AppBottomNav'
 
 // ── SVG Icons (locales) ──────────────────────────────────────
@@ -119,9 +120,10 @@ function SmallCard({ to, num, title, desc, imgSrc, icon }: SmallCardProps) {
 // ── HomePage principal ───────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate()
-  const { user }  = useAuth()
-  const name    = user?.nombre?.split(' ')[0] ?? 'Bienvenida'
-  const initial = user?.nombre?.charAt(0).toUpperCase() ?? '?'
+  const { user }          = useAuth()
+  const { activeProfile } = useProfile()
+  const name    = activeProfile?.nombre ?? user?.nombre?.split(' ')[0] ?? 'Bienvenida'
+  const initial = name.charAt(0).toUpperCase()
 
   return (
     <div style={{ backgroundColor: '#FAF7F2', maxWidth: '430px', margin: '0 auto', minHeight: '100vh', paddingBottom: '80px' }}>
@@ -134,25 +136,38 @@ export default function HomePage() {
           <IcMenu size={20} color="#4A3420" />
         </button>
 
-        {/* Avatar */}
+        {/* Avatar — toca para cambiar perfil */}
         <button
-          onClick={() => navigate('/perfil')}
-          style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #D4BFA4', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => navigate('/perfiles')}
+          style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #D4BFA4', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
+          title="Cambiar perfil"
         >
-          {user?.fotoUrl
-            ? <img src={user.fotoUrl} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {activeProfile?.fotoUrl
+            ? <img src={activeProfile.fotoUrl} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', color: '#fff', backgroundColor: '#C4956A', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {initial}
               </span>
           }
+          {/* Badge si es perfil infantil */}
+          {activeProfile?.tipo === 'NINO' && (
+            <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', fontSize: '12px', lineHeight: 1 }}>👧</span>
+          )}
         </button>
       </header>
 
       {/* ── Saludo ─────────────────────────────────────────── */}
       <div style={{ padding: '4px 16px 20px' }}>
-        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, color: '#C4956A', marginBottom: '2px' }}>
-          Hola, {name} 👋
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, color: '#C4956A', margin: 0 }}>
+            Hola, {name} 👋
+          </p>
+          <button
+            onClick={() => navigate('/perfiles')}
+            style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', background: 'none', border: '1px solid #E0D5C8', borderRadius: '20px', padding: '3px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+          >
+            <span>⇄</span> Cambiar perfil
+          </button>
+        </div>
         <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '38px', fontWeight: 400, color: '#1A1A1A', lineHeight: 1, margin: '0 0 4px' }}>
           Smart<span style={{ fontStyle: 'italic' }}>Closet</span>
         </h1>

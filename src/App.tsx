@@ -1,8 +1,12 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ProfileProvider, useProfile } from './context/ProfileContext'
+import { getProfiles } from './api/profiles'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
+import ProfileSelectorPage from './pages/ProfileSelectorPage'
 import ColorimetriaPage from './pages/ColorimetriaPage'
 import ClosetPage from './pages/ClosetPage'
 import AgregarPrendaPage from './pages/AgregarPrendaPage'
@@ -16,6 +20,14 @@ import LoadingSpinner from './components/LoadingSpinner'
 
 function AppRoutes() {
   const { token, user, loading } = useAuth()
+  const { profiles, setProfiles, activeProfile } = useProfile()
+
+  // Carga perfiles cuando el usuario está autenticado
+  useEffect(() => {
+    if (token && user) {
+      getProfiles().then(r => setProfiles(r.data)).catch(() => {})
+    }
+  }, [token, user])
 
   if (loading) {
     return (
@@ -25,7 +37,7 @@ function AppRoutes() {
     )
   }
 
-  // No autenticada: landing + login + register
+  // No autenticada
   if (!token) {
     return (
       <Routes>
@@ -47,11 +59,21 @@ function AppRoutes() {
     )
   }
 
+  // Autenticada pero sin perfil seleccionado → selector
+  if (profiles.length > 0 && !activeProfile) {
+    return (
+      <Routes>
+        <Route path="*" element={<ProfileSelectorPage />} />
+      </Routes>
+    )
+  }
+
   // Autenticada completa
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<HomePage />} />
+      <Route path="/perfiles" element={<ProfileSelectorPage />} />
       <Route path="/closet" element={<ClosetPage />} />
       <Route path="/closet/agregar" element={<AgregarPrendaPage />} />
       <Route path="/outfits" element={<OutfitsPage />} />
@@ -70,7 +92,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ProfileProvider>
+          <AppRoutes />
+        </ProfileProvider>
       </AuthProvider>
     </BrowserRouter>
   )

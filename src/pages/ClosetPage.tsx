@@ -5,6 +5,31 @@ import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
 import { FILTROS_CATEGORIA, CATEGORIA_LABELS } from '../types'
 
+// Orden visual de categorías para la vista agrupada
+const CAT_ORDER = [
+  'BLUSA','CAMISETA','CAMISA',
+  'PANTALON','JEAN','LEGGINS','SHORT',
+  'VESTIDO','FALDA','FALDA_CORTA','FALDA_LARGA',
+  'BLAZER','CHAQUETA','ABRIGO',
+  'ZAPATO_TACO','ZAPATO_PLANO','BOTA','TENIS','SANDALIA',
+  'BOLSO','CARTERA',
+  'COLLAR','ARETES','CINTURON',
+  'OTRO',
+]
+
+function agruparPorCategoria(prendas: Prenda[]): [string, Prenda[]][] {
+  const map: Record<string, Prenda[]> = {}
+  for (const p of prendas) {
+    if (!map[p.categoria]) map[p.categoria] = []
+    map[p.categoria].push(p)
+  }
+  return Object.entries(map).sort(([a], [b]) => {
+    const ia = CAT_ORDER.indexOf(a)
+    const ib = CAT_ORDER.indexOf(b)
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
+  })
+}
+
 // ── helpers ──────────────────────────────────────────────────
 function isNueva(creadoEn: string) {
   return Date.now() - new Date(creadoEn).getTime() < 7 * 24 * 60 * 60 * 1000
@@ -311,7 +336,9 @@ export default function ClosetPage() {
         )}
 
         {/* ── Grid de prendas ─────────────────────────────── */}
-        {!loading && prendas.length > 0 && (
+
+        {/* Vista plana — cuando hay filtro activo */}
+        {!loading && prendas.length > 0 && filtro !== '' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             {prendas.map(prenda => (
               <PrendaCard
@@ -323,6 +350,39 @@ export default function ClosetPage() {
                 onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                 onEliminar={() => setConfirmDelete(prenda.id)}
               />
+            ))}
+          </div>
+        )}
+
+        {/* Vista agrupada — cuando filtro es "Todo" */}
+        {!loading && prendas.length > 0 && filtro === '' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            {agruparPorCategoria(prendas).map(([cat, items]) => (
+              <div key={cat}>
+                {/* Cabecera de categoría */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 400, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>
+                    {CATEGORIA_LABELS[cat] ?? cat}
+                  </h3>
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: '#9E9690', backgroundColor: '#F2EBE0', padding: '3px 10px', borderRadius: '20px' }}>
+                    {items.length}
+                  </span>
+                </div>
+                {/* Grid de la categoría */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  {items.map(prenda => (
+                    <PrendaCard
+                      key={prenda.id}
+                      prenda={prenda}
+                      favorito={favoritos.has(prenda.id)}
+                      onToggleFav={() => toggleFav(prenda.id)}
+                      onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
+                      onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
+                      onEliminar={() => setConfirmDelete(prenda.id)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}

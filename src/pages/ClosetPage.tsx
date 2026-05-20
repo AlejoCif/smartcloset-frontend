@@ -1,20 +1,149 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getPrendas, deletePrenda } from '../api/prendas'
-import Layout from '../components/Layout'
-import LoadingSpinner from '../components/LoadingSpinner'
 import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
 import { FILTROS_CATEGORIA, CATEGORIA_LABELS } from '../types'
 
+// ── helpers ──────────────────────────────────────────────────
+function isNueva(creadoEn: string) {
+  return Date.now() - new Date(creadoEn).getTime() < 7 * 24 * 60 * 60 * 1000
+}
+
+const OCASION_LABEL: Record<string, string> = {
+  CASUAL: 'Casual', ELEGANTE: 'Elegante', DEPORTIVO: 'Sport',
+  TRABAJO: 'Trabajo', SALIDA_NOCTURNA: 'Noche',
+}
+
+// ── PrendaCard ───────────────────────────────────────────────
+function PrendaCard({
+  prenda,
+  favorito,
+  onToggleFav,
+  onZoom,
+  onCrearLook,
+  onEliminar,
+}: {
+  prenda: Prenda
+  favorito: boolean
+  onToggleFav: () => void
+  onZoom: () => void
+  onCrearLook: () => void
+  onEliminar: () => void
+}) {
+  const nueva = isNueva(prenda.creadoEn)
+  const label = CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria
+  const ocasionLabel = prenda.ocasion ? OCASION_LABEL[prenda.ocasion] ?? prenda.ocasion : null
+
+  return (
+    <div style={{ backgroundColor: '#fff', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Foto */}
+      <div style={{ position: 'relative', aspectRatio: '4/5', cursor: 'zoom-in' }} onClick={onZoom}>
+        <img
+          src={prenda.fotoUrl}
+          alt={label}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+
+        {/* Badge NUEVO */}
+        {nueva && (
+          <span style={{
+            position: 'absolute', top: '8px', left: '8px',
+            backgroundColor: '#C4956A', color: '#fff',
+            fontFamily: 'Jost, sans-serif', fontSize: '9px', fontWeight: 700,
+            letterSpacing: '0.1em', padding: '3px 8px', borderRadius: '20px',
+          }}>
+            NUEVO
+          </span>
+        )}
+
+        {/* Corazón favorito */}
+        <button
+          onClick={e => { e.stopPropagation(); onToggleFav() }}
+          style={{
+            position: 'absolute', top: '8px', right: '8px',
+            width: '30px', height: '30px', borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={favorito ? '#C4956A' : 'none'} stroke={favorito ? '#C4956A' : '#9E9690'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+
+        {/* Botón eliminar (hover) */}
+        <button
+          onClick={e => { e.stopPropagation(); onEliminar() }}
+          style={{
+            position: 'absolute', bottom: '8px', right: '8px',
+            width: '28px', height: '28px', borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9E9690" strokeWidth="1.8" strokeLinecap="round">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* Info */}
+      <div style={{ padding: '10px 10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {label}
+        </p>
+
+        {/* Color */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <div style={{ width: '11px', height: '11px', borderRadius: '50%', backgroundColor: prenda.colorPrincipal, border: '1px solid rgba(0,0,0,0.08)', flexShrink: 0 }} />
+          <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {prenda.colorPrincipal}
+          </span>
+        </div>
+
+        {/* Chip ocasión */}
+        {ocasionLabel && (
+          <span style={{
+            alignSelf: 'flex-start', fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 500,
+            color: '#9E9690', backgroundColor: '#F2EBE0', padding: '2px 8px', borderRadius: '20px',
+          }}>
+            {ocasionLabel}
+          </span>
+        )}
+
+        {/* Botón crear look */}
+        <button
+          onClick={onCrearLook}
+          style={{
+            width: '100%', backgroundColor: '#C4956A', color: '#fff',
+            fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
+            border: 'none', borderRadius: '8px', padding: '7px 0',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
+            marginTop: '2px',
+          }}
+        >
+          <span style={{ fontSize: '11px' }}>✦</span> Crear look con IA
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── ClosetPage ───────────────────────────────────────────────
 export default function ClosetPage() {
-  const [prendas, setPrendas] = useState<Prenda[]>([])
-  const [filtro, setFiltro] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [prendas,       setPrendas]       = useState<Prenda[]>([])
+  const [filtro,        setFiltro]        = useState('')
+  const [loading,       setLoading]       = useState(true)
+  const [error,         setError]         = useState('')
+  const [deletingId,    setDeletingId]    = useState<number | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [modalImg, setModalImg] = useState<{ src: string; alt: string } | null>(null)
+  const [modalImg,      setModalImg]      = useState<{ src: string; alt: string } | null>(null)
+  const [favoritos,     setFavoritos]     = useState<Set<number>>(new Set())
   const navigate = useNavigate()
 
   const cargar = useCallback(async () => {
@@ -36,7 +165,7 @@ export default function ClosetPage() {
     setDeletingId(id)
     try {
       await deletePrenda(id)
-      setPrendas((prev) => prev.filter((p) => p.id !== id))
+      setPrendas(prev => prev.filter(p => p.id !== id))
     } catch {
       setError('No se pudo eliminar la prenda.')
     } finally {
@@ -45,128 +174,198 @@ export default function ClosetPage() {
     }
   }
 
+  const toggleFav = (id: number) =>
+    setFavoritos(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
+
+  // Insight: categoría con más prendas
+  const topCat = prendas.length > 0
+    ? Object.entries(prendas.reduce((acc, p) => ({ ...acc, [p.categoria]: (acc[p.categoria] ?? 0) + 1 }), {} as Record<string, number>))
+        .sort((a, b) => b[1] - a[1])[0]
+    : null
+
   return (
-    <Layout title="Mi Closet">
-      {/* Filtros */}
-      <div className="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-b border-surface sticky top-[65px] bg-background z-20">
-        {FILTROS_CATEGORIA.map(({ value, label }) => (
+    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '100px' }}>
+
+      {/* ── Header ─────────────────────────────────────────── */}
+      <header style={{ padding: '52px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
-            key={value}
-            onClick={() => setFiltro(value)}
-            className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-body font-medium transition-all flex-shrink-0 ${
-              filtro === value
-                ? 'bg-accent text-white'
-                : 'bg-surface text-primary/60 hover:text-primary'
-            }`}
+            onClick={() => navigate('/home')}
+            style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
           >
-            {label}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
           </button>
-        ))}
+          <div>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: 600, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>
+              Mi Closet
+            </h1>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#9E9690', margin: '2px 0 0' }}>
+              {loading ? '...' : `${prendas.length} prenda${prendas.length !== 1 ? 's' : ''}`}
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingTop: '4px' }}>
+          <button style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+          <button style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      {/* ── Filtros horizontales ────────────────────────────── */}
+      <div style={{ padding: '0 16px 16px', overflowX: 'auto', display: 'flex', gap: '8px', scrollbarWidth: 'none' }}>
+        {FILTROS_CATEGORIA.map(({ value, label }) => {
+          const active = filtro === value
+          return (
+            <button
+              key={value}
+              onClick={() => setFiltro(value)}
+              style={{
+                flexShrink: 0,
+                fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
+                padding: '7px 16px', borderRadius: '20px', cursor: 'pointer', border: 'none',
+                backgroundColor: active ? '#3D2B1F' : '#fff',
+                color: active ? '#fff' : '#9E9690',
+                boxShadow: active ? 'none' : '0 1px 4px rgba(0,0,0,0.07)',
+                outline: active ? 'none' : '1px solid #E0D5C8',
+                transition: 'all 0.15s',
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
 
-      <div className="px-4 py-4">
-        {loading && <LoadingSpinner text="Cargando tu closet..." />}
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
+        {/* ── Insights banner ─────────────────────────────── */}
+        {!loading && prendas.length > 0 && topCat && (
+          <div style={{
+            backgroundColor: '#FAF7F2', border: '1px solid #E0D5C8',
+            borderRadius: '14px', padding: '14px 16px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+              <div style={{ width: '36px', height: '36px', backgroundColor: 'rgba(196,149,106,0.12)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ color: '#C4956A', fontSize: '16px' }}>✦</span>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>
+                  Tu closet en insights
+                </p>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {CATEGORIA_LABELS[topCat[0]] ?? topCat[0]} es tu categoría más frecuente ({topCat[1]} prendas)
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/outfits')}
+              style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500, color: '#C4956A', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
+            >
+              Ver insights ›
+            </button>
+          </div>
+        )}
+
+        {/* ── Loading ─────────────────────────────────────── */}
+        {loading && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0', gap: '12px' }}>
+            <div style={{ width: '36px', height: '36px', border: '3px solid #F2EBE0', borderTopColor: '#C4956A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690' }}>Cargando tu closet...</p>
+          </div>
+        )}
+
+        {/* ── Error ───────────────────────────────────────── */}
         {error && (
-          <div className="text-center py-8">
-            <p className="text-red-500 font-body text-sm">{error}</p>
-            <button onClick={cargar} className="mt-3 text-accent text-sm font-body underline">
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#E05555' }}>{error}</p>
+            <button onClick={cargar} style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#C4956A', background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px', textDecoration: 'underline' }}>
               Reintentar
             </button>
           </div>
         )}
 
+        {/* ── Vacío ───────────────────────────────────────── */}
         {!loading && !error && prendas.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="text-5xl mb-4">👗</div>
-            <p className="font-display text-2xl font-light text-primary mb-2">Tu closet está vacío</p>
-            <p className="text-primary/50 font-body text-sm mb-6">Comienza agregando tu primera prenda</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 0', textAlign: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '48px' }}>👗</span>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: 400, color: '#1A1A1A', margin: 0 }}>Tu closet está vacío</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>Comienza agregando tu primera prenda</p>
             <button
               onClick={() => navigate('/closet/agregar')}
-              className="bg-accent text-white font-body font-medium px-6 py-3 rounded-xl text-sm"
+              style={{ marginTop: '16px', backgroundColor: '#C4956A', color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, padding: '12px 28px', borderRadius: '12px', border: 'none', cursor: 'pointer' }}
             >
               Agregar prenda
             </button>
           </div>
         )}
 
+        {/* ── Grid de prendas ─────────────────────────────── */}
         {!loading && prendas.length > 0 && (
-          <div className="grid grid-cols-2 gap-3">
-            {prendas.map((prenda) => (
-              <div key={prenda.id} className="relative group">
-                <div
-                  className="bg-surface rounded-2xl overflow-hidden aspect-square cursor-zoom-in"
-                  onClick={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
-                >
-                  <img
-                    src={prenda.fotoUrl}
-                    alt={CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="mt-1.5 px-1">
-                  <p className="font-body text-xs font-medium text-primary truncate">
-                    {CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria}
-                  </p>
-                  <p className="font-body text-xs text-primary/40 truncate mb-2">{prenda.colorPrincipal}</p>
-                  <button
-                    onClick={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
-                    className="w-full flex items-center justify-center gap-1.5 bg-accent/10 hover:bg-accent/20 text-accent font-body font-medium text-xs py-1.5 rounded-lg transition-colors"
-                  >
-                    <span>✨</span>
-                    <span>Crear outfit</span>
-                  </button>
-                </div>
-
-                {/* Botón eliminar */}
-                <button
-                  onClick={() => setConfirmDelete(prenda.id)}
-                  className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round">
-                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
-                  </svg>
-                </button>
-              </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            {prendas.map(prenda => (
+              <PrendaCard
+                key={prenda.id}
+                prenda={prenda}
+                favorito={favoritos.has(prenda.id)}
+                onToggleFav={() => toggleFav(prenda.id)}
+                onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
+                onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
+                onEliminar={() => setConfirmDelete(prenda.id)}
+              />
             ))}
           </div>
         )}
       </div>
 
-      {/* FAB agregar */}
+      {/* ── FAB agregar ─────────────────────────────────────── */}
       <button
         onClick={() => navigate('/closet/agregar')}
-        className="fixed bottom-24 right-5 w-14 h-14 bg-accent rounded-full shadow-lg flex items-center justify-center text-white z-30 active:scale-95 transition-transform"
+        style={{
+          position: 'fixed', bottom: '90px', right: 'max(16px, calc(50vw - 215px + 16px))',
+          width: '56px', height: '56px', borderRadius: '50%',
+          backgroundColor: '#3D2B1F', color: '#fff',
+          border: 'none', cursor: 'pointer', zIndex: 30,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 16px rgba(61,43,31,0.35)',
+        }}
         aria-label="Agregar prenda"
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <path d="M12 5v14M5 12h14" />
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+          <path d="M12 5v14M5 12h14"/>
         </svg>
       </button>
 
+      {/* ── ImageModal ──────────────────────────────────────── */}
       {modalImg && <ImageModal src={modalImg.src} alt={modalImg.alt} onClose={() => setModalImg(null)} />}
 
-      {/* Modal confirmar eliminación */}
+      {/* ── Modal confirmar eliminación ──────────────────────── */}
       {confirmDelete !== null && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm px-4 pb-8">
-          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl">
-            <h3 className="font-display text-2xl font-light text-primary text-center mb-2">
-              ¿Eliminar prenda?
-            </h3>
-            <p className="text-primary/50 font-body text-sm text-center mb-6">
-              Esta acción no se puede deshacer.
-            </p>
-            <div className="flex gap-3">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)', padding: '0 16px 32px' }}>
+          <div style={{ width: '100%', maxWidth: '400px', backgroundColor: '#fff', borderRadius: '24px', padding: '28px 24px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: 400, color: '#1A1A1A', textAlign: 'center', margin: '0 0 6px' }}>¿Eliminar prenda?</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', textAlign: 'center', margin: '0 0 24px' }}>Esta acción no se puede deshacer.</p>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-3.5 rounded-xl border border-surface text-primary font-body font-medium text-sm"
+                style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid #E0D5C8', backgroundColor: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500, color: '#4A3420', cursor: 'pointer' }}
               >
                 Cancelar
               </button>
               <button
                 onClick={() => handleDelete(confirmDelete)}
                 disabled={deletingId === confirmDelete}
-                className="flex-1 py-3.5 rounded-xl bg-red-500 text-white font-body font-medium text-sm disabled:opacity-60"
+                style={{ flex: 1, padding: '14px', borderRadius: '12px', border: 'none', backgroundColor: '#E05555', fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500, color: '#fff', cursor: 'pointer', opacity: deletingId === confirmDelete ? 0.6 : 1 }}
               >
                 {deletingId === confirmDelete ? 'Eliminando...' : 'Eliminar'}
               </button>
@@ -174,6 +373,8 @@ export default function ClosetPage() {
           </div>
         </div>
       )}
-    </Layout>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    </div>
   )
 }

@@ -107,7 +107,7 @@ export default function ViajeOrganizerPage() {
       </header>
 
       {/* ── Chat ───────────────────────────────────────────── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 0', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '160px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 0', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: 'calc(180px + env(safe-area-inset-bottom, 0px))' }}>
 
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: '8px', alignItems: 'flex-end' }}>
@@ -172,7 +172,7 @@ export default function ViajeOrganizerPage() {
       </div>
 
       {/* ── Input fijo ─────────────────────────────────────── */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', backgroundColor: '#FAF7F2', borderTop: '1px solid #EDE8E1', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))', zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', backgroundColor: '#FAF7F2', borderTop: '1px solid #EDE8E1', padding: '10px 16px', zIndex: 40 }}>
 
         {/* Chips de sugerencia rápida — solo al inicio */}
         {messages.length <= 2 && !loading && (

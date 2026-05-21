@@ -172,7 +172,7 @@ export default function ViajeOrganizerPage() {
       </div>
 
       {/* ── Input fijo ─────────────────────────────────────── */}
-      <div style={{ position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', backgroundColor: '#FAF7F2', borderTop: '1px solid #EDE8E1', padding: '10px 16px', zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 'calc(75px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', backgroundColor: '#FAF7F2', borderTop: '1px solid #EDE8E1', padding: '10px 16px', zIndex: 40 }}>
 
         {/* Chips de sugerencia rápida — solo al inicio */}
         {messages.length <= 2 && !loading && (

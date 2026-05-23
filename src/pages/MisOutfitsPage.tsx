@@ -215,6 +215,8 @@ export default function MisOutfitsPage() {
   const [subiendo,              setSubiendo]              = useState(false)
   const [error,                 setError]                 = useState('')
   const [showSheet,             setShowSheet]             = useState(false)
+  const [selectedId,            setSelectedId]            = useState<number | null>(null)
+  const [verTodos,              setVerTodos]              = useState(false)
   const [considerarColorimetria, setConsiderarColorimetria] = useState(() =>
     localStorage.getItem('colorimetria_activa') !== 'false'
   )
@@ -356,32 +358,85 @@ export default function MisOutfitsPage() {
           </div>
         )}
 
-        {/* ── Outfit más reciente (análisis expandido) ──── */}
-        {!loading && outfits.length > 0 && (
-          <AnalysisCard
-            key={outfits[0].id}
-            item={outfits[0]}
-            onEliminar={() => setOutfits(prev => prev.filter(x => x.id !== outfits[0].id))}
-          />
-        )}
+        {/* ── Outfit seleccionado (análisis expandido) ──── */}
+        {!loading && outfits.length > 0 && (() => {
+          const focused = outfits.find(o => o.id === selectedId) ?? outfits[0]
+          return (
+            <AnalysisCard
+              key={focused.id}
+              item={focused}
+              onEliminar={() => {
+                setOutfits(prev => {
+                  const next = prev.filter(x => x.id !== focused.id)
+                  if (selectedId === focused.id) setSelectedId(next[0]?.id ?? null)
+                  return next
+                })
+              }}
+            />
+          )
+        })()}
 
-        {/* ── Últimos análisis (scroll horizontal) ────────── */}
-        {!loading && outfits.length > 1 && (
+        {/* ── Carrusel de todos los análisis ──────────────── */}
+        {!loading && outfits.length > 1 && !verTodos && (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>Tus últimos análisis</p>
-              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#C4956A', cursor: 'pointer' }}>Ver todos ›</span>
+              <button
+                onClick={() => setVerTodos(true)}
+                style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#C4956A', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Ver todos ›
+              </button>
             </div>
             <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-              {outfits.slice(1).map(o => (
-                <div key={o.id} style={{ flexShrink: 0, position: 'relative', width: '90px' }}>
-                  <img src={o.fotoUrl} alt="outfit" style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '12px', display: 'block' }} />
-                  <div style={{ position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: '10px', padding: '2px 7px' }}>
-                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 700, color: '#1A1A1A', whiteSpace: 'nowrap' }}>{o.calificacion}/100</span>
+              {outfits.map(o => {
+                const isSel = o.id === (selectedId ?? outfits[0]?.id)
+                return (
+                  <div
+                    key={o.id}
+                    onClick={() => setSelectedId(o.id)}
+                    style={{ flexShrink: 0, position: 'relative', width: '90px', cursor: 'pointer' }}
+                  >
+                    <img
+                      src={o.fotoUrl}
+                      alt="outfit"
+                      style={{
+                        width: '90px', height: '90px', objectFit: 'cover', borderRadius: '12px', display: 'block',
+                        outline: isSel ? '2.5px solid #C4956A' : '2.5px solid transparent',
+                        transition: 'outline 0.15s',
+                      }}
+                    />
+                    <div style={{ position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: '10px', padding: '2px 7px' }}>
+                      <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 700, color: '#1A1A1A', whiteSpace: 'nowrap' }}>{o.calificacion}/100</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
+          </div>
+        )}
+
+        {/* ── Ver todos: lista completa ────────────────────── */}
+        {!loading && verTodos && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>
+                Todos los análisis ({outfits.length})
+              </p>
+              <button
+                onClick={() => setVerTodos(false)}
+                style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#C4956A', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                ‹ Ver menos
+              </button>
+            </div>
+            {outfits.map(o => (
+              <AnalysisCard
+                key={o.id}
+                item={o}
+                onEliminar={() => setOutfits(prev => prev.filter(x => x.id !== o.id))}
+              />
+            ))}
           </div>
         )}
 

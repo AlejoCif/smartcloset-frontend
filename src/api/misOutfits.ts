@@ -1,10 +1,11 @@
 import client from './client'
 import type { MiOutfitItem } from '../types'
 
-export const subirMiOutfit = (foto: File) => {
+export const subirMiOutfit = (foto: File, considerarColorimetria: boolean = true) => {
   const form = new FormData()
   form.append('foto', foto)
   return client.post<MiOutfitItem>('/api/mis-outfits', form, {
+    params: { considerarColorimetria },
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 }

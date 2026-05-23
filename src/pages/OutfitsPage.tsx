@@ -328,27 +328,31 @@ export default function OutfitsPage() {
   const autoRef    = useRef(false)
   const weather    = useWeather()
 
-  const [tab,            setTab]            = useState<Tab>('sugerir')
-  const [estilo,         setEstilo]         = useState<Estilo>('CASUAL')
-  const [limit,          setLimit]          = useState(2)
-  const [mostrarOpc,     setMostrarOpc]     = useState(false)
-  const [temperatura,    setTemperatura]    = useState('')
-  const [condicion,      setCondicion]      = useState('')
-  const [nombreEvento,   setNombreEvento]   = useState('')
-  const [nivelFormalidad,setNivelFormalidad]= useState('')
-  const [sugerencias,    setSugerencias]    = useState<OutfitSugerido[]>([])
-  const [guardados,      setGuardados]      = useState<OutfitGuardado[]>([])
-  const [loadingSugerir, setLoadingSugerir] = useState(false)
-  const [loadingGuard,   setLoadingGuard]   = useState(false)
-  const [savingIndex,    setSavingIndex]    = useState<number | null>(null)
-  const [error,          setError]          = useState('')
-  const [idsYaMostrados, setIds]            = useState<number[]>([])
-  const [sentimiento,    setSentimiento]    = useState<string | null>(null)
-  const [ocasion,        setOcasion]        = useState<string | null>(null)
-  const [closetPrendas,  setClosetPrendas]  = useState<Prenda[]>([])
+  const [tab,                    setTab]                    = useState<Tab>('sugerir')
+  const [estilo,                 setEstilo]                 = useState<Estilo>('CASUAL')
+  const [limit,                  setLimit]                  = useState(2)
+  const [mostrarOpc,             setMostrarOpc]             = useState(false)
+  const [temperatura,            setTemperatura]            = useState('')
+  const [condicion,              setCondicion]              = useState('')
+  const [nombreEvento,           setNombreEvento]           = useState('')
+  const [nivelFormalidad,        setNivelFormalidad]        = useState('')
+  const [sugerencias,            setSugerencias]            = useState<OutfitSugerido[]>([])
+  const [guardados,              setGuardados]              = useState<OutfitGuardado[]>([])
+  const [loadingSugerir,         setLoadingSugerir]         = useState(false)
+  const [loadingGuard,           setLoadingGuard]           = useState(false)
+  const [savingIndex,            setSavingIndex]            = useState<number | null>(null)
+  const [error,                  setError]                  = useState('')
+  const [idsYaMostrados,         setIds]                    = useState<number[]>([])
+  const [sentimiento,            setSentimiento]            = useState<string | null>(null)
+  const [ocasion,                setOcasion]                = useState<string | null>(null)
+  const [closetPrendas,          setClosetPrendas]          = useState<Prenda[]>([])
+  const [considerarColorimetria, setConsiderarColorimetria] = useState(() =>
+    localStorage.getItem('colorimetria_activa') !== 'false'
+  )
 
   useEffect(() => { getPrendas().then(r => setClosetPrendas(r.data)).catch(() => {}) }, [])
   useEffect(() => { if (tab === 'guardados') cargarGuardados() }, [tab])
+  useEffect(() => { localStorage.setItem('colorimetria_activa', String(considerarColorimetria)) }, [considerarColorimetria])
   useEffect(() => {
     if (prendaAncla && !autoRef.current) { autoRef.current = true; handleSugerirAncla() }
   }, [prendaAncla])
@@ -357,6 +361,7 @@ export default function OutfitsPage() {
     estilo, limit,
     prendaIdsExcluir: excluir,
     prendaAnclaId: undefined,
+    considerarColorimetria,
     clima: temperatura || condicion ? { temperatura: temperatura ? parseFloat(temperatura) : undefined, condicion: condicion || undefined } : undefined,
     evento: nombreEvento || nivelFormalidad ? { nombreEvento: nombreEvento || undefined, nivelFormalidad: nivelFormalidad || undefined } : undefined,
   })
@@ -371,7 +376,7 @@ export default function OutfitsPage() {
   const handleSugerirAncla = async () => {
     if (!prendaAncla) return
     setLoadingSugerir(true); setError(''); setSugerencias([])
-    try { const r = await sugerirOutfitsAvanzado({ estilo, limit: 2, prendaAnclaId: prendaAncla.id, prendaIdsExcluir: [] }); setSugerencias(r.data); setIds(r.data.flatMap(o => o.prendaIds)) }
+    try { const r = await sugerirOutfitsAvanzado({ estilo, limit: 2, prendaAnclaId: prendaAncla.id, prendaIdsExcluir: [], considerarColorimetria }); setSugerencias(r.data); setIds(r.data.flatMap(o => o.prendaIds)) }
     catch { setError('No pudimos generar outfits con esa prenda.') }
     finally { setLoadingSugerir(false) }
   }
@@ -488,6 +493,34 @@ export default function OutfitsPage() {
                 )
               })}
             </div>
+          </div>
+
+          {/* Toggle colorimetría */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <div style={{ flex: 1, marginRight: '12px' }}>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, color: '#1A1A1A', margin: '0 0 3px' }}>🎨 Considerar mi colorimetría</p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: 0 }}>
+                {considerarColorimetria ? 'La IA adaptará los outfits a tu paleta personal' : 'La IA evaluará el outfit sin considerar tus colores'}
+              </p>
+            </div>
+            <button
+              onClick={() => setConsiderarColorimetria(v => !v)}
+              style={{
+                position: 'relative', width: '46px', height: '26px', borderRadius: '13px',
+                backgroundColor: considerarColorimetria ? '#C4956A' : '#9E9690',
+                border: 'none', cursor: 'pointer', flexShrink: 0,
+                transition: 'background-color 0.2s ease',
+              }}
+            >
+              <div style={{
+                position: 'absolute', top: '3px',
+                left: considerarColorimetria ? '23px' : '3px',
+                width: '20px', height: '20px', borderRadius: '50%',
+                backgroundColor: '#fff',
+                transition: 'left 0.2s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+              }} />
+            </button>
           </div>
 
           {/* Sentimiento */}

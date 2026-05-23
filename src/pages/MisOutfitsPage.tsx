@@ -210,11 +210,16 @@ function UploadSheet({ onFile, onClose }: { onFile: (f: File) => void; onClose: 
 // ── MisOutfitsPage ───────────────────────────────────────────
 export default function MisOutfitsPage() {
   const navigate   = useNavigate()
-  const [outfits,   setOutfits]   = useState<MiOutfitItem[]>([])
-  const [loading,   setLoading]   = useState(true)
-  const [subiendo,  setSubiendo]  = useState(false)
-  const [error,     setError]     = useState('')
-  const [showSheet, setShowSheet] = useState(false)
+  const [outfits,               setOutfits]               = useState<MiOutfitItem[]>([])
+  const [loading,               setLoading]               = useState(true)
+  const [subiendo,              setSubiendo]              = useState(false)
+  const [error,                 setError]                 = useState('')
+  const [showSheet,             setShowSheet]             = useState(false)
+  const [considerarColorimetria, setConsiderarColorimetria] = useState(() =>
+    localStorage.getItem('colorimetria_activa') !== 'false'
+  )
+
+  useEffect(() => { localStorage.setItem('colorimetria_activa', String(considerarColorimetria)) }, [considerarColorimetria])
 
   useEffect(() => {
     getMisOutfits().then(r => setOutfits(r.data)).finally(() => setLoading(false))
@@ -225,7 +230,7 @@ export default function MisOutfitsPage() {
     setSubiendo(true)
     setError('')
     try {
-      const res = await subirMiOutfit(file)
+      const res = await subirMiOutfit(file, considerarColorimetria)
       setOutfits(prev => [res.data, ...prev])
     } catch {
       setError('No pudimos analizar el outfit. Intenta de nuevo.')
@@ -290,6 +295,36 @@ export default function MisOutfitsPage() {
               <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&q=80" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #fff 0%, transparent 50%)' }} />
             </div>
+          </div>
+        )}
+
+        {/* ── Toggle colorimetría ─────────────────────────── */}
+        {!subiendo && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <div style={{ flex: 1, marginRight: '12px' }}>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, color: '#1A1A1A', margin: '0 0 3px' }}>🎨 Considerar mi colorimetría</p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: 0 }}>
+                {considerarColorimetria ? 'La IA adaptará el análisis a tu paleta personal' : 'La IA evaluará el outfit sin considerar tus colores'}
+              </p>
+            </div>
+            <button
+              onClick={() => setConsiderarColorimetria(v => !v)}
+              style={{
+                position: 'relative', width: '46px', height: '26px', borderRadius: '13px',
+                backgroundColor: considerarColorimetria ? '#C4956A' : '#9E9690',
+                border: 'none', cursor: 'pointer', flexShrink: 0,
+                transition: 'background-color 0.2s ease',
+              }}
+            >
+              <div style={{
+                position: 'absolute', top: '3px',
+                left: considerarColorimetria ? '23px' : '3px',
+                width: '20px', height: '20px', borderRadius: '50%',
+                backgroundColor: '#fff',
+                transition: 'left 0.2s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+              }} />
+            </button>
           </div>
         )}
 

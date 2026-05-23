@@ -23,9 +23,11 @@ const ACCIONES = [
 function AnalysisCard({
   item,
   onEliminar,
+  considerarColorimetria = true,
 }: {
   item: MiOutfitItem
   onEliminar: () => void
+  considerarColorimetria?: boolean
 }) {
   const [modalImg,     setModalImg]     = useState(false)
   const [chatMsg,      setChatMsg]      = useState('')
@@ -42,7 +44,7 @@ function AnalysisCard({
     setChatLoading(true)
     setChatRes('')
     try {
-      const r = await chatMiOutfit(item.id, texto)
+      const r = await chatMiOutfit(item.id, texto, considerarColorimetria)
       setChatRes(r.data.respuesta)
     } finally { setChatLoading(false) }
   }
@@ -365,6 +367,7 @@ export default function MisOutfitsPage() {
             <AnalysisCard
               key={focused.id}
               item={focused}
+              considerarColorimetria={considerarColorimetria}
               onEliminar={() => {
                 setOutfits(prev => {
                   const next = prev.filter(x => x.id !== focused.id)
@@ -434,6 +437,7 @@ export default function MisOutfitsPage() {
               <AnalysisCard
                 key={o.id}
                 item={o}
+                considerarColorimetria={considerarColorimetria}
                 onEliminar={() => setOutfits(prev => prev.filter(x => x.id !== o.id))}
               />
             ))}

@@ -4,8 +4,8 @@ import type { MiOutfitItem } from '../types'
 export const subirMiOutfit = (foto: File, considerarColorimetria: boolean = true) => {
   const form = new FormData()
   form.append('foto', foto)
+  form.append('considerarColorimetria', String(considerarColorimetria))
   return client.post<MiOutfitItem>('/api/mis-outfits', form, {
-    params: { considerarColorimetria },
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 }
@@ -16,5 +16,5 @@ export const getMisOutfits = () =>
 export const eliminarMiOutfit = (id: number) =>
   client.delete(`/api/mis-outfits/${id}`)
 
-export const chatMiOutfit = (id: number, mensaje: string) =>
-  client.post<{ respuesta: string }>(`/api/mis-outfits/${id}/chat`, { mensaje })
+export const chatMiOutfit = (id: number, mensaje: string, considerarColorimetria: boolean = true) =>
+  client.post<{ respuesta: string }>(`/api/mis-outfits/${id}/chat`, { mensaje, considerarColorimetria })

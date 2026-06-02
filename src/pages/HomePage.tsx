@@ -20,7 +20,7 @@ const CONTENT = {
     outfits:  { img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&q=80', title: 'Conjuntos IA',  desc: 'Conjuntos perfectos para el bebé' },
     misLooks: { img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300&q=80', title: 'Fotos bebé',   desc: 'Guarda fotos del bebé con sus outfits' },
     comprar:  { img: 'https://images.unsplash.com/photo-1561861422-a549073e547a?w=300&q=80',   title: '¿Lo compro?', desc: '¿Vale la pena para el bebé?' },
-    inspi:    { img: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=300&q=80', title: 'Looks bebé',  desc: 'Ideas de outfits lindos para bebé' },
+    inspi:    { img: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=300&q=80', title: 'Inspiración bebé', desc: 'Ideas de outfits lindos para bebé' },
     viaje:    { img: 'https://images.unsplash.com/photo-1502781252888-9143ba7f074e?w=600&q=80', desc: 'Ropita para cada día del viaje 🎒' },
   },
   child: {

@@ -315,7 +315,7 @@ export default function HomePage() {
             icon={<IcBag size={15} color="white" />}
           />
           <SmallCard
-            to="/inspiration"
+            to="/inspiracion"
             num="05"
             title={content.inspi.title}
             desc={content.inspi.desc}

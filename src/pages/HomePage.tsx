@@ -3,7 +3,35 @@ import { useAuth } from '../context/AuthContext'
 import { useProfile } from '../context/ProfileContext'
 import AppBottomNav from '../components/AppBottomNav'
 import InstallBanner from '../components/InstallBanner'
-import { useProfileTheme, getThemeColors, getThemeEmojis, isKidTheme } from '../hooks/useProfileTheme'
+import { useProfileTheme, getThemeColors, getThemeEmojis, isKidTheme, isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
+
+// ── Imágenes y textos por tipo de perfil ─────────────────────
+const CONTENT = {
+  adult: {
+    closet:   { img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80',  desc: 'Tus prendas organizadas y siempre a tu alcance.' },
+    outfits:  { img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80', title: 'Outfits IA',   desc: 'Crea combinaciones perfectas con IA' },
+    misLooks: { img: 'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=300&q=80', title: 'Mis Looks',   desc: 'Guarda y califica tus outfits' },
+    comprar:  { img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&q=80', title: '¿Lo compro?', desc: 'Asesora de compras inteligente' },
+    inspi:    { img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&q=80', title: 'Inspiración', desc: 'Descubre looks con IA' },
+    viaje:    { img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80', desc: 'Outfits para cada día con IA ✈️' },
+  },
+  baby: {
+    closet:   { img: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=400&q=80',   desc: 'Toda la ropita del bebé, siempre lista.' },
+    outfits:  { img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&q=80', title: 'Conjuntos IA',  desc: 'Conjuntos perfectos para el bebé' },
+    misLooks: { img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300&q=80', title: 'Fotos bebé',   desc: 'Guarda fotos del bebé con sus outfits' },
+    comprar:  { img: 'https://images.unsplash.com/photo-1561861422-a549073e547a?w=300&q=80',   title: '¿Lo compro?', desc: '¿Vale la pena para el bebé?' },
+    inspi:    { img: 'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=300&q=80', title: 'Looks bebé',  desc: 'Ideas de outfits lindos para bebé' },
+    viaje:    { img: 'https://images.unsplash.com/photo-1502781252888-9143ba7f074e?w=600&q=80', desc: 'Ropita para cada día del viaje 🎒' },
+  },
+  child: {
+    closet:   { img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80', desc: 'La ropa de tu niño/a, siempre organizada.' },
+    outfits:  { img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80',   title: 'Outfits IA',   desc: 'Conjuntos divertidos para cada día' },
+    misLooks: { img: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=300&q=80', title: 'Mis Looks',   desc: 'Fotos de los outfits de tu niño/a' },
+    comprar:  { img: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=300&q=80',   title: '¿Lo compro?', desc: '¿Compramos esta prenda?' },
+    inspi:    { img: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=300&q=80', title: 'Inspiración', desc: 'Ideas de looks para niño/a' },
+    viaje:    { img: 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=600&q=80', desc: 'Ropa para cada día del viaje 🎒' },
+  },
+}
 
 // ── SVG Icons (locales) ──────────────────────────────────────
 function IcHanger({ size = 22, color = 'currentColor' }) {
@@ -124,11 +152,15 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { user }          = useAuth()
   const { activeProfile } = useProfile()
-  const themeMode  = useProfileTheme()
-  const colors     = getThemeColors(themeMode)
+  const themeMode   = useProfileTheme()
+  const colors      = getThemeColors(themeMode)
   const themeEmojis = getThemeEmojis(themeMode)
   const name    = activeProfile?.nombre ?? user?.nombre?.split(' ')[0] ?? 'Bienvenida'
   const initial = name.charAt(0).toUpperCase()
+
+  const content = isBabyTheme(themeMode) ? CONTENT.baby
+                : isChildTheme(themeMode) ? CONTENT.child
+                : CONTENT.adult
 
   const EMOJI_POS = [
     [6,8],[18,72],[32,22],[48,55],[65,82],
@@ -224,7 +256,7 @@ export default function HomePage() {
                 Mi Closet
               </p>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.45 }}>
-                Tus prendas organizadas y siempre a tu alcance.
+                {content.closet.desc}
               </p>
             </div>
 
@@ -240,7 +272,7 @@ export default function HomePage() {
           {/* Mitad derecha: imagen */}
           <div style={{ flex: '0 0 50%', position: 'relative' }}>
             <img
-              src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80"
+              src={content.closet.img}
               alt="Mi Closet"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
@@ -261,33 +293,33 @@ export default function HomePage() {
           <SmallCard
             to="/outfits"
             num="02"
-            title="Outfits IA"
-            desc="Crea combinaciones perfectas con IA"
-            imgSrc="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80"
+            title={content.outfits.title}
+            desc={content.outfits.desc}
+            imgSrc={content.outfits.img}
             icon={<IcSparkles size={15} color="white" />}
           />
           <SmallCard
             to="/mis-outfits"
             num="03"
-            title="Mis Looks"
-            desc="Guarda y califica tus outfits"
-            imgSrc="https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=300&q=80"
+            title={content.misLooks.title}
+            desc={content.misLooks.desc}
+            imgSrc={content.misLooks.img}
             icon={<IcHeart size={15} color="white" />}
           />
           <SmallCard
             to="/comprar"
             num="04"
-            title="¿Lo compro?"
-            desc="Asesora de compras inteligente"
-            imgSrc="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&q=80"
+            title={content.comprar.title}
+            desc={content.comprar.desc}
+            imgSrc={content.comprar.img}
             icon={<IcBag size={15} color="white" />}
           />
           <SmallCard
-            to="/inspiracion"
+            to="/inspiration"
             num="05"
-            title="Inspiración"
-            desc="Descubre looks con IA"
-            imgSrc="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&q=80"
+            title={content.inspi.title}
+            desc={content.inspi.desc}
+            imgSrc={content.inspi.img}
             icon={<IcSparkles size={15} color="white" />}
           />
         </div>
@@ -299,7 +331,7 @@ export default function HomePage() {
           style={{ borderRadius: '20px', overflow: 'hidden', height: '110px', display: 'flex', width: '100%', border: 'none', cursor: 'pointer', padding: 0, position: 'relative' }}
         >
           <img
-            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80"
+            src={content.viaje.img}
             alt="Organiza tu viaje"
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
@@ -311,7 +343,7 @@ export default function HomePage() {
                 Organiza tu <span style={{ fontStyle: 'italic' }}>viaje</span>
               </p>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.6)', margin: '3px 0 0' }}>
-                Outfits para cada día con IA ✈️
+                {content.viaje.desc}
               </p>
             </div>
             <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

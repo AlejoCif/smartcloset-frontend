@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useProfile } from '../context/ProfileContext'
 import AppBottomNav from '../components/AppBottomNav'
+import InstallBanner from '../components/InstallBanner'
 import { useProfileTheme, getThemeColors, getThemeEmojis, isKidTheme } from '../hooks/useProfileTheme'
 
 // ── SVG Icons (locales) ──────────────────────────────────────
@@ -200,6 +201,9 @@ export default function HomePage() {
           Tu guardarropa inteligente ✨
         </p>
       </div>
+
+      {/* ── Banner de instalación PWA ─────────────────────── */}
+      <InstallBanner />
 
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 

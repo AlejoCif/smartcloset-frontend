@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import InstallBanner from '../components/InstallBanner'
 
 // ── Hook de fade-in al hacer scroll ─────────────────────────
 function useFadeIn(threshold = 0.15) {
@@ -127,6 +128,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAF7F2', fontFamily: 'Jost, sans-serif' }}>
+
+      {/* ── Banner instalación PWA ──────────────────────────── */}
+      <div style={{ maxWidth: '430px', margin: '0 auto', paddingTop: '16px' }}>
+        <InstallBanner />
+      </div>
 
       {/* ── 1. HERO ────────────────────────────────────────── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden">

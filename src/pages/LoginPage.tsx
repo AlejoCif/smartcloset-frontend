@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { login, register, loginConGoogle } from '../api/auth'
 import { GoogleLogin } from '@react-oauth/google'
-import InstallPrompt from '../components/InstallPrompt'
+import InstallBanner from '../components/InstallBanner'
 
 const seasons = [
   { label: 'Primavera Cálida', color: '#E8A87C' },
@@ -65,7 +65,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      <InstallPrompt />
+      <InstallBanner />
 
       {/* ── Hero panel ── */}
       <div className="relative overflow-hidden md:w-[55%] min-h-[42vh] md:min-h-screen flex flex-col items-center justify-center"

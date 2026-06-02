@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useProfile } from '../context/ProfileContext'
 import AppBottomNav from '../components/AppBottomNav'
-import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
+import { useProfileTheme, getThemeColors, getThemeEmojis, isKidTheme } from '../hooks/useProfileTheme'
 
 // ── SVG Icons (locales) ──────────────────────────────────────
 function IcHanger({ size = 22, color = 'currentColor' }) {
@@ -123,13 +123,35 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { user }          = useAuth()
   const { activeProfile } = useProfile()
-  const themeMode = useProfileTheme()
-  const colors    = getThemeColors(themeMode)
+  const themeMode  = useProfileTheme()
+  const colors     = getThemeColors(themeMode)
+  const themeEmojis = getThemeEmojis(themeMode)
   const name    = activeProfile?.nombre ?? user?.nombre?.split(' ')[0] ?? 'Bienvenida'
   const initial = name.charAt(0).toUpperCase()
 
+  const EMOJI_POS = [
+    [6,8],[18,72],[32,22],[48,55],[65,82],
+    [10,60],[28,15],[42,40],[58,68],[78,30],
+  ]
+
   return (
-    <div style={{ backgroundColor: colors.bg, maxWidth: '430px', margin: '0 auto', minHeight: '100vh', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: colors.bg, maxWidth: '430px', margin: '0 auto', minHeight: '100vh', paddingBottom: '80px', position: 'relative' }}>
+
+      {/* Emojis decorativos para perfiles kids */}
+      {isKidTheme(themeMode) && (
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+          {themeEmojis.map((emoji, i) => (
+            <span key={i} style={{
+              position: 'absolute', fontSize: '28px', opacity: 0.08, userSelect: 'none',
+              top: `${EMOJI_POS[i][0]}%`, left: `${EMOJI_POS[i][1]}%`,
+              transform: `rotate(${[-10,15,-5,20,-15,8,-20,12,-8,18][i]}deg)`,
+            }}>{emoji}</span>
+          ))}
+        </div>
+      )}
+
+      {/* Contenido sobre la capa de emojis */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '52px 16px 8px' }}>
@@ -323,6 +345,8 @@ export default function HomePage() {
         </button>
 
       </div>
+
+      </div>{/* cierre del div zIndex:1 */}
 
       {/* ── Bottom Navigation ──────────────────────────────── */}
       <AppBottomNav />

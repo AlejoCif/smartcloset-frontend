@@ -65,15 +65,15 @@ const OCASIONES    = ['💼 Oficina', '✈️ Viaje', '🍷 Cena', '🛍 Shoppin
 
 // ── Opciones para perfiles infantiles ────────────────────────
 const ESTILOS_BABY = [
-  { value: 'CASUAL'    as Estilo, label: 'Paseo',     emoji: '🌸' },
-  { value: 'DEPORTIVO' as Estilo, label: 'Juguetón',  emoji: '🎠' },
-  { value: 'ELEGANTE'  as Estilo, label: 'Especial',  emoji: '⭐' },
+  { value: 'CASUAL'    as Estilo, label: 'Paseo',     emoji: '🌸', img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=200&q=80' },
+  { value: 'DEPORTIVO' as Estilo, label: 'Juguetón',  emoji: '🎠', img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=200&q=80' },
+  { value: 'ELEGANTE'  as Estilo, label: 'Especial',  emoji: '⭐', img: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=200&q=80' },
 ]
 const ESTILOS_CHILD = [
-  { value: 'CASUAL'    as Estilo, label: 'Casual',    emoji: '😎' },
-  { value: 'DEPORTIVO' as Estilo, label: 'Deporte',   emoji: '⚽' },
-  { value: 'TRABAJO'   as Estilo, label: 'Escuela',   emoji: '🎒' },
-  { value: 'ELEGANTE'  as Estilo, label: 'Especial',  emoji: '🌟' },
+  { value: 'CASUAL'    as Estilo, label: 'Casual',    emoji: '😎', img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=200&q=80' },
+  { value: 'DEPORTIVO' as Estilo, label: 'Deporte',   emoji: '⚽', img: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=200&q=80' },
+  { value: 'TRABAJO'   as Estilo, label: 'Escuela',   emoji: '🎒', img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&q=80' },
+  { value: 'ELEGANTE'  as Estilo, label: 'Especial',  emoji: '🌟', img: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=200&q=80' },
 ]
 const SENTIMIENTOS_BABY  = ['😊 Feliz', '🌟 Especial', '🌈 Colorido', '💫 Suavecito']
 const SENTIMIENTOS_CHILD = ['🌈 Colorido', '⚡ Activo', '😎 Cool', '🌟 Especial']
@@ -558,20 +558,19 @@ export default function OutfitsPage() {
               </div>
             ) : (
               <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-                {kidEstilos.map(({ value, label, emoji }) => {
+                {kidEstilos.map(({ value, label, emoji, img }) => {
                   const sel = estilo === value
                   return (
-                    <button key={value} onClick={() => setEstilo(value)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    <button key={value} onClick={() => setEstilo(value)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                       <div style={{
-                        width: '72px', height: '72px', borderRadius: '20px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '30px',
+                        width: '72px', height: '72px', borderRadius: '18px', overflow: 'hidden',
                         border: sel ? `2.5px solid ${colors.accent}` : '2.5px solid transparent',
-                        backgroundColor: sel ? `${colors.accent}20` : '#fff',
                         boxShadow: sel ? `0 0 0 1px ${colors.accent}` : '0 2px 8px rgba(0,0,0,0.06)',
-                        transition: 'all 0.15s',
+                        transition: 'all 0.15s', position: 'relative',
                       }}>
-                        {emoji}
+                        <img src={img} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                        <div style={{ position: 'absolute', inset: 0, background: sel ? `${colors.accent}30` : 'transparent', transition: 'all 0.15s' }} />
+                        <span style={{ position: 'absolute', bottom: '4px', right: '4px', fontSize: '14px', lineHeight: 1 }}>{emoji}</span>
                       </div>
                       <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: sel ? colors.accent : '#9E9690', fontWeight: sel ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
                     </button>

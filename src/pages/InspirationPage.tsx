@@ -1,18 +1,17 @@
 import { useState } from 'react'
 import { buscarInspiracion, analizarInspiracion } from '../api/inspiration'
-import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
+import { useProfileTheme, getThemeColors, isBabyTheme, isChildTheme, isKidTheme, getThemeEmojis } from '../hooks/useProfileTheme'
 import AppBottomNav from '../components/AppBottomNav'
 import { useNavigate } from 'react-router-dom'
 import type { InspirationImage, InspirationAnalisisResponse } from '../types'
 import { CATEGORIA_LABELS } from '../types'
 
-// ── Datos estáticos ──────────────────────────────────────────
+// ── Datos adulto ─────────────────────────────────────────────
 const CHIPS = [
   'outfits de verano playa', 'looks casual minimalista',
   'outfits de trabajo elegante', 'estilo boho chic',
   'outfits otoño cálido', 'looks noche ciudad',
 ]
-
 const MAS_IDEAS = [
   { emoji: '☀️', label: 'Verano' },
   { emoji: '🍂', label: 'Otoño'  },
@@ -20,13 +19,51 @@ const MAS_IDEAS = [
   { emoji: '🌙', label: 'Noche'  },
   { emoji: '✦',  label: 'Minimal'},
 ]
-
 const ESTILOS_VISUAL = [
   { label: 'Verano playa',       query: 'verano playa outfit',        img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&q=80' },
   { label: 'Casual minimalista', query: 'casual minimalista outfit',  img: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=300&q=80' },
   { label: 'Trabajo elegante',   query: 'work elegant outfit',        img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80' },
   { label: 'Noche ciudad',       query: 'night out city outfit',      img: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80' },
   { label: 'Estilo boho chic',   query: 'boho chic fashion outfit',   img: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=300&q=80' },
+]
+
+// ── Datos bebé ───────────────────────────────────────────────
+const CHIPS_BEBE = [
+  'outfits bebe mameluco', 'ropa bebe verano', 'conjunto bebe fiesta',
+  'body bebe paseo', 'pelele bebe invierno', 'ropa bebe recien nacido',
+]
+const MAS_IDEAS_BEBE = [
+  { emoji: '🌸', label: 'Paseo'   },
+  { emoji: '🎉', label: 'Fiesta'  },
+  { emoji: '🏠', label: 'En casa' },
+  { emoji: '☀️', label: 'Verano'  },
+  { emoji: '❄️', label: 'Invierno'},
+]
+const ESTILOS_VISUAL_BEBE = [
+  { label: 'Paseo bebé',     query: 'baby outfit stroller paseo',       img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&q=80' },
+  { label: 'En casa',        query: 'baby home outfit cozy',            img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300&q=80' },
+  { label: 'Fiesta bebé',    query: 'baby party outfit elegant',        img: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=300&q=80' },
+  { label: 'Verano bebé',    query: 'baby summer outfit light',         img: 'https://images.unsplash.com/photo-1561861422-a549073e547a?w=300&q=80' },
+]
+
+// ── Datos niño/niña ──────────────────────────────────────────
+const CHIPS_NINO = [
+  'outfits niño casual colorido', 'ropa escolar niño',
+  'conjuntos niña divertidos', 'ropa deportiva niño',
+  'outfits fiesta niño', 'looks niña casual primavera',
+]
+const MAS_IDEAS_NINO = [
+  { emoji: '🏫', label: 'Escuela'  },
+  { emoji: '⚽', label: 'Deporte'  },
+  { emoji: '🎉', label: 'Fiesta'   },
+  { emoji: '🌈', label: 'Colorido' },
+  { emoji: '🌳', label: 'Parque'   },
+]
+const ESTILOS_VISUAL_NINO = [
+  { label: 'Casual niño',    query: 'kids casual colorful outfit',      img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&q=80' },
+  { label: 'Escuela',        query: 'school kids outfit backpack',      img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80' },
+  { label: 'Deportivo',      query: 'kids sport active outfit',         img: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=300&q=80' },
+  { label: 'Fiesta niño',    query: 'kids party outfit elegant',        img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300&q=80' },
 ]
 
 // ── Panel de análisis (bottom sheet) ────────────────────────
@@ -118,8 +155,12 @@ function AnalisisSheet({
 // ── InspirationPage ──────────────────────────────────────────
 export default function InspirationPage() {
   const navigate  = useNavigate()
-  const themeMode = useProfileTheme()
-  const colors    = getThemeColors(themeMode)
+  const themeMode   = useProfileTheme()
+  const colors      = getThemeColors(themeMode)
+  const themeEmojis = getThemeEmojis(themeMode)
+  const chips        = isBabyTheme(themeMode) ? CHIPS_BEBE  : isChildTheme(themeMode) ? CHIPS_NINO  : CHIPS
+  const masIdeas     = isBabyTheme(themeMode) ? MAS_IDEAS_BEBE : isChildTheme(themeMode) ? MAS_IDEAS_NINO : MAS_IDEAS
+  const estilosVisual = isBabyTheme(themeMode) ? ESTILOS_VISUAL_BEBE : isChildTheme(themeMode) ? ESTILOS_VISUAL_NINO : ESTILOS_VISUAL
 
   // ── Estado existente intacto ──────────────────────────────
   const [query,      setQuery]      = useState('')
@@ -159,7 +200,23 @@ export default function InspirationPage() {
   }
 
   return (
-    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px', position: 'relative' }}>
+
+      {/* Emojis decorativos para kids */}
+      {isKidTheme(themeMode) && (
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+          {themeEmojis.map((emoji, i) => (
+            <span key={i} style={{
+              position: 'absolute', fontSize: '28px', opacity: 0.08, userSelect: 'none',
+              top:  `${[5,18,33,48,63,10,25,42,57,75][i]}%`,
+              left: `${[8,70,20,50,82,60,15,38,72,28][i]}%`,
+              transform: `rotate(${[-10,15,-5,20,-15,8,-20,12,-8,18][i]}deg)`,
+            }}>{emoji}</span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* ── Panel de análisis ──────────────────────────────── */}
       {seleccionada && (
@@ -173,10 +230,12 @@ export default function InspirationPage() {
 
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ padding: '52px 16px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: colors.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>Inspiración</h1>
+        <h1 style={{ fontFamily: isBabyTheme(themeMode) || isChildTheme(themeMode) ? 'Jost, sans-serif' : 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: isKidTheme(themeMode) ? 700 : 600, color: colors.primary, margin: 0 }}>
+          {isBabyTheme(themeMode) ? '👶 Looks para bebé' : isChildTheme(themeMode) ? '🌈 Looks para niño/a' : 'Inspiración'}
+        </h1>
       </header>
 
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -212,7 +271,7 @@ export default function InspirationPage() {
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '10px' }}>Ideas para buscar</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {CHIPS.map(chip => (
+                {chips.map(chip => (
                   <button key={chip} onClick={() => buscarTermino(chip)} style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#4A3420', backgroundColor: '#fff', border: '1px solid #E0D5C8', borderRadius: '20px', padding: '6px 14px', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     {chip}
                   </button>
@@ -224,7 +283,7 @@ export default function InspirationPage() {
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '12px' }}>Inspírate con estilos</p>
               <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-                {ESTILOS_VISUAL.map(({ label, query: q, img }) => (
+                {estilosVisual.map(({ label, query: q, img }) => (
                   <button key={label} onClick={() => buscarTermino(q)} style={{ flexShrink: 0, width: '140px', height: '200px', borderRadius: '16px', overflow: 'hidden', position: 'relative', border: 'none', cursor: 'pointer', padding: 0 }}>
                     <img src={img} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 50%)' }} />
@@ -238,7 +297,7 @@ export default function InspirationPage() {
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '10px' }}>Más ideas</p>
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-                {MAS_IDEAS.map(({ emoji, label }) => (
+                {masIdeas.map(({ emoji, label }) => (
                   <button key={label} onClick={() => buscarTermino(label)} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#4A3420', backgroundColor: '#fff', border: '1px solid #E0D5C8', borderRadius: '20px', padding: '7px 14px', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
                     <span>{emoji}</span> {label}
                   </button>
@@ -313,6 +372,8 @@ export default function InspirationPage() {
         )}
 
       </div>
+
+      </div>{/* cierre div zIndex:1 */}
 
       <AppBottomNav />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>

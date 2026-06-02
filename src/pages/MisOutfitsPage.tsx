@@ -415,12 +415,12 @@ export default function MisOutfitsPage() {
         {/* ── Vacío ──────────────────────────────────────── */}
         {!loading && outfits.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '48px 0', gap: '10px' }}>
-            <span style={{ fontSize: '48px' }}>{themeMode === 'baby' ? '🍼' : themeMode === 'child' ? '🌟' : '👗'}</span>
+            <span style={{ fontSize: '48px' }}>{isBabyTheme(themeMode) ? '🍼' : isChildTheme(themeMode) ? '🌟' : '👗'}</span>
             <p style={{ fontFamily: themeMode === 'adult' ? 'Cormorant Garamond, serif' : 'Jost, sans-serif', fontSize: '24px', fontWeight: themeMode === 'adult' ? 400 : 700, color: colors.primary, margin: 0 }}>
-              {themeMode === 'baby' ? '¡Sin fotos de bebé aún!' : themeMode === 'child' ? '¡Sin looks analizados aún!' : 'Sin looks analizados aún'}
+              {isBabyTheme(themeMode) ? '¡Sin fotos de bebé aún!' : isChildTheme(themeMode) ? '¡Sin looks analizados aún!' : 'Sin looks analizados aún'}
             </p>
             <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>
-              {themeMode === 'baby' ? 'Sube una foto del outfit de hoy y la IA lo analiza 🌸' : themeMode === 'child' ? '¡Sube una foto de tu look y la IA te dice cómo quedó! 😎' : 'Sube una foto de lo que llevas puesto y la IA te dice cómo quedó'}
+              {isBabyTheme(themeMode) ? 'Sube una foto del outfit de hoy y la IA lo analiza 🌸' : isChildTheme(themeMode) ? '¡Sube una foto de tu look y la IA te dice cómo quedó! 😎' : 'Sube una foto de lo que llevas puesto y la IA te dice cómo quedó'}
             </p>
           </div>
         )}

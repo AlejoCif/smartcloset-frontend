@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useProfile } from '../context/ProfileContext'
 import AppBottomNav from '../components/AppBottomNav'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 
 // ── SVG Icons (locales) ──────────────────────────────────────
 function IcHanger({ size = 22, color = 'currentColor' }) {
@@ -122,11 +123,13 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { user }          = useAuth()
   const { activeProfile } = useProfile()
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
   const name    = activeProfile?.nombre ?? user?.nombre?.split(' ')[0] ?? 'Bienvenida'
   const initial = name.charAt(0).toUpperCase()
 
   return (
-    <div style={{ backgroundColor: '#FAF7F2', maxWidth: '430px', margin: '0 auto', minHeight: '100vh', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: colors.bg, maxWidth: '430px', margin: '0 auto', minHeight: '100vh', paddingBottom: '80px' }}>
 
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '52px 16px 8px' }}>

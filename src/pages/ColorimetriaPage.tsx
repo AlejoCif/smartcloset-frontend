@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { analizarColorimetria, consultarColor, agregarApaleta, guardarTonosFavoritos } from '../api/user'
 import { useAuth } from '../context/AuthContext'
 import PhotoSelector from '../components/PhotoSelector'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 
 type Step = 'instrucciones' | 'upload' | 'loading' | 'resultado' | 'tonos'
 
 export default function ColorimetriaPage() {
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
   const [step, setStep] = useState<Step>('instrucciones')
   const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -91,7 +94,7 @@ export default function ColorimetriaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
+    <div className="min-h-screen flex flex-col max-w-lg mx-auto" style={{ backgroundColor: colors.bg }}>
       <header className="px-6 pt-14 pb-6">
         <p className="text-accent text-xs font-body tracking-widest uppercase mb-2">Bienvenida</p>
         <h1 className="font-display text-4xl font-light text-primary leading-tight">

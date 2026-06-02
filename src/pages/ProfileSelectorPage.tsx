@@ -42,6 +42,7 @@ function CreateProfileModal({ onClose, onCreated }: { onClose: () => void; onCre
   const [nombre,  setNombre]  = useState('')
   const [tipo,    setTipo]    = useState<'ADULTO' | 'NINO'>('ADULTO')
   const [edad,    setEdad]    = useState('')
+  const [genero,  setGenero]  = useState<'MASCULINO' | 'FEMENINO' | 'NEUTRO'>('NEUTRO')
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
 
@@ -49,7 +50,7 @@ function CreateProfileModal({ onClose, onCreated }: { onClose: () => void; onCre
     if (!nombre.trim()) { setError('Escribe un nombre'); return }
     setLoading(true)
     try {
-      const res = await createProfile(nombre.trim(), tipo, edad ? parseInt(edad) : undefined)
+      const res = await createProfile(nombre.trim(), tipo, edad ? parseInt(edad) : undefined, tipo === 'NINO' ? genero : 'NEUTRO')
       onCreated(res.data)
     } catch {
       setError('No pudimos crear el perfil. Intenta de nuevo.')
@@ -114,6 +115,30 @@ function CreateProfileModal({ onClose, onCreated }: { onClose: () => void; onCre
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Género (solo niños) */}
+        {tipo === 'NINO' && (
+          <div style={{ marginBottom: '16px' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '8px' }}>Género</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {([
+                { val: 'MASCULINO' as const, label: 'Niño',  emoji: '👦', color: '#5BA4CF' },
+                { val: 'FEMENINO'  as const, label: 'Niña',  emoji: '👧', color: '#F06292' },
+                { val: 'NEUTRO'    as const, label: 'Neutro', emoji: '🌈', color: '#66BB6A' },
+              ] as const).map(op => (
+                <button key={op.val} type="button" onClick={() => setGenero(op.val)}
+                  style={{ flex: 1, padding: '10px 6px', borderRadius: '12px',
+                    border: `2px solid ${genero === op.val ? op.color : '#E0D5C8'}`,
+                    backgroundColor: genero === op.val ? `${op.color}18` : '#fff',
+                    cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '22px' }}>{op.emoji}</span>
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
+                    color: genero === op.val ? op.color : '#4A3420' }}>{op.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

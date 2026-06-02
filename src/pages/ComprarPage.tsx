@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import { analizarCompra, chatCompra } from '../api/compras'
 import { confirmarPrenda } from '../api/prendas'
 import AppBottomNav from '../components/AppBottomNav'
@@ -45,7 +46,9 @@ export default function ComprarPage() {
 
   const cameraInputRef  = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
 
   // ── Lógica existente intacta ──────────────────────────────
   const handleFile = async (f: File) => {
@@ -111,7 +114,7 @@ export default function ComprarPage() {
 
   // ── Vista: Confirmación guardado ──────────────────────────
   if (guardado) return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 16px', gap: '16px', textAlign: 'center', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 16px', gap: '16px', textAlign: 'center', paddingBottom: '96px' }}>
       <span style={{ fontSize: '56px' }}>🎉</span>
       <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: 400, color: '#1A1A1A', margin: 0 }}>¡Guardado en tu closet!</h2>
       <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0, lineHeight: 1.5 }}>Ve a tu closet para completar los detalles de la prenda.</p>
@@ -129,7 +132,7 @@ export default function ComprarPage() {
 
   // ── Vista: Resultado del análisis ─────────────────────────
   if (resultado && cfg) return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
       {fileInputs}
 
       <header style={{ padding: '52px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -190,7 +193,7 @@ export default function ComprarPage() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <input type="text" value={chatMsg} onChange={e => { setChatMsg(e.target.value); setChatRes('') }} onKeyDown={e => e.key === 'Enter' && handleChat()} placeholder="¿Combina con mi closet? ¿Es versátil?..." style={{ flex: 1, border: '1.5px solid #E0D5C8', borderRadius: '12px', padding: '10px 14px', fontFamily: 'Jost, sans-serif', fontSize: '13px', outline: 'none', backgroundColor: '#FAF7F2' }} />
+            <input type="text" value={chatMsg} onChange={e => { setChatMsg(e.target.value); setChatRes('') }} onKeyDown={e => e.key === 'Enter' && handleChat()} placeholder="¿Combina con mi closet? ¿Es versátil?..." style={{ flex: 1, border: '1.5px solid #E0D5C8', borderRadius: '12px', padding: '10px 14px', fontFamily: 'Jost, sans-serif', fontSize: '13px', outline: 'none', backgroundColor: colors.bg }} />
             <button onClick={handleChat} disabled={chatLoading || !chatMsg.trim()} style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: '#C4956A', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (chatLoading || !chatMsg.trim()) ? 0.5 : 1 }}>
               {chatLoading
                 ? <div style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
@@ -198,7 +201,7 @@ export default function ComprarPage() {
               }
             </button>
           </div>
-          {chatRes && <div style={{ marginTop: '10px', backgroundColor: '#FAF7F2', borderRadius: '12px', padding: '12px 14px' }}><p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#1A1A1A', margin: 0, lineHeight: 1.6 }}>{chatRes}</p></div>}
+          {chatRes && <div style={{ marginTop: '10px', backgroundColor: colors.bg, borderRadius: '12px', padding: '12px 14px' }}><p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#1A1A1A', margin: 0, lineHeight: 1.6 }}>{chatRes}</p></div>}
         </div>
 
         {/* Acciones */}
@@ -217,7 +220,7 @@ export default function ComprarPage() {
 
   // ── Vista principal (landing + upload) ────────────────────
   return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
       {fileInputs}
 
       {/* ── Header ─────────────────────────────────────────── */}

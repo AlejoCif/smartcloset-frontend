@@ -2,15 +2,21 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analizarPrenda, confirmarPrenda } from '../api/prendas'
 import type { AnalisisPrenda } from '../types'
-import { CATEGORIAS, CATEGORIA_LABELS } from '../types'
+import { CATEGORIAS, CATEGORIAS_BEBE, CATEGORIAS_NINO, CATEGORIA_LABELS } from '../types'
 import PhotoSelector from '../components/PhotoSelector'
 import PhotoGuide from '../components/PhotoGuide'
+import { useProfileTheme, getThemeColors, isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
 
 const GUIDE_KEY = 'photoGuideShown'
 
 type Step = 'upload' | 'loading' | 'confirmacion'
 
 export default function AgregarPrendaPage() {
+  const themeMode  = useProfileTheme()
+  const colors     = getThemeColors(themeMode)
+  const categorias = isBabyTheme(themeMode)  ? CATEGORIAS_BEBE
+                   : isChildTheme(themeMode) ? CATEGORIAS_NINO
+                   : CATEGORIAS
   const [step, setStep] = useState<Step>('upload')
   const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -69,7 +75,7 @@ export default function AgregarPrendaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
+    <div className="min-h-screen flex flex-col max-w-lg mx-auto" style={{ backgroundColor: colors.bg }}>
 
       {/* Modal guía */}
       {showGuide && (
@@ -79,7 +85,7 @@ export default function AgregarPrendaPage() {
         />
       )}
 
-      <header className="sticky top-0 z-30 bg-background border-b border-surface px-5 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-30 border-b border-surface px-5 py-4 flex items-center justify-between" style={{ backgroundColor: colors.bg }}>
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-primary/60 hover:text-primary p-1">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -188,7 +194,7 @@ export default function AgregarPrendaPage() {
                 ¿No es correcto? Cambia la categoría
               </p>
               <div className="grid grid-cols-3 gap-2">
-                {CATEGORIAS.map((cat) => (
+                {categorias.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setCategoriaSeleccionada(cat)}

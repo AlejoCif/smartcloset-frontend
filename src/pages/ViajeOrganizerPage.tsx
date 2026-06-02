@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import { chatViaje, type ViajeMessage } from '../api/viaje'
 import AppBottomNav from '../components/AppBottomNav'
 
@@ -13,7 +14,9 @@ const SUGERENCIAS_RAPIDAS = [
 const DURACIONES = ['3 días', '5 días', '7 días', '10+ días']
 
 export default function ViajeOrganizerPage() {
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
   const [messages, setMessages] = useState<ViajeMessage[]>([])
   const [input,    setInput]    = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -68,7 +71,7 @@ export default function ViajeOrganizerPage() {
   const isPlan = (text: string) => text.includes('📅') && text.length > 200
 
   return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Header con imagen ──────────────────────────────── */}
       <header style={{ position: 'relative', flexShrink: 0 }}>
@@ -172,7 +175,7 @@ export default function ViajeOrganizerPage() {
       </div>
 
       {/* ── Input fijo ─────────────────────────────────────── */}
-      <div style={{ position: 'fixed', bottom: 'calc(75px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', backgroundColor: '#FAF7F2', borderTop: '1px solid #EDE8E1', padding: '10px 16px', zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 'calc(75px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', backgroundColor: colors.bg, borderTop: '1px solid #EDE8E1', padding: '10px 16px', zIndex: 40 }}>
 
         {/* Chips de sugerencia rápida — solo al inicio */}
         {messages.length <= 2 && !loading && (

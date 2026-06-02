@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { buscarInspiracion, analizarInspiracion } from '../api/inspiration'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import AppBottomNav from '../components/AppBottomNav'
 import { useNavigate } from 'react-router-dom'
 import type { InspirationImage, InspirationAnalisisResponse } from '../types'
@@ -116,7 +117,9 @@ function AnalisisSheet({
 
 // ── InspirationPage ──────────────────────────────────────────
 export default function InspirationPage() {
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
 
   // ── Estado existente intacto ──────────────────────────────
   const [query,      setQuery]      = useState('')
@@ -156,7 +159,7 @@ export default function InspirationPage() {
   }
 
   return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
 
       {/* ── Panel de análisis ──────────────────────────────── */}
       {seleccionada && (

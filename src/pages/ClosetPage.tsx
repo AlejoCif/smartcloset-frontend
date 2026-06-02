@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import { getPrendas, deletePrenda } from '../api/prendas'
 import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
-import { FILTROS_CATEGORIA, CATEGORIA_LABELS } from '../types'
+import { FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
+import { isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
 
 // Imágenes de moda femenina por categoría (Unsplash)
 const CAT_IMAGES: Record<string, string> = {
@@ -35,15 +37,31 @@ const CAT_IMAGES: Record<string, string> = {
   BOLSO:         'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80', // bolso beige elegante
   CARTERA:       'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80', // cartera mujer
   // Accesorios
-  COLLAR:        'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80', // collar mujer
-  ARETES:        'https://images.unsplash.com/photo-1630019852942-f89202989a59?w=400&q=80', // aretes mujer
-  CINTURON:      'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80', // closet mujer
-  OTRO:          'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80', // closet general
+  COLLAR:        'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80',
+  ARETES:        'https://images.unsplash.com/photo-1630019852942-f89202989a59?w=400&q=80',
+  CINTURON:      'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80',
+  // Bebé
+  MAMELUCO:      'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&q=80',
+  BODY:          'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=400&q=80',
+  PELELE:        'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&q=80',
+  ZAPATITO:      'https://images.unsplash.com/photo-1561861422-a549073e547a?w=400&q=80',
+  BABERO:        'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&q=80',
+  // Bebé y niño
+  PETO:          'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&q=80',
+  CONJUNTO:      'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=400&q=80',
+  GORRO:         'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&q=80',
+  MEDIAS:        'https://images.unsplash.com/photo-1561861422-a549073e547a?w=400&q=80',
+  PIJAMA:        'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&q=80',
+  // Niño
+  MOCHILA:       'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80',
+  DISFRAZ:       'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80',
+  UNIFORME:      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
+  OTRO:          'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80',
 }
 const CAT_IMG_FALLBACK = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80'
 
-// Orden visual de categorías para la vista agrupada
-const CAT_ORDER = [
+// Orden visual de categorías por tipo de perfil
+const CAT_ORDER_ADULTO = [
   'BLUSA','CAMISETA','CAMISA',
   'PANTALON','JEAN','LEGGINS','SHORT',
   'VESTIDO','FALDA','FALDA_CORTA','FALDA_LARGA',
@@ -54,15 +72,33 @@ const CAT_ORDER = [
   'OTRO',
 ]
 
-function agruparPorCategoria(prendas: Prenda[]): [string, Prenda[]][] {
+const CAT_ORDER_BEBE = [
+  'MAMELUCO','BODY','PELELE','PETO','CONJUNTO',
+  'VESTIDO','CHAQUETA','ABRIGO',
+  'ZAPATITO','SANDALIA',
+  'GORRO','MEDIAS','BABERO','PIJAMA',
+  'OTRO',
+]
+
+const CAT_ORDER_NINO = [
+  'CAMISETA','PANTALON','JEAN','SHORT','LEGGINS',
+  'VESTIDO','FALDA','PETO','CONJUNTO',
+  'CHAQUETA','ABRIGO',
+  'TENIS','SANDALIA','BOTA',
+  'GORRO','MEDIAS','PIJAMA','MOCHILA',
+  'DISFRAZ','UNIFORME',
+  'OTRO',
+]
+
+function agruparPorCategoria(prendas: Prenda[], catOrder: string[]): [string, Prenda[]][] {
   const map: Record<string, Prenda[]> = {}
   for (const p of prendas) {
     if (!map[p.categoria]) map[p.categoria] = []
     map[p.categoria].push(p)
   }
   return Object.entries(map).sort(([a], [b]) => {
-    const ia = CAT_ORDER.indexOf(a)
-    const ib = CAT_ORDER.indexOf(b)
+    const ia = catOrder.indexOf(a)
+    const ib = catOrder.indexOf(b)
     return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
   })
 }
@@ -207,7 +243,15 @@ export default function ClosetPage() {
   const [confirmDelete,   setConfirmDelete]   = useState<number | null>(null)
   const [modalImg,        setModalImg]        = useState<{ src: string; alt: string } | null>(null)
   const [favoritos,       setFavoritos]       = useState<Set<number>>(new Set())
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
+  const filtrosCategoria = isBabyTheme(themeMode)  ? FILTROS_CATEGORIA_BEBE
+                         : isChildTheme(themeMode) ? FILTROS_CATEGORIA_NINO
+                         : FILTROS_CATEGORIA
+  const catOrder         = isBabyTheme(themeMode)  ? CAT_ORDER_BEBE
+                         : isChildTheme(themeMode) ? CAT_ORDER_NINO
+                         : CAT_ORDER_ADULTO
 
   const cargar = useCallback(async () => {
     setLoading(true)
@@ -247,7 +291,7 @@ export default function ClosetPage() {
     : null
 
   return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '100px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '100px' }}>
 
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ padding: '52px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -286,7 +330,7 @@ export default function ClosetPage() {
 
       {/* ── Filtros horizontales ────────────────────────────── */}
       <div style={{ padding: '0 16px 16px', overflowX: 'auto', display: 'flex', gap: '8px', scrollbarWidth: 'none' }}>
-        {FILTROS_CATEGORIA.map(({ value, label }) => {
+        {filtrosCategoria.map(({ value, label }) => {
           const active = filtro === value
           return (
             <button
@@ -395,7 +439,7 @@ export default function ClosetPage() {
         {/* Vista de cajas por categoría — "Todo" sin categoría activa */}
         {!loading && prendas.length > 0 && filtro === '' && categoriaActiva === null && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            {agruparPorCategoria(prendas).map(([cat, items]) => (
+            {agruparPorCategoria(prendas, catOrder).map(([cat, items]) => (
               <button
                 key={cat}
                 onClick={() => setCategoriaActiva(cat)}

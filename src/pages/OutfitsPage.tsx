@@ -14,6 +14,8 @@ import type {
   Estilo, SugerirRequest, AnalizarLookResponse, Prenda,
 } from '../types'
 import { ESTILOS, CATEGORIA_LABELS } from '../types'
+import { useProfile } from '../context/ProfileContext'
+import { useProfileTheme, getThemeColors, getThemeEmojis, getThemeHeader, isBabyTheme, isChildTheme, isKidTheme } from '../hooks/useProfileTheme'
 
 // ── Tipos ────────────────────────────────────────────────────
 type Tab = 'sugerir' | 'guardados' | 'capsule' | 'semana'
@@ -60,6 +62,23 @@ const ESTILOS_VISUAL = [
 
 const SENTIMIENTOS = ['👑 Poderosa', '♡ Femenina', '🌿 Relajada', '✦ Sexy']
 const OCASIONES    = ['💼 Oficina', '✈️ Viaje', '🍷 Cena', '🛍 Shopping', '✦ Evento', '☂️ Playa']
+
+// ── Opciones para perfiles infantiles ────────────────────────
+const ESTILOS_BABY = [
+  { value: 'CASUAL'    as Estilo, label: 'Paseo',     emoji: '🌸' },
+  { value: 'DEPORTIVO' as Estilo, label: 'Juguetón',  emoji: '🎠' },
+  { value: 'ELEGANTE'  as Estilo, label: 'Especial',  emoji: '⭐' },
+]
+const ESTILOS_CHILD = [
+  { value: 'CASUAL'    as Estilo, label: 'Casual',    emoji: '😎' },
+  { value: 'DEPORTIVO' as Estilo, label: 'Deporte',   emoji: '⚽' },
+  { value: 'TRABAJO'   as Estilo, label: 'Escuela',   emoji: '🎒' },
+  { value: 'ELEGANTE'  as Estilo, label: 'Especial',  emoji: '🌟' },
+]
+const SENTIMIENTOS_BABY  = ['😊 Feliz', '🌟 Especial', '🌈 Colorido', '💫 Suavecito']
+const SENTIMIENTOS_CHILD = ['🌈 Colorido', '⚡ Activo', '😎 Cool', '🌟 Especial']
+const OCASIONES_BABY  = ['🍼 Paseo', '🏠 En casa', '🎉 Fiesta bebé', '🏥 Doctor', '🎠 Jugar']
+const OCASIONES_CHILD = ['🏫 Escuela', '⚽ Deporte', '🎉 Fiesta', '🎠 Jugar', '🌳 Parque', '🎨 Arte']
 const DIAS         = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 
 // ── Sub-componentes existentes (sin cambios de lógica) ───────
@@ -328,6 +347,15 @@ export default function OutfitsPage() {
   const autoRef    = useRef(false)
   const weather    = useWeather()
 
+  const { activeProfile } = useProfile()
+  const themeMode  = useProfileTheme()
+  const colors     = getThemeColors(themeMode)
+  const themeEmojis = getThemeEmojis(themeMode)
+  const themeHeader = getThemeHeader(themeMode, activeProfile?.nombre)
+  const kidEstilos = isBabyTheme(themeMode) ? ESTILOS_BABY : ESTILOS_CHILD
+  const kidSents   = isBabyTheme(themeMode) ? SENTIMIENTOS_BABY : SENTIMIENTOS_CHILD
+  const kidOcas    = isBabyTheme(themeMode) ? OCASIONES_BABY : OCASIONES_CHILD
+
   const [tab,                    setTab]                    = useState<Tab>('sugerir')
   const [estilo,                 setEstilo]                 = useState<Estilo>('CASUAL')
   const [limit,                  setLimit]                  = useState(2)
@@ -421,29 +449,61 @@ export default function OutfitsPage() {
   ]
 
   return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
 
-      {/* ── Header con imagen ──────────────────────────────── */}
-      <header style={{ position: 'relative', padding: '52px 16px 24px', overflow: 'hidden' }}>
-        {/* Imagen decorativa */}
-        <div style={{ position: 'absolute', top: 0, right: 0, width: '45%', height: '100%', zIndex: 0 }}>
-          <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #FAF7F2 20%, rgba(250,247,242,0.3) 100%)' }} />
-        </div>
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </button>
-            <button style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-              <span style={{ fontSize: '16px' }}>✦</span>
-            </button>
+      {/* ── Header ─────────────────────────────────────────── */}
+      {!isKidTheme(themeMode) && (
+        <header style={{ position: 'relative', padding: '52px 16px 24px', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: 0, right: 0, width: '45%', height: '100%', zIndex: 0 }}>
+            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #FAF7F2 20%, rgba(250,247,242,0.3) 100%)' }} />
           </div>
-          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px' }}>Outfits</h1>
-          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0, maxWidth: '55%' }}>Tu IA personal crea looks únicos con tu ropa y tu estilo.</p>
-        </div>
-      </header>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <button style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+                <span style={{ fontSize: '16px' }}>✦</span>
+              </button>
+            </div>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px' }}>Outfits</h1>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0, maxWidth: '55%' }}>Tu IA personal crea looks únicos con tu ropa y tu estilo.</p>
+          </div>
+        </header>
+      )}
+
+      {isKidTheme(themeMode) && (
+        <header style={{ position: 'relative', padding: '52px 16px 24px', overflow: 'hidden', backgroundColor: colors.bg }}>
+          {/* Patrón decorativo según género */}
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+            {themeEmojis.map((emoji, i) => (
+              <span key={i} style={{
+                position: 'absolute', fontSize: '24px', opacity: 0.14, userSelect: 'none',
+                top:  `${[8,20,35,5,50,15,60,30,42,70][i]}%`,
+                left: `${[5,68,22,45,65,82,38,55,12,78][i]}%`,
+                transform: `rotate(${[-10,15,-5,20,-15,8,-20,12,-8,18][i]}deg)`,
+              }}>{emoji}</span>
+            ))}
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+              <span style={{ fontSize: '28px' }}>{themeHeader.emoji}</span>
+              <h1 style={{ fontFamily: 'Jost, sans-serif', fontSize: '26px', fontWeight: 700, color: colors.primary, margin: 0, lineHeight: 1.1 }}>
+                {themeHeader.title}
+              </h1>
+            </div>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: colors.accent, margin: 0 }}>
+              {themeHeader.sub}
+            </p>
+          </div>
+        </header>
+      )}
 
       {/* ── Tabs ───────────────────────────────────────────── */}
       <div style={{ padding: '0 16px 16px', display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
@@ -454,7 +514,7 @@ export default function OutfitsPage() {
               flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px',
               padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer',
               fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500,
-              backgroundColor: active ? '#3D2B1F' : '#fff',
+              backgroundColor: active ? colors.tabActive : '#fff',
               color: active ? '#fff' : '#9E9690',
               boxShadow: active ? 'none' : '0 1px 4px rgba(0,0,0,0.07)',
               transition: 'all 0.15s',
@@ -479,20 +539,46 @@ export default function OutfitsPage() {
 
           {/* Estilo visual */}
           <div>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '12px' }}>¿Qué estilo buscas?</p>
-            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-              {ESTILOS_VISUAL.map(({ value, label, img }) => {
-                const sel = estilo === value
-                return (
-                  <button key={value} onClick={() => setEstilo(value)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                    <div style={{ width: '72px', height: '72px', borderRadius: '16px', overflow: 'hidden', border: sel ? '2.5px solid #C4956A' : '2.5px solid transparent', boxShadow: sel ? '0 0 0 1px #C4956A' : 'none', transition: 'all 0.15s' }}>
-                      <img src={img} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: sel ? '#C4956A' : '#9E9690', fontWeight: sel ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
-                  </button>
-                )
-              })}
-            </div>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '12px' }}>
+              {!isKidTheme(themeMode) ? '¿Qué estilo buscas?' : isBabyTheme(themeMode) ? '¿Cómo vestimos hoy?' : '¿Qué estilo quieres?'}
+            </p>
+            {!isKidTheme(themeMode) ? (
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
+                {ESTILOS_VISUAL.map(({ value, label, img }) => {
+                  const sel = estilo === value
+                  return (
+                    <button key={value} onClick={() => setEstilo(value)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      <div style={{ width: '72px', height: '72px', borderRadius: '16px', overflow: 'hidden', border: sel ? '2.5px solid #C4956A' : '2.5px solid transparent', boxShadow: sel ? '0 0 0 1px #C4956A' : 'none', transition: 'all 0.15s' }}>
+                        <img src={img} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: sel ? '#C4956A' : '#9E9690', fontWeight: sel ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
+                {kidEstilos.map(({ value, label, emoji }) => {
+                  const sel = estilo === value
+                  return (
+                    <button key={value} onClick={() => setEstilo(value)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      <div style={{
+                        width: '72px', height: '72px', borderRadius: '20px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '30px',
+                        border: sel ? `2.5px solid ${colors.accent}` : '2.5px solid transparent',
+                        backgroundColor: sel ? `${colors.accent}20` : '#fff',
+                        boxShadow: sel ? `0 0 0 1px ${colors.accent}` : '0 2px 8px rgba(0,0,0,0.06)',
+                        transition: 'all 0.15s',
+                      }}>
+                        {emoji}
+                      </div>
+                      <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: sel ? colors.accent : '#9E9690', fontWeight: sel ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Toggle colorimetría */}
@@ -525,14 +611,16 @@ export default function OutfitsPage() {
 
           {/* Sentimiento */}
           <div>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '12px' }}>¿Cómo quieres sentirte?</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '12px' }}>
+              {!isKidTheme(themeMode) ? '¿Cómo quieres sentirte?' : isBabyTheme(themeMode) ? '¿Cómo va a estar hoy?' : '¿Cómo quieres ir?'}
+            </p>
             <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-              {SENTIMIENTOS.map(s => {
+              {(!isKidTheme(themeMode) ? SENTIMIENTOS : kidSents).map(s => {
                 const sel = sentimiento === s
                 return (
-                  <button key={s} onClick={() => setSentimiento(sel ? null : s)} style={{ flexShrink: 0, width: '68px', height: '68px', borderRadius: '50%', border: `2px solid ${sel ? '#C4956A' : '#E0D5C8'}`, backgroundColor: sel ? 'rgba(196,149,106,0.1)' : '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                  <button key={s} onClick={() => setSentimiento(sel ? null : s)} style={{ flexShrink: 0, width: '68px', height: '68px', borderRadius: '50%', border: `2px solid ${sel ? colors.accent : '#E0D5C8'}`, backgroundColor: sel ? `${colors.accent}18` : '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer', transition: 'all 0.15s' }}>
                     <span style={{ fontSize: '18px' }}>{s.split(' ')[0]}</span>
-                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '9px', color: sel ? '#C4956A' : '#9E9690', fontWeight: 500, textAlign: 'center', lineHeight: 1.2 }}>{s.split(' ').slice(1).join(' ')}</span>
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '9px', color: sel ? colors.accent : '#9E9690', fontWeight: 500, textAlign: 'center', lineHeight: 1.2 }}>{s.split(' ').slice(1).join(' ')}</span>
                   </button>
                 )
               })}
@@ -558,12 +646,14 @@ export default function OutfitsPage() {
 
           {/* Ocasión */}
           <div>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '10px' }}>Ocasión</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '10px' }}>
+              {isBabyTheme(themeMode) ? 'Para qué ocasión' : 'Ocasión'}
+            </p>
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-              {OCASIONES.map(o => {
+              {(!isKidTheme(themeMode) ? OCASIONES : kidOcas).map(o => {
                 const sel = ocasion === o
                 return (
-                  <button key={o} onClick={() => setOcasion(sel ? null : o)} style={{ flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '12px', padding: '7px 14px', borderRadius: '20px', border: `1.5px solid ${sel ? '#C4956A' : '#E0D5C8'}`, backgroundColor: sel ? 'rgba(196,149,106,0.1)' : '#fff', color: sel ? '#C4956A' : '#9E9690', cursor: 'pointer', transition: 'all 0.15s', fontWeight: sel ? 600 : 400 }}>{o}</button>
+                  <button key={o} onClick={() => setOcasion(sel ? null : o)} style={{ flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '12px', padding: '7px 14px', borderRadius: '20px', border: `1.5px solid ${sel ? colors.accent : '#E0D5C8'}`, backgroundColor: sel ? `${colors.accent}18` : '#fff', color: sel ? colors.accent : '#9E9690', cursor: 'pointer', transition: 'all 0.15s', fontWeight: sel ? 600 : 400 }}>{o}</button>
                 )
               })}
             </div>
@@ -628,16 +718,23 @@ export default function OutfitsPage() {
             onClick={handleSugerir}
             disabled={loadingSugerir}
             style={{
-              width: '100%', height: '56px', backgroundColor: '#C4956A',
-              borderRadius: '16px', border: 'none', cursor: loadingSugerir ? 'not-allowed' : 'pointer',
+              width: '100%', height: '56px', backgroundColor: colors.accent,
+              borderRadius: isKidTheme(themeMode) ? '20px' : '16px',
+              border: 'none', cursor: loadingSugerir ? 'not-allowed' : 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px',
               opacity: loadingSugerir ? 0.7 : 1, transition: 'opacity 0.15s',
             }}
           >
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', fontWeight: 400, color: '#fff', lineHeight: 1 }}>
-              {loadingSugerir ? 'Generando outfits...' : `✦ Crear mis outfits`}
+            <span style={{ fontFamily: isKidTheme(themeMode) ? 'Jost, sans-serif' : 'Cormorant Garamond, serif', fontSize: '18px', fontWeight: isKidTheme(themeMode) ? 600 : 400, color: '#fff', lineHeight: 1 }}>
+              {loadingSugerir
+                ? (isBabyTheme(themeMode) ? '🍼 Buscando ropa...' : isChildTheme(themeMode) ? '⚡ Armando looks...' : 'Generando outfits...')
+                : (isBabyTheme(themeMode) ? `${themeHeader.emoji} Armar el look de hoy` : isChildTheme(themeMode) ? '✨ ¡Crear mi outfit!' : '✦ Crear mis outfits')}
             </span>
-            {!loadingSugerir && <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.7)', lineHeight: 1 }}>Deja que la IA haga su magia ✨</span>}
+            {!loadingSugerir && (
+              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.75)', lineHeight: 1 }}>
+                {isBabyTheme(themeMode) ? `Con ropa apropiada para ${activeProfile?.nombre ?? 'bebé'} ${themeEmojis[1] ?? '🐻'}` : isChildTheme(themeMode) ? 'La IA elige los mejores looks 🌟' : 'Deja que la IA haga su magia ✨'}
+              </span>
+            )}
           </button>
 
           {loadingSugerir && <LoadingSpinner text="La IA está creando tus combinaciones..." />}
@@ -662,9 +759,13 @@ export default function OutfitsPage() {
           {loadingGuard && <LoadingSpinner text="Cargando outfits..." />}
           {!loadingGuard && guardados.length === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 0', textAlign: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '48px' }}>💫</span>
-              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: '#1A1A1A', margin: 0 }}>Sin outfits guardados</p>
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>Usa el generador para crear y guardar combinaciones</p>
+              <span style={{ fontSize: '48px' }}>{isBabyTheme(themeMode) ? themeEmojis[0] : isChildTheme(themeMode) ? themeEmojis[1] : '💫'}</span>
+              <p style={{ fontFamily: !isKidTheme(themeMode) ? 'Cormorant Garamond, serif' : 'Jost, sans-serif', fontSize: '24px', fontWeight: !isKidTheme(themeMode) ? 400 : 700, color: colors.primary, margin: 0 }}>
+                {isBabyTheme(themeMode) ? '¡Sin looks guardados aún!' : isChildTheme(themeMode) ? '¡Sin outfits guardados aún!' : 'Sin outfits guardados'}
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>
+                {isBabyTheme(themeMode) ? `Genera el look perfecto y guárdalo aquí ${themeEmojis[0]}` : isChildTheme(themeMode) ? 'Crea outfits y guarda los que más te gusten 🌈' : 'Usa el generador para crear y guardar combinaciones'}
+              </p>
             </div>
           )}
           {guardados.map(o => <OutfitGuardadoCard key={o.id} outfit={o} onEliminar={() => setGuardados(prev => prev.filter(x => x.id !== o.id))} />)}

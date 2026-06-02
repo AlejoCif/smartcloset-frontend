@@ -5,6 +5,7 @@ export interface Profile {
   nombre: string
   tipo: 'ADULTO' | 'NINO'
   edad: number | null
+  genero: 'MASCULINO' | 'FEMENINO' | 'NEUTRO'
   fotoUrl: string | null
   temporadaColor: string | null
   paletaColores: string[] | null
@@ -15,8 +16,12 @@ export interface Profile {
 export const getProfiles = () =>
   client.get<Profile[]>('/api/profiles')
 
-export const createProfile = (nombre: string, tipo: 'ADULTO' | 'NINO', edad?: number) =>
-  client.post<Profile>('/api/profiles', { nombre, tipo, edad })
+export const createProfile = (
+  nombre: string,
+  tipo: 'ADULTO' | 'NINO',
+  edad?: number,
+  genero: 'MASCULINO' | 'FEMENINO' | 'NEUTRO' = 'NEUTRO'
+) => client.post<Profile>('/api/profiles', { nombre, tipo, edad, genero })
 
 export const deleteProfile = (id: number) =>
   client.delete(`/api/profiles/${id}`)

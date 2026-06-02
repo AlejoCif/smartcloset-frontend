@@ -218,6 +218,22 @@ export const CATEGORIAS = [
   'COLLAR', 'ARETES', 'CINTURON', 'OTRO',
 ] as const
 
+export const CATEGORIAS_BEBE = [
+  'MAMELUCO', 'BODY', 'PELELE', 'PETO', 'CONJUNTO',
+  'VESTIDO', 'CHAQUETA', 'ABRIGO',
+  'ZAPATITO', 'SANDALIA',
+  'GORRO', 'MEDIAS', 'BABERO', 'PIJAMA', 'OTRO',
+] as const
+
+export const CATEGORIAS_NINO = [
+  'CAMISETA', 'PANTALON', 'JEAN', 'SHORT', 'LEGGINS',
+  'VESTIDO', 'FALDA', 'PETO', 'CONJUNTO',
+  'CHAQUETA', 'ABRIGO',
+  'TENIS', 'SANDALIA', 'BOTA',
+  'GORRO', 'MEDIAS', 'PIJAMA', 'MOCHILA',
+  'DISFRAZ', 'UNIFORME', 'OTRO',
+] as const
+
 export const ESTILOS: { value: Estilo; label: string }[] = [
   { value: 'CASUAL', label: 'Casual' },
   { value: 'ELEGANTE', label: 'Elegante' },
@@ -227,6 +243,7 @@ export const ESTILOS: { value: Estilo; label: string }[] = [
 ]
 
 export const CATEGORIA_LABELS: Record<string, string> = {
+  // Adulto
   BLUSA: 'Blusa', CAMISETA: 'Camiseta', CAMISA: 'Camisa',
   PANTALON: 'Pantalón', JEAN: 'Jean', LEGGINS: 'Leggings',
   SHORT: 'Short', VESTIDO: 'Vestido', FALDA: 'Falda',
@@ -235,7 +252,16 @@ export const CATEGORIA_LABELS: Record<string, string> = {
   ZAPATO_TACO: 'Zapato de tacón', ZAPATO_PLANO: 'Zapato plano',
   BOTA: 'Bota', TENIS: 'Tenis', SANDALIA: 'Sandalia',
   BOLSO: 'Bolso', CARTERA: 'Cartera', COLLAR: 'Collar',
-  ARETES: 'Aretes', CINTURON: 'Cinturón', OTRO: 'Otro',
+  ARETES: 'Aretes', CINTURON: 'Cinturón',
+  // Bebé
+  MAMELUCO: 'Mameluco', BODY: 'Body', PELELE: 'Pelele',
+  ZAPATITO: 'Zapatito', BABERO: 'Babero',
+  // Bebé y niño
+  PETO: 'Peto', CONJUNTO: 'Conjunto',
+  GORRO: 'Gorro', MEDIAS: 'Medias', PIJAMA: 'Pijama',
+  // Niño
+  MOCHILA: 'Mochila', DISFRAZ: 'Disfraz', UNIFORME: 'Uniforme',
+  OTRO: 'Otro',
 }
 
 export const FILTROS_CATEGORIA = [
@@ -245,4 +271,22 @@ export const FILTROS_CATEGORIA = [
   { value: 'VESTIDO,FALDA,FALDA_CORTA,FALDA_LARGA', label: 'Vestidos y faldas' },
   { value: 'ZAPATO_TACO,ZAPATO_PLANO,BOTA,TENIS,SANDALIA', label: 'Zapatos' },
   { value: 'BOLSO,CARTERA,COLLAR,ARETES,CINTURON', label: 'Accesorios' },
+]
+
+export const FILTROS_CATEGORIA_BEBE = [
+  { value: '', label: 'Todo' },
+  { value: 'MAMELUCO,BODY,PELELE,PETO,CONJUNTO', label: 'Enterizos' },
+  { value: 'VESTIDO,CHAQUETA,ABRIGO', label: 'Prendas' },
+  { value: 'ZAPATITO,SANDALIA', label: 'Calzado' },
+  { value: 'GORRO,MEDIAS,BABERO', label: 'Accesorios' },
+  { value: 'PIJAMA,PELELE', label: 'Dormir' },
+]
+
+export const FILTROS_CATEGORIA_NINO = [
+  { value: '', label: 'Todo' },
+  { value: 'CAMISETA,PANTALON,JEAN,SHORT,LEGGINS', label: 'Ropa' },
+  { value: 'VESTIDO,FALDA,PETO,CONJUNTO', label: 'Conjuntos' },
+  { value: 'CHAQUETA,ABRIGO', label: 'Abrigos' },
+  { value: 'TENIS,SANDALIA,BOTA', label: 'Calzado' },
+  { value: 'GORRO,MEDIAS,MOCHILA', label: 'Accesorios' },
 ]

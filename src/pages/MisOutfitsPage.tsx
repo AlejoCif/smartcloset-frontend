@@ -4,6 +4,8 @@ import { subirMiOutfit, getMisOutfits, eliminarMiOutfit, chatMiOutfit } from '..
 import ImageModal from '../components/ImageModal'
 import AppBottomNav from '../components/AppBottomNav'
 import type { MiOutfitItem } from '../types'
+import { useProfileTheme, getThemeColors, getThemeEmojis, getThemeHeader, isBabyTheme, isChildTheme, isKidTheme } from '../hooks/useProfileTheme'
+import { useProfile } from '../context/ProfileContext'
 
 // ── Preguntas sugeridas ──────────────────────────────────────
 const SUGERIDAS = [
@@ -11,12 +13,25 @@ const SUGERIDAS = [
   '¿Qué color me favorece?',
   '¿Cómo hacerlo más elegante?',
 ]
+const SUGERIDAS_BABY  = ['¿Qué colores le sientan mejor?', '¿Cómo combinarlo?', '¿Es apropiado para el clima?']
+const SUGERIDAS_CHILD = ['¿Qué le falta al outfit?', '¿Cómo hacerlo más divertido?', '¿Qué zapatos combinan?']
 
 const ACCIONES = [
-  { label: '✦ Mejorar look',      pregunta: '¿Cómo puedo mejorar este look?' },
-  { label: 'Versión elegante',    pregunta: '¿Cómo haría este look más elegante?' },
-  { label: 'Versión noche',       pregunta: '¿Cómo adapto este look para salir de noche?' },
-  { label: 'Versión oficina',     pregunta: '¿Cómo adapto este look para la oficina?' },
+  { label: '✦ Mejorar look',   pregunta: '¿Cómo puedo mejorar este look?' },
+  { label: 'Versión elegante', pregunta: '¿Cómo haría este look más elegante?' },
+  { label: 'Versión noche',    pregunta: '¿Cómo adapto este look para salir de noche?' },
+  { label: 'Versión oficina',  pregunta: '¿Cómo adapto este look para la oficina?' },
+]
+const ACCIONES_BABY = [
+  { label: '😊 Mejorar look',  pregunta: '¿Cómo puedo mejorar este look para el bebé?' },
+  { label: '🌸 Para paseo',    pregunta: '¿Cómo adaptar este look para salir a pasear?' },
+  { label: '⭐ Para ocasión especial', pregunta: '¿Cómo adaptarlo para una ocasión especial del bebé?' },
+]
+const ACCIONES_CHILD = [
+  { label: '✨ Mejorar look',  pregunta: '¿Cómo puedo mejorar este look?' },
+  { label: '⚽ Versión deporte', pregunta: '¿Cómo adaptarlo para hacer deporte?' },
+  { label: '🎒 Versión escuela', pregunta: '¿Cómo adaptarlo para ir a la escuela?' },
+  { label: '🎉 Versión fiesta', pregunta: '¿Cómo adaptarlo para una fiesta?' },
 ]
 
 // ── AnalysisCard ─────────────────────────────────────────────
@@ -36,6 +51,11 @@ function AnalysisCard({
   const [confirmDel,   setConfirmDel]   = useState(false)
   const [deleting,     setDeleting]     = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const cardTheme   = useProfileTheme()
+  const cardColors  = getThemeColors(cardTheme)
+  const cardSuger   = isBabyTheme(cardTheme) ? SUGERIDAS_BABY : isChildTheme(cardTheme) ? SUGERIDAS_CHILD : SUGERIDAS
+  const cardAccion  = isBabyTheme(cardTheme) ? ACCIONES_BABY : isChildTheme(cardTheme) ? ACCIONES_CHILD : ACCIONES
 
   const handleChat = async (msg?: string) => {
     const texto = (msg ?? chatMsg).trim()
@@ -108,11 +128,11 @@ function AnalysisCard({
 
       {/* Botones de acción */}
       <div style={{ padding: '0 16px 16px', display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-        {ACCIONES.map(({ label, pregunta }, i) => (
+        {cardAccion.map(({ label, pregunta }, i) => (
           <button key={i} onClick={() => fillChat(pregunta)} style={{
             flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500,
             padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', border: 'none',
-            backgroundColor: i === 0 ? '#3D2B1F' : 'transparent',
+            backgroundColor: i === 0 ? cardColors.tabActive : 'transparent',
             color: i === 0 ? '#fff' : '#9E9690',
             outline: i === 0 ? 'none' : '1.5px solid #E0D5C8',
           }}>
@@ -128,8 +148,8 @@ function AnalysisCard({
 
         {/* Chips sugeridos */}
         <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', scrollbarWidth: 'none', marginBottom: '12px' }}>
-          {SUGERIDAS.map((s, i) => (
-            <button key={i} onClick={() => fillChat(s)} style={{ flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#C4956A', backgroundColor: 'rgba(196,149,106,0.1)', border: '1px solid rgba(196,149,106,0.25)', borderRadius: '20px', padding: '5px 12px', cursor: 'pointer' }}>
+          {cardSuger.map((s, i) => (
+            <button key={i} onClick={() => fillChat(s)} style={{ flexShrink: 0, fontFamily: 'Jost, sans-serif', fontSize: '11px', color: cardColors.accent, backgroundColor: `${cardColors.accent}18`, border: `1px solid ${cardColors.accent}40`, borderRadius: '20px', padding: '5px 12px', cursor: 'pointer' }}>
               {s}
             </button>
           ))}
@@ -146,7 +166,7 @@ function AnalysisCard({
             placeholder="Escribe tu pregunta..."
             style={{ flex: 1, border: '1.5px solid #E0D5C8', borderRadius: '12px', padding: '10px 14px', fontFamily: 'Jost, sans-serif', fontSize: '13px', outline: 'none', backgroundColor: '#fff' }}
           />
-          <button onClick={() => handleChat()} disabled={chatLoading || !chatMsg.trim()} style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: '#C4956A', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (chatLoading || !chatMsg.trim()) ? 0.5 : 1 }}>
+          <button onClick={() => handleChat()} disabled={chatLoading || !chatMsg.trim()} style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: cardColors.accent, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (chatLoading || !chatMsg.trim()) ? 0.5 : 1 }}>
             {chatLoading
               ? <div style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
               : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/></svg>
@@ -211,7 +231,12 @@ function UploadSheet({ onFile, onClose }: { onFile: (f: File) => void; onClose: 
 
 // ── MisOutfitsPage ───────────────────────────────────────────
 export default function MisOutfitsPage() {
-  const navigate   = useNavigate()
+  const navigate    = useNavigate()
+  const { activeProfile } = useProfile()
+  const themeMode   = useProfileTheme()
+  const colors      = getThemeColors(themeMode)
+  const themeEmojis = getThemeEmojis(themeMode)
+  const themeHeader = getThemeHeader(themeMode, activeProfile?.nombre)
   const [outfits,               setOutfits]               = useState<MiOutfitItem[]>([])
   const [loading,               setLoading]               = useState(true)
   const [subiendo,              setSubiendo]              = useState(false)
@@ -244,25 +269,61 @@ export default function MisOutfitsPage() {
   }
 
   return (
-    <div style={{ backgroundColor: '#FAF7F2', minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', maxWidth: '430px', margin: '0 auto', paddingBottom: '96px' }}>
 
       {showSheet && <UploadSheet onFile={handleFile} onClose={() => setShowSheet(false)} />}
 
       {/* ── Header ─────────────────────────────────────────── */}
-      <header style={{ padding: '52px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          </button>
-          <div>
-            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', fontWeight: 600, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>Mis Outfits</h1>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: '2px 0 0' }}>{loading ? '...' : `${outfits.length} look${outfits.length !== 1 ? 's' : ''} analizados`}</p>
+      {!isKidTheme(themeMode) ? (
+        <header style={{ padding: '52px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div>
+              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', fontWeight: 600, color: '#1A1A1A', margin: 0, lineHeight: 1 }}>Mis Outfits</h1>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: '#9E9690', margin: '2px 0 0' }}>{loading ? '...' : `${outfits.length} look${outfits.length !== 1 ? 's' : ''} analizados`}</p>
+            </div>
           </div>
-        </div>
-        <button onClick={() => setShowSheet(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500, color: '#3D2B1F', backgroundColor: 'transparent', border: '1.5px solid #D4BFA4', borderRadius: '20px', padding: '7px 14px', cursor: 'pointer' }}>
-          <span>✦</span> Analizar look
-        </button>
-      </header>
+          <button onClick={() => setShowSheet(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 500, color: '#3D2B1F', backgroundColor: 'transparent', border: '1.5px solid #D4BFA4', borderRadius: '20px', padding: '7px 14px', cursor: 'pointer' }}>
+            <span>✦</span> Analizar look
+          </button>
+        </header>
+      ) : (
+        <header style={{ position: 'relative', padding: '52px 16px 20px', overflow: 'hidden', backgroundColor: colors.bg }}>
+          {/* Patrón decorativo según género */}
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+            {themeEmojis.slice(0, 8).map((emoji, i) => (
+              <span key={i} style={{
+                position: 'absolute', fontSize: '20px', opacity: 0.13, userSelect: 'none',
+                top:  `${[8,22,40,5,55,18,65,35][i]}%`,
+                left: `${[5,68,25,48,65,82,38,55][i]}%`,
+              }}>{emoji}</span>
+            ))}
+          </div>
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button onClick={() => navigate('/home')} style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                  <span style={{ fontSize: '20px' }}>{themeHeader.emoji}</span>
+                  <h1 style={{ fontFamily: 'Jost, sans-serif', fontSize: '20px', fontWeight: 700, color: colors.primary, margin: 0, lineHeight: 1.1 }}>
+                    {themeHeader.title}
+                  </h1>
+                </div>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', color: colors.accent, margin: 0 }}>
+                  {loading ? '...' : `${outfits.length} look${outfits.length !== 1 ? 's' : ''} analizados`}
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setShowSheet(true)} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '12px', fontWeight: 600, color: '#fff', backgroundColor: colors.accent, border: 'none', borderRadius: '20px', padding: '8px 14px', cursor: 'pointer' }}>
+              {isBabyTheme(themeMode) ? '📷 Subir foto' : '📷 Subir look'}
+            </button>
+          </div>
+        </header>
+      )}
 
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
@@ -354,9 +415,13 @@ export default function MisOutfitsPage() {
         {/* ── Vacío ──────────────────────────────────────── */}
         {!loading && outfits.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '48px 0', gap: '10px' }}>
-            <span style={{ fontSize: '48px' }}>👗</span>
-            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: '#1A1A1A', margin: 0 }}>Sin looks analizados aún</p>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>Sube una foto de lo que llevas puesto y la IA te dice cómo quedó</p>
+            <span style={{ fontSize: '48px' }}>{themeMode === 'baby' ? '🍼' : themeMode === 'child' ? '🌟' : '👗'}</span>
+            <p style={{ fontFamily: themeMode === 'adult' ? 'Cormorant Garamond, serif' : 'Jost, sans-serif', fontSize: '24px', fontWeight: themeMode === 'adult' ? 400 : 700, color: colors.primary, margin: 0 }}>
+              {themeMode === 'baby' ? '¡Sin fotos de bebé aún!' : themeMode === 'child' ? '¡Sin looks analizados aún!' : 'Sin looks analizados aún'}
+            </p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>
+              {themeMode === 'baby' ? 'Sube una foto del outfit de hoy y la IA lo analiza 🌸' : themeMode === 'child' ? '¡Sube una foto de tu look y la IA te dice cómo quedó! 😎' : 'Sube una foto de lo que llevas puesto y la IA te dice cómo quedó'}
+            </p>
           </div>
         )}
 

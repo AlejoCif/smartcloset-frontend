@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ProfileProvider, useProfile } from './context/ProfileContext'
 import { getProfiles } from './api/profiles'
+import { useProfileTheme, getThemeColors, getThemeEmojis, isKidTheme } from './hooks/useProfileTheme'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
@@ -17,6 +18,40 @@ import MisOutfitsPage from './pages/MisOutfitsPage'
 import PerfilPage from './pages/PerfilPage'
 import ViajeOrganizerPage from './pages/ViajeOrganizerPage'
 import LoadingSpinner from './components/LoadingSpinner'
+
+// ── Wrapper global de tema ────────────────────────────────────
+const EMOJI_POSITIONS = [
+  [5, 8], [18, 72], [32, 22], [48, 48], [62, 85],
+  [8, 60], [24, 15], [38, 38], [54, 65], [78, 30],
+]
+
+function AppThemeWrapper({ children }: { children: ReactNode }) {
+  const themeMode = useProfileTheme()
+  const colors    = getThemeColors(themeMode)
+  const emojis    = getThemeEmojis(themeMode)
+  const kid       = isKidTheme(themeMode)
+
+  return (
+    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', position: 'relative' }}>
+      {kid && (
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+          {emojis.map((emoji, i) => (
+            <span key={i} style={{
+              position: 'absolute', fontSize: '30px', opacity: 0.07,
+              userSelect: 'none', lineHeight: 1,
+              top:  `${EMOJI_POSITIONS[i][0]}%`,
+              left: `${EMOJI_POSITIONS[i][1]}%`,
+              transform: `rotate(${[-10,15,-5,20,-15,8,-20,12,-8,18][i]}deg)`,
+            }}>{emoji}</span>
+          ))}
+        </div>
+      )}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {children}
+      </div>
+    </div>
+  )
+}
 
 function AppRoutes() {
   const { token, user, loading } = useAuth()
@@ -93,7 +128,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ProfileProvider>
-          <AppRoutes />
+          <AppThemeWrapper>
+            <AppRoutes />
+          </AppThemeWrapper>
         </ProfileProvider>
       </AuthProvider>
     </BrowserRouter>

@@ -13,11 +13,11 @@ const CHIPS = [
   'outfits otoño cálido', 'looks noche ciudad',
 ]
 const MAS_IDEAS = [
-  { emoji: '☀️', label: 'Verano' },
-  { emoji: '🍂', label: 'Otoño'  },
-  { emoji: '💼', label: 'Oficina'},
-  { emoji: '🌙', label: 'Noche'  },
-  { emoji: '✦',  label: 'Minimal'},
+  { emoji: '☀️', label: 'Verano',  query: 'outfits verano moda mujer' },
+  { emoji: '🍂', label: 'Otoño',   query: 'outfits otoño moda mujer'  },
+  { emoji: '💼', label: 'Oficina', query: 'outfits trabajo oficina elegante' },
+  { emoji: '🌙', label: 'Noche',   query: 'outfits noche ciudad elegante' },
+  { emoji: '✦',  label: 'Minimal', query: 'estilo minimalista outfit moda' },
 ]
 const ESTILOS_VISUAL = [
   { label: 'Verano playa',       query: 'verano playa outfit',        img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&q=80' },
@@ -33,11 +33,11 @@ const CHIPS_BEBE = [
   'body bebe paseo', 'pelele bebe invierno', 'ropa bebe recien nacido',
 ]
 const MAS_IDEAS_BEBE = [
-  { emoji: '🌸', label: 'Paseo'   },
-  { emoji: '🎉', label: 'Fiesta'  },
-  { emoji: '🏠', label: 'En casa' },
-  { emoji: '☀️', label: 'Verano'  },
-  { emoji: '❄️', label: 'Invierno'},
+  { emoji: '🌸', label: 'Paseo',    query: 'outfit bebe paseo cochecito ropa' },
+  { emoji: '🎉', label: 'Fiesta',   query: 'outfit bebe fiesta elegante ropa' },
+  { emoji: '🏠', label: 'En casa',  query: 'ropa bebe casa comoda mameluco body' },
+  { emoji: '☀️', label: 'Verano',   query: 'ropa bebe verano fresco ligero' },
+  { emoji: '❄️', label: 'Invierno', query: 'ropa bebe invierno abrigado conjunto' },
 ]
 const ESTILOS_VISUAL_BEBE = [
   { label: 'Paseo bebé',     query: 'baby outfit stroller paseo',       img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&q=80' },
@@ -53,11 +53,11 @@ const CHIPS_NINO = [
   'outfits fiesta niño', 'looks niña casual primavera',
 ]
 const MAS_IDEAS_NINO = [
-  { emoji: '🏫', label: 'Escuela'  },
-  { emoji: '⚽', label: 'Deporte'  },
-  { emoji: '🎉', label: 'Fiesta'   },
-  { emoji: '🌈', label: 'Colorido' },
-  { emoji: '🌳', label: 'Parque'   },
+  { emoji: '🏫', label: 'Escuela',  query: 'outfit niño escuela ropa escolar' },
+  { emoji: '⚽', label: 'Deporte',  query: 'ropa deportiva niño deporte activo' },
+  { emoji: '🎉', label: 'Fiesta',   query: 'outfit niño fiesta elegante ropa' },
+  { emoji: '🌈', label: 'Colorido', query: 'ropa niño colorida divertida casual' },
+  { emoji: '🌳', label: 'Parque',   query: 'outfit niño parque juego casual comodo' },
 ]
 const ESTILOS_VISUAL_NINO = [
   { label: 'Casual niño',    query: 'kids casual colorful outfit',      img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=300&q=80' },
@@ -297,8 +297,8 @@ export default function InspirationPage() {
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, color: '#9E9690', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '10px' }}>Más ideas</p>
               <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-                {masIdeas.map(({ emoji, label }) => (
-                  <button key={label} onClick={() => buscarTermino(label)} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#4A3420', backgroundColor: '#fff', border: '1px solid #E0D5C8', borderRadius: '20px', padding: '7px 14px', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                {masIdeas.map(({ emoji, label, query: q }) => (
+                  <button key={label} onClick={() => buscarTermino(q)} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#4A3420', backgroundColor: '#fff', border: '1px solid #E0D5C8', borderRadius: '20px', padding: '7px 14px', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
                     <span>{emoji}</span> {label}
                   </button>
                 ))}

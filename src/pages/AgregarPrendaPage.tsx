@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analizarPrenda, confirmarPrenda } from '../api/prendas'
 import type { AnalisisPrenda } from '../types'
-import { CATEGORIAS, CATEGORIAS_BEBE, CATEGORIAS_NINO, CATEGORIA_LABELS } from '../types'
+import { SECCIONES_ADULTO, SECCIONES_BEBE, SECCIONES_NINO, CATEGORIA_LABELS } from '../types'
 import PhotoSelector from '../components/PhotoSelector'
 import PhotoGuide from '../components/PhotoGuide'
 import { useProfileTheme, getThemeColors, isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
@@ -14,9 +14,9 @@ type Step = 'upload' | 'loading' | 'confirmacion'
 export default function AgregarPrendaPage() {
   const themeMode  = useProfileTheme()
   const colors     = getThemeColors(themeMode)
-  const categorias = isBabyTheme(themeMode)  ? CATEGORIAS_BEBE
-                   : isChildTheme(themeMode) ? CATEGORIAS_NINO
-                   : CATEGORIAS
+  const secciones  = isBabyTheme(themeMode)  ? SECCIONES_BEBE
+                   : isChildTheme(themeMode) ? SECCIONES_NINO
+                   : SECCIONES_ADULTO
   const [step, setStep] = useState<Step>('upload')
   const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -193,21 +193,31 @@ export default function AgregarPrendaPage() {
               <p className="text-primary/50 text-xs font-body tracking-widest uppercase mb-3">
                 ¿No es correcto? Cambia la categoría
               </p>
-              <div className="grid grid-cols-3 gap-2">
-                {categorias.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setCategoriaSeleccionada(cat)}
-                    className={`py-2.5 px-2 rounded-xl text-xs font-body font-medium transition-all ${
-                      categoriaSeleccionada === cat
-                        ? 'bg-accent text-white'
-                        : 'bg-surface text-primary/70 hover:bg-accent/10'
-                    }`}
-                  >
-                    {CATEGORIA_LABELS[cat] ?? cat}
-                  </button>
-                ))}
-              </div>
+              {secciones.map((sec, i) => (
+                <div key={sec.label}>
+                  <div className={`flex items-center gap-2 mb-2 ${i > 0 ? 'mt-4' : ''}`}>
+                    <span className="font-body text-[10px] font-semibold tracking-widest uppercase text-primary/40 flex-shrink-0">
+                      {sec.label}
+                    </span>
+                    <div className="flex-1 h-px bg-primary/10" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {sec.items.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setCategoriaSeleccionada(cat)}
+                        className={`py-2.5 px-2 rounded-xl text-xs font-body font-medium transition-all ${
+                          categoriaSeleccionada === cat
+                            ? 'bg-accent text-white'
+                            : 'bg-surface text-primary/70 hover:bg-accent/10'
+                        }`}
+                      >
+                        {CATEGORIA_LABELS[cat] ?? cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

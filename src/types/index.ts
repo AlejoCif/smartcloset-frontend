@@ -290,3 +290,35 @@ export const FILTROS_CATEGORIA_NINO = [
   { value: 'TENIS,SANDALIA,BOTA', label: 'Calzado' },
   { value: 'GORRO,MEDIAS,MOCHILA,BALACA,TURBANTE', label: 'Accesorios' },
 ]
+
+// ── Secciones de categorías para selectores con separadores ──
+
+export interface CategoriaSeccion {
+  label: string
+  items: readonly string[]
+}
+
+export const SECCIONES_ADULTO: CategoriaSeccion[] = [
+  { label: 'Ropa', items: ['BLUSA', 'CAMISETA', 'CAMISA', 'PANTALON', 'JEAN', 'LEGGINS', 'SHORT', 'VESTIDO', 'FALDA', 'FALDA_CORTA', 'FALDA_LARGA', 'BLAZER', 'ABRIGO', 'CHAQUETA', 'SACO'] },
+  { label: 'Calzado', items: ['ZAPATO_TACO', 'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA'] },
+  { label: 'Bolsos', items: ['BOLSO', 'CARTERA'] },
+  { label: 'Accesorios', items: ['COLLAR', 'ARETES', 'BALACA', 'TURBANTE', 'CINTURON'] },
+  { label: 'Otro', items: ['OTRO'] },
+]
+
+export const SECCIONES_BEBE: CategoriaSeccion[] = [
+  { label: 'Ropa', items: ['MAMELUCO', 'BODY', 'PETO', 'CONJUNTO', 'VESTIDO'] },
+  { label: 'Abrigos', items: ['CHAQUETA', 'ABRIGO', 'SACO'] },
+  { label: 'Calzado', items: ['ZAPATITO', 'SANDALIA'] },
+  { label: 'Accesorios', items: ['GORRO', 'MEDIAS', 'BABERO', 'BALACA', 'TURBANTE'] },
+  { label: 'Dormir', items: ['PIJAMA'] },
+  { label: 'Otro', items: ['OTRO'] },
+]
+
+export const SECCIONES_NINO: CategoriaSeccion[] = [
+  { label: 'Ropa', items: ['CAMISETA', 'PANTALON', 'JEAN', 'SHORT', 'LEGGINS', 'VESTIDO', 'FALDA', 'PETO', 'CONJUNTO'] },
+  { label: 'Abrigos', items: ['CHAQUETA', 'ABRIGO', 'SACO'] },
+  { label: 'Calzado', items: ['TENIS', 'SANDALIA', 'BOTA'] },
+  { label: 'Accesorios', items: ['GORRO', 'MEDIAS', 'BALACA', 'TURBANTE', 'MOCHILA'] },
+  { label: 'Otro', items: ['DISFRAZ', 'UNIFORME', 'PIJAMA', 'OTRO'] },
+]

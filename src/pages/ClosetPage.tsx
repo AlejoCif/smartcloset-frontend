@@ -5,7 +5,7 @@ import type { ThemeColors } from '../hooks/useProfileTheme'
 import { getPrendas, deletePrenda, actualizarCategoria } from '../api/prendas'
 import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
-import { CATEGORIAS, CATEGORIAS_BEBE, CATEGORIAS_NINO, FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
+import { type CategoriaSeccion, SECCIONES_ADULTO, SECCIONES_BEBE, SECCIONES_NINO, FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
 import { isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
 
 // Imágenes de moda femenina por categoría (Unsplash)
@@ -117,14 +117,14 @@ const OCASION_LABEL: Record<string, string> = {
 // ── EditCategoriaModal ───────────────────────────────────────
 function EditCategoriaModal({
   prenda,
-  categorias,
+  secciones,
   colors,
   onSave,
   onClose,
   saving,
 }: {
   prenda: Prenda
-  categorias: readonly string[]
+  secciones: CategoriaSeccion[]
   colors: ThemeColors
   onSave: (cat: string) => void
   onClose: () => void
@@ -154,28 +154,38 @@ function EditCategoriaModal({
         </div>
 
         <div style={{ overflowY: 'auto', flex: 1 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-            {categorias.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelected(cat)}
-                style={{
-                  padding: '10px 6px',
-                  borderRadius: '12px',
-                  border: selected === cat ? `2px solid ${colors.accent}` : '2px solid transparent',
-                  backgroundColor: selected === cat ? `${colors.accent}1A` : colors.surface,
-                  fontFamily: 'Jost, sans-serif',
-                  fontSize: '11px',
-                  fontWeight: selected === cat ? 600 : 500,
-                  color: selected === cat ? colors.accent : colors.primary,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {CATEGORIA_LABELS[cat] ?? cat}
-              </button>
-            ))}
-          </div>
+          {secciones.map((sec, i) => (
+            <div key={sec.label}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: i === 0 ? 0 : '14px', marginBottom: '8px' }}>
+                <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9E9690', flexShrink: 0 }}>
+                  {sec.label}
+                </span>
+                <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(0,0,0,0.07)' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {sec.items.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelected(cat)}
+                    style={{
+                      padding: '10px 6px',
+                      borderRadius: '12px',
+                      border: selected === cat ? `2px solid ${colors.accent}` : '2px solid transparent',
+                      backgroundColor: selected === cat ? `${colors.accent}1A` : colors.surface,
+                      fontFamily: 'Jost, sans-serif',
+                      fontSize: '11px',
+                      fontWeight: selected === cat ? 600 : 500,
+                      color: selected === cat ? colors.accent : colors.primary,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {CATEGORIA_LABELS[cat] ?? cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         <button
@@ -356,9 +366,9 @@ export default function ClosetPage() {
   const catOrder         = isBabyTheme(themeMode)  ? CAT_ORDER_BEBE
                          : isChildTheme(themeMode) ? CAT_ORDER_NINO
                          : CAT_ORDER_ADULTO
-  const categorias       = isBabyTheme(themeMode)  ? CATEGORIAS_BEBE
-                         : isChildTheme(themeMode) ? CATEGORIAS_NINO
-                         : CATEGORIAS
+  const secciones        = isBabyTheme(themeMode)  ? SECCIONES_BEBE
+                         : isChildTheme(themeMode) ? SECCIONES_NINO
+                         : SECCIONES_ADULTO
 
   const cargar = useCallback(async () => {
     setLoading(true)
@@ -691,7 +701,7 @@ export default function ClosetPage() {
       {editingPrenda && (
         <EditCategoriaModal
           prenda={editingPrenda}
-          categorias={categorias}
+          secciones={secciones}
           colors={colors}
           onSave={handleActualizarCategoria}
           onClose={() => setEditingPrenda(null)}

@@ -214,7 +214,7 @@ export type Estilo = 'CASUAL' | 'ELEGANTE' | 'DEPORTIVO' | 'TRABAJO' | 'SALIDA_N
 export const CATEGORIAS = [
   'BLUSA', 'CAMISETA', 'CAMISA', 'PANTALON', 'JEAN', 'LEGGINS', 'SHORT',
   'VESTIDO', 'FALDA', 'FALDA_CORTA', 'FALDA_LARGA', 'BLAZER', 'ABRIGO', 'CHAQUETA', 'SACO',
-  'ZAPATO_TACO', 'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA', 'BOLSO', 'CARTERA',
+  'ZAPATO_TACO', 'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA', 'MEDIAS', 'BOLSO', 'CARTERA',
   'COLLAR', 'ARETES', 'BALACA', 'TURBANTE', 'CINTURON', 'OTRO',
 ] as const
 
@@ -269,7 +269,7 @@ export const FILTROS_CATEGORIA = [
   { value: 'BLUSA,CAMISETA,CAMISA', label: 'Tops' },
   { value: 'PANTALON,JEAN,LEGGINS,SHORT', label: 'Pantalones' },
   { value: 'VESTIDO,FALDA,FALDA_CORTA,FALDA_LARGA', label: 'Vestidos y faldas' },
-  { value: 'ZAPATO_TACO,ZAPATO_PLANO,BOTA,TENIS,SANDALIA', label: 'Zapatos' },
+  { value: 'ZAPATO_TACO,ZAPATO_PLANO,BOTA,TENIS,SANDALIA,MEDIAS', label: 'Zapatos' },
   { value: 'BOLSO,CARTERA,COLLAR,ARETES,BALACA,TURBANTE,CINTURON', label: 'Accesorios' },
 ]
 
@@ -300,7 +300,7 @@ export interface CategoriaSeccion {
 
 export const SECCIONES_ADULTO: CategoriaSeccion[] = [
   { label: 'Ropa', items: ['BLUSA', 'CAMISETA', 'CAMISA', 'PANTALON', 'JEAN', 'LEGGINS', 'SHORT', 'VESTIDO', 'FALDA', 'FALDA_CORTA', 'FALDA_LARGA', 'BLAZER', 'ABRIGO', 'CHAQUETA', 'SACO'] },
-  { label: 'Calzado', items: ['ZAPATO_TACO', 'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA'] },
+  { label: 'Calzado', items: ['ZAPATO_TACO', 'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA', 'MEDIAS'] },
   { label: 'Bolsos', items: ['BOLSO', 'CARTERA'] },
   { label: 'Accesorios', items: ['COLLAR', 'ARETES', 'BALACA', 'TURBANTE', 'CINTURON'] },
   { label: 'Otro', items: ['OTRO'] },

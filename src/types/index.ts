@@ -213,24 +213,24 @@ export type Estilo = 'CASUAL' | 'ELEGANTE' | 'DEPORTIVO' | 'TRABAJO' | 'SALIDA_N
 
 export const CATEGORIAS = [
   'BLUSA', 'CAMISETA', 'CAMISA', 'PANTALON', 'JEAN', 'LEGGINS', 'SHORT',
-  'VESTIDO', 'FALDA', 'FALDA_CORTA', 'FALDA_LARGA', 'BLAZER', 'ABRIGO', 'CHAQUETA', 'ZAPATO_TACO',
-  'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA', 'BOLSO', 'CARTERA',
-  'COLLAR', 'ARETES', 'CINTURON', 'OTRO',
+  'VESTIDO', 'FALDA', 'FALDA_CORTA', 'FALDA_LARGA', 'BLAZER', 'ABRIGO', 'CHAQUETA', 'SACO',
+  'ZAPATO_TACO', 'ZAPATO_PLANO', 'BOTA', 'TENIS', 'SANDALIA', 'BOLSO', 'CARTERA',
+  'COLLAR', 'ARETES', 'BALACA', 'TURBANTE', 'CINTURON', 'OTRO',
 ] as const
 
 export const CATEGORIAS_BEBE = [
-  'MAMELUCO', 'BODY', 'PELELE', 'PETO', 'CONJUNTO',
-  'VESTIDO', 'CHAQUETA', 'ABRIGO',
+  'MAMELUCO', 'BODY', 'PETO', 'CONJUNTO',
+  'VESTIDO', 'CHAQUETA', 'ABRIGO', 'SACO',
   'ZAPATITO', 'SANDALIA',
-  'GORRO', 'MEDIAS', 'BABERO', 'PIJAMA', 'OTRO',
+  'GORRO', 'MEDIAS', 'BABERO', 'BALACA', 'TURBANTE', 'PIJAMA', 'OTRO',
 ] as const
 
 export const CATEGORIAS_NINO = [
   'CAMISETA', 'PANTALON', 'JEAN', 'SHORT', 'LEGGINS',
   'VESTIDO', 'FALDA', 'PETO', 'CONJUNTO',
-  'CHAQUETA', 'ABRIGO',
+  'CHAQUETA', 'ABRIGO', 'SACO',
   'TENIS', 'SANDALIA', 'BOTA',
-  'GORRO', 'MEDIAS', 'PIJAMA', 'MOCHILA',
+  'GORRO', 'MEDIAS', 'BALACA', 'TURBANTE', 'PIJAMA', 'MOCHILA',
   'DISFRAZ', 'UNIFORME', 'OTRO',
 ] as const
 
@@ -248,11 +248,11 @@ export const CATEGORIA_LABELS: Record<string, string> = {
   PANTALON: 'Pantalón', JEAN: 'Jean', LEGGINS: 'Leggings',
   SHORT: 'Short', VESTIDO: 'Vestido', FALDA: 'Falda',
   FALDA_CORTA: 'Falda corta', FALDA_LARGA: 'Falda larga',
-  BLAZER: 'Blazer', ABRIGO: 'Abrigo', CHAQUETA: 'Chaqueta',
+  BLAZER: 'Blazer', ABRIGO: 'Abrigo', CHAQUETA: 'Chaqueta', SACO: 'Saco',
   ZAPATO_TACO: 'Zapato de tacón', ZAPATO_PLANO: 'Zapato plano',
   BOTA: 'Bota', TENIS: 'Tenis', SANDALIA: 'Sandalia',
   BOLSO: 'Bolso', CARTERA: 'Cartera', COLLAR: 'Collar',
-  ARETES: 'Aretes', CINTURON: 'Cinturón',
+  ARETES: 'Aretes', BALACA: 'Balaca', TURBANTE: 'Turbante', CINTURON: 'Cinturón',
   // Bebé
   MAMELUCO: 'Mameluco', BODY: 'Body', PELELE: 'Pelele',
   ZAPATITO: 'Zapatito', BABERO: 'Babero',
@@ -270,23 +270,23 @@ export const FILTROS_CATEGORIA = [
   { value: 'PANTALON,JEAN,LEGGINS,SHORT', label: 'Pantalones' },
   { value: 'VESTIDO,FALDA,FALDA_CORTA,FALDA_LARGA', label: 'Vestidos y faldas' },
   { value: 'ZAPATO_TACO,ZAPATO_PLANO,BOTA,TENIS,SANDALIA', label: 'Zapatos' },
-  { value: 'BOLSO,CARTERA,COLLAR,ARETES,CINTURON', label: 'Accesorios' },
+  { value: 'BOLSO,CARTERA,COLLAR,ARETES,BALACA,TURBANTE,CINTURON', label: 'Accesorios' },
 ]
 
 export const FILTROS_CATEGORIA_BEBE = [
   { value: '', label: 'Todo' },
-  { value: 'MAMELUCO,BODY,PELELE,PETO,CONJUNTO', label: 'Enterizos' },
-  { value: 'VESTIDO,CHAQUETA,ABRIGO', label: 'Prendas' },
+  { value: 'MAMELUCO,BODY,PETO,CONJUNTO', label: 'Enterizos' },
+  { value: 'VESTIDO,CHAQUETA,ABRIGO,SACO', label: 'Prendas' },
   { value: 'ZAPATITO,SANDALIA', label: 'Calzado' },
-  { value: 'GORRO,MEDIAS,BABERO', label: 'Accesorios' },
-  { value: 'PIJAMA,PELELE', label: 'Dormir' },
+  { value: 'GORRO,MEDIAS,BABERO,BALACA,TURBANTE', label: 'Accesorios' },
+  { value: 'PIJAMA', label: 'Dormir' },
 ]
 
 export const FILTROS_CATEGORIA_NINO = [
   { value: '', label: 'Todo' },
   { value: 'CAMISETA,PANTALON,JEAN,SHORT,LEGGINS', label: 'Ropa' },
   { value: 'VESTIDO,FALDA,PETO,CONJUNTO', label: 'Conjuntos' },
-  { value: 'CHAQUETA,ABRIGO', label: 'Abrigos' },
+  { value: 'CHAQUETA,ABRIGO,SACO', label: 'Abrigos' },
   { value: 'TENIS,SANDALIA,BOTA', label: 'Calzado' },
-  { value: 'GORRO,MEDIAS,MOCHILA', label: 'Accesorios' },
+  { value: 'GORRO,MEDIAS,MOCHILA,BALACA,TURBANTE', label: 'Accesorios' },
 ]

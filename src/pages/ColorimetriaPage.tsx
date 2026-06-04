@@ -57,7 +57,7 @@ export default function ColorimetriaPage() {
       await refreshUser()
       setStep('resultado')
     } catch {
-      setError('No pudimos analizar tu foto. Intenta con otra imagen.')
+      setError('La IA está tardando más de lo normal. Espera un momento y vuelve a intentarlo 🙏')
       setStep('upload')
     }
   }

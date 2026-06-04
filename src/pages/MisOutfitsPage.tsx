@@ -262,7 +262,7 @@ export default function MisOutfitsPage() {
       const res = await subirMiOutfit(file, considerarColorimetria)
       setOutfits(prev => [res.data, ...prev])
     } catch {
-      setError('No pudimos analizar el outfit. Intenta de nuevo.')
+      setError('La IA está tardando más de lo normal. Espera un momento y vuelve a intentarlo 🙏')
     } finally {
       setSubiendo(false)
     }

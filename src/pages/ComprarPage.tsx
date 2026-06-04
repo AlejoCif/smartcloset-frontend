@@ -61,7 +61,7 @@ export default function ComprarPage() {
       const res = await analizarCompra(f)
       setResultado(res.data)
     } catch {
-      setError('No pudimos analizar la prenda. Intenta de nuevo.')
+      setError('La IA está tardando más de lo normal. Espera un momento y vuelve a intentarlo 🙏')
     } finally {
       setLoading(false)
     }

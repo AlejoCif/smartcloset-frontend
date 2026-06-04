@@ -47,13 +47,8 @@ export default function AgregarPrendaPage() {
       setAnalisis(res.data)
       setCategoriaSeleccionada(res.data.categoria)
       setStep('confirmacion')
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: { error?: string } } }
-      if (axiosErr.response?.status === 503) {
-        setError(axiosErr.response.data?.error ?? 'El análisis tardó demasiado. Por favor intenta de nuevo.')
-      } else {
-        setError('No pudimos analizar la prenda. Intenta con otra foto.')
-      }
+    } catch {
+      setError('La IA está tardando más de lo normal. Espera un momento y vuelve a intentarlo 🙏')
       setStep('upload')
     }
   }

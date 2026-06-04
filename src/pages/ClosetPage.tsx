@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
-import { getPrendas, deletePrenda } from '../api/prendas'
+import type { ThemeColors } from '../hooks/useProfileTheme'
+import { getPrendas, deletePrenda, actualizarCategoria } from '../api/prendas'
 import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
-import { FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
+import { CATEGORIAS, CATEGORIAS_BEBE, CATEGORIAS_NINO, FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
 import { isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
 
 // Imágenes de moda femenina por categoría (Unsplash)
@@ -113,6 +114,87 @@ const OCASION_LABEL: Record<string, string> = {
   TRABAJO: 'Trabajo', SALIDA_NOCTURNA: 'Noche',
 }
 
+// ── EditCategoriaModal ───────────────────────────────────────
+function EditCategoriaModal({
+  prenda,
+  categorias,
+  colors,
+  onSave,
+  onClose,
+  saving,
+}: {
+  prenda: Prenda
+  categorias: readonly string[]
+  colors: ThemeColors
+  onSave: (cat: string) => void
+  onClose: () => void
+  saving: boolean
+}) {
+  const [selected, setSelected] = useState(prenda.categoria)
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ width: '100%', maxWidth: '430px', backgroundColor: colors.bg, borderRadius: '20px 20px 0 0', padding: '20px 16px 40px', maxHeight: '75vh', display: 'flex', flexDirection: 'column', gap: '16px' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 600, color: colors.primary, margin: 0 }}>
+            Cambiar categoría
+          </h2>
+          <button
+            onClick={onClose}
+            style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', fontSize: '15px', color: colors.primary }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ overflowY: 'auto', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+            {categorias.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelected(cat)}
+                style={{
+                  padding: '10px 6px',
+                  borderRadius: '12px',
+                  border: selected === cat ? `2px solid ${colors.accent}` : '2px solid transparent',
+                  backgroundColor: selected === cat ? `${colors.accent}1A` : colors.surface,
+                  fontFamily: 'Jost, sans-serif',
+                  fontSize: '11px',
+                  fontWeight: selected === cat ? 600 : 500,
+                  color: selected === cat ? colors.accent : colors.primary,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {CATEGORIA_LABELS[cat] ?? cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={() => onSave(selected)}
+          disabled={saving || selected === prenda.categoria}
+          style={{
+            width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
+            backgroundColor: saving || selected === prenda.categoria ? '#9E9690' : colors.accent,
+            color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500,
+            cursor: saving || selected === prenda.categoria ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {saving ? 'Guardando...' : 'Guardar'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── PrendaCard ───────────────────────────────────────────────
 function PrendaCard({
   prenda,
@@ -121,6 +203,7 @@ function PrendaCard({
   onZoom,
   onCrearLook,
   onEliminar,
+  onEditCategoria,
 }: {
   prenda: Prenda
   favorito: boolean
@@ -128,6 +211,7 @@ function PrendaCard({
   onZoom: () => void
   onCrearLook: () => void
   onEliminar: () => void
+  onEditCategoria: () => void
 }) {
   const nueva = isNueva(prenda.creadoEn)
   const label = CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria
@@ -173,7 +257,7 @@ function PrendaCard({
           </svg>
         </button>
 
-        {/* Botón eliminar (hover) */}
+        {/* Botón eliminar */}
         <button
           onClick={e => { e.stopPropagation(); onEliminar() }}
           style={{
@@ -186,6 +270,23 @@ function PrendaCard({
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9E9690" strokeWidth="1.8" strokeLinecap="round">
             <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+          </svg>
+        </button>
+
+        {/* Botón editar categoría */}
+        <button
+          onClick={e => { e.stopPropagation(); onEditCategoria() }}
+          style={{
+            position: 'absolute', bottom: '8px', left: '8px',
+            width: '28px', height: '28px', borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9E9690" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
         </button>
       </div>
@@ -243,6 +344,9 @@ export default function ClosetPage() {
   const [confirmDelete,   setConfirmDelete]   = useState<number | null>(null)
   const [modalImg,        setModalImg]        = useState<{ src: string; alt: string } | null>(null)
   const [favoritos,       setFavoritos]       = useState<Set<number>>(new Set())
+  const [editingPrenda,   setEditingPrenda]   = useState<Prenda | null>(null)
+  const [savingCat,       setSavingCat]       = useState(false)
+  const [toastMsg,        setToastMsg]        = useState('')
   const navigate  = useNavigate()
   const themeMode = useProfileTheme()
   const colors    = getThemeColors(themeMode)
@@ -252,6 +356,9 @@ export default function ClosetPage() {
   const catOrder         = isBabyTheme(themeMode)  ? CAT_ORDER_BEBE
                          : isChildTheme(themeMode) ? CAT_ORDER_NINO
                          : CAT_ORDER_ADULTO
+  const categorias       = isBabyTheme(themeMode)  ? CATEGORIAS_BEBE
+                         : isChildTheme(themeMode) ? CATEGORIAS_NINO
+                         : CATEGORIAS
 
   const cargar = useCallback(async () => {
     setLoading(true)
@@ -267,6 +374,27 @@ export default function ClosetPage() {
   }, [filtro])
 
   useEffect(() => { cargar() }, [cargar])
+
+  useEffect(() => {
+    if (!toastMsg) return
+    const t = setTimeout(() => setToastMsg(''), 2500)
+    return () => clearTimeout(t)
+  }, [toastMsg])
+
+  const handleActualizarCategoria = async (categoria: string) => {
+    if (!editingPrenda) return
+    setSavingCat(true)
+    try {
+      const res = await actualizarCategoria(editingPrenda.id, categoria)
+      setPrendas(prev => prev.map(p => p.id === editingPrenda.id ? { ...p, categoria: res.data.categoria } : p))
+      setToastMsg('Categoría actualizada ✓')
+      setEditingPrenda(null)
+    } catch {
+      setToastMsg('No se pudo actualizar la categoría.')
+    } finally {
+      setSavingCat(false)
+    }
+  }
 
   const handleDelete = async (id: number) => {
     setDeletingId(id)
@@ -431,6 +559,7 @@ export default function ClosetPage() {
                 onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
                 onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                 onEliminar={() => setConfirmDelete(prenda.id)}
+                onEditCategoria={() => setEditingPrenda(prenda)}
               />
             ))}
           </div>
@@ -502,6 +631,7 @@ export default function ClosetPage() {
                     onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
                     onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                     onEliminar={() => setConfirmDelete(prenda.id)}
+                    onEditCategoria={() => setEditingPrenda(prenda)}
                   />
                 ))}
               </div>
@@ -554,6 +684,32 @@ export default function ClosetPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Modal editar categoría ──────────────────────────── */}
+      {editingPrenda && (
+        <EditCategoriaModal
+          prenda={editingPrenda}
+          categorias={categorias}
+          colors={colors}
+          onSave={handleActualizarCategoria}
+          onClose={() => setEditingPrenda(null)}
+          saving={savingCat}
+        />
+      )}
+
+      {/* ── Toast ───────────────────────────────────────────── */}
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%)',
+          backgroundColor: '#3D2B1F', color: '#fff',
+          fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500,
+          padding: '10px 20px', borderRadius: '20px',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+          zIndex: 60, whiteSpace: 'nowrap',
+        }}>
+          {toastMsg}
         </div>
       )}
 

@@ -26,3 +26,6 @@ export const getPrendas = (categoria?: string) =>
 
 export const deletePrenda = (id: number) =>
   client.delete(`/api/prendas/${id}`)
+
+export const actualizarCategoria = (id: number, categoria: string) =>
+  client.patch<Prenda>(`/api/prendas/${id}/categoria`, { categoria })

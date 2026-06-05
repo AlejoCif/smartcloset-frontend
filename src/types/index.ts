@@ -220,6 +220,7 @@ export const CATEGORIAS = [
 
 export const CATEGORIAS_BEBE = [
   'MAMELUCO', 'BODY', 'PETO', 'CONJUNTO',
+  'CAMISETA', 'BLUSA', 'PANTALON', 'JEAN', 'SHORT',
   'VESTIDO', 'CHAQUETA', 'ABRIGO', 'SACO',
   'ZAPATITO', 'SANDALIA',
   'GORRO', 'MEDIAS', 'BABERO', 'BALACA', 'TURBANTE', 'PIJAMA', 'OTRO',
@@ -307,7 +308,7 @@ export const SECCIONES_ADULTO: CategoriaSeccion[] = [
 ]
 
 export const SECCIONES_BEBE: CategoriaSeccion[] = [
-  { label: 'Ropa', items: ['MAMELUCO', 'BODY', 'PETO', 'CONJUNTO', 'VESTIDO'] },
+  { label: 'Ropa', items: ['MAMELUCO', 'BODY', 'PETO', 'CONJUNTO', 'CAMISETA', 'BLUSA', 'PANTALON', 'JEAN', 'SHORT', 'VESTIDO'] },
   { label: 'Abrigos', items: ['CHAQUETA', 'ABRIGO', 'SACO'] },
   { label: 'Calzado', items: ['ZAPATITO', 'SANDALIA'] },
   { label: 'Accesorios', items: ['GORRO', 'MEDIAS', 'BABERO', 'BALACA', 'TURBANTE'] },

@@ -277,7 +277,8 @@ export const FILTROS_CATEGORIA = [
 export const FILTROS_CATEGORIA_BEBE = [
   { value: '', label: 'Todo' },
   { value: 'MAMELUCO,BODY,PETO,CONJUNTO', label: 'Enterizos' },
-  { value: 'VESTIDO,CHAQUETA,ABRIGO,SACO', label: 'Prendas' },
+  { value: 'CAMISETA,BLUSA,PANTALON,JEAN,SHORT,VESTIDO', label: 'Ropa' },
+  { value: 'CHAQUETA,ABRIGO,SACO', label: 'Abrigos' },
   { value: 'ZAPATITO,SANDALIA', label: 'Calzado' },
   { value: 'GORRO,MEDIAS,BABERO,BALACA,TURBANTE', label: 'Accesorios' },
   { value: 'PIJAMA', label: 'Dormir' },

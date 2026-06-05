@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import type { Profile } from '../api/profiles'
 
 interface ProfileContextType {
@@ -15,20 +15,20 @@ const ProfileContext = createContext<ProfileContextType | null>(null)
 const STORAGE_KEY = 'activeProfileId'
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const [profiles,       setProfiles]       = useState<Profile[]>([])
-  const [activeProfile,  setActiveProfileS] = useState<Profile | null>(null)
-  const [refreshNeeded,  setRefreshNeeded]  = useState(false)
+  const [profiles,      setProfilesState] = useState<Profile[]>([])
+  const [activeProfile, setActiveProfileS] = useState<Profile | null>(null)
+  const [refreshNeeded, setRefreshNeeded]  = useState(false)
 
-  // Solo restaura el perfil activo si hay uno guardado en localStorage.
-  // Si no hay savedId → muestra el selector para que el usuario elija.
-  useEffect(() => {
-    if (profiles.length === 0) return
+  // Actualiza la lista de perfiles y restaura el activo en el mismo batch de React,
+  // evitando el render intermedio donde profiles.length > 0 pero activeProfile === null.
+  const setProfiles = (p: Profile[]) => {
+    setProfilesState(p)
     const savedId = localStorage.getItem(STORAGE_KEY)
-    if (!savedId) return  // sin savedId → muestra selector
-    const found = profiles.find(p => p.id === Number(savedId))
-    if (found) setActiveProfileS(found)
-    // Si el savedId no coincide con ningún perfil → también muestra selector
-  }, [profiles])
+    if (savedId) {
+      const found = p.find(pr => pr.id === Number(savedId))
+      if (found) setActiveProfileS(found)
+    }
+  }
 
   const setActiveProfile = (p: Profile) => {
     setActiveProfileS(p)

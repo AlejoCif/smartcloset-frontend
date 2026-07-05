@@ -29,3 +29,6 @@ export const deletePrenda = (id: number) =>
 
 export const actualizarCategoria = (id: number, categoria: string) =>
   client.patch<Prenda>(`/api/prendas/${id}/categoria`, { categoria })
+
+export const reanalizarPrend = (id: number) =>
+  client.post<Prenda>(`/api/prendas/${id}/reanalizar`)

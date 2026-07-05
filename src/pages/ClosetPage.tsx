@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import type { ThemeColors } from '../hooks/useProfileTheme'
-import { getPrendas, deletePrenda, actualizarCategoria } from '../api/prendas'
+import { getPrendas, deletePrenda, actualizarCategoria, reanalizarPrend } from '../api/prendas'
 import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
 import { type CategoriaSeccion, SECCIONES_ADULTO, SECCIONES_BEBE, SECCIONES_NINO, FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
@@ -210,19 +210,23 @@ function EditCategoriaModal({
 function PrendaCard({
   prenda,
   favorito,
+  reanalizing,
   onToggleFav,
   onZoom,
   onCrearLook,
   onEliminar,
   onEditCategoria,
+  onReanalizar,
 }: {
   prenda: Prenda
   favorito: boolean
+  reanalizing: boolean
   onToggleFav: () => void
   onZoom: () => void
   onCrearLook: () => void
   onEliminar: () => void
   onEditCategoria: () => void
+  onReanalizar: () => void
 }) {
   const nueva = isNueva(prenda.creadoEn)
   const label = CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria
@@ -232,7 +236,7 @@ function PrendaCard({
     <div style={{ backgroundColor: '#fff', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
       {/* Foto */}
-      <div style={{ position: 'relative', aspectRatio: '4/5', cursor: 'zoom-in' }} onClick={onZoom}>
+      <div style={{ position: 'relative', aspectRatio: '4/5', cursor: reanalizing ? 'default' : 'zoom-in' }} onClick={reanalizing ? undefined : onZoom}>
         <img
           src={prenda.fotoUrl}
           alt={label}
@@ -300,6 +304,37 @@ function PrendaCard({
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
         </button>
+
+        {/* Botón re-analizar */}
+        <button
+          onClick={e => { e.stopPropagation(); onReanalizar() }}
+          disabled={reanalizing}
+          style={{
+            position: 'absolute', bottom: '8px', left: '44px',
+            width: '28px', height: '28px', borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.88)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none', cursor: reanalizing ? 'not-allowed' : 'pointer',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+            opacity: reanalizing ? 0.5 : 1,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9E9690" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+
+        {/* Overlay de loading al re-analizar */}
+        {reanalizing && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundColor: 'rgba(255,255,255,0.7)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div style={{ width: '28px', height: '28px', border: '3px solid #F2EBE0', borderTopColor: '#C4956A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          </div>
+        )}
       </div>
 
       {/* Info */}
@@ -357,6 +392,7 @@ export default function ClosetPage() {
   const [favoritos,       setFavoritos]       = useState<Set<number>>(new Set())
   const [editingPrenda,   setEditingPrenda]   = useState<Prenda | null>(null)
   const [savingCat,       setSavingCat]       = useState(false)
+  const [reanalizingId,   setReanalizingId]   = useState<number | null>(null)
   const [toastMsg,        setToastMsg]        = useState('')
   const navigate  = useNavigate()
   const themeMode = useProfileTheme()
@@ -404,6 +440,23 @@ export default function ClosetPage() {
       setToastMsg('No se pudo actualizar la categoría.')
     } finally {
       setSavingCat(false)
+    }
+  }
+
+  const handleReanalizar = async (id: number) => {
+    setReanalizingId(id)
+    try {
+      const res = await reanalizarPrend(id)
+      setPrendas(prev => prev.map(p => p.id === id ? { ...p, descripcionIa: res.data.descripcionIa } : p))
+      setToastMsg('Descripción actualizada ✓')
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setToastMsg('Ya re-analizaste esta prenda hoy')
+      } else {
+        setToastMsg('No se pudo re-analizar. Intenta de nuevo.')
+      }
+    } finally {
+      setReanalizingId(null)
     }
   }
 
@@ -566,11 +619,13 @@ export default function ClosetPage() {
                 key={prenda.id}
                 prenda={prenda}
                 favorito={favoritos.has(prenda.id)}
+                reanalizing={reanalizingId === prenda.id}
                 onToggleFav={() => toggleFav(prenda.id)}
                 onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
                 onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                 onEliminar={() => setConfirmDelete(prenda.id)}
                 onEditCategoria={() => setEditingPrenda(prenda)}
+                onReanalizar={() => handleReanalizar(prenda.id)}
               />
             ))}
           </div>
@@ -638,11 +693,13 @@ export default function ClosetPage() {
                     key={prenda.id}
                     prenda={prenda}
                     favorito={favoritos.has(prenda.id)}
+                    reanalizing={reanalizingId === prenda.id}
                     onToggleFav={() => toggleFav(prenda.id)}
                     onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
                     onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                     onEliminar={() => setConfirmDelete(prenda.id)}
                     onEditCategoria={() => setEditingPrenda(prenda)}
+                    onReanalizar={() => handleReanalizar(prenda.id)}
                   />
                 ))}
               </div>

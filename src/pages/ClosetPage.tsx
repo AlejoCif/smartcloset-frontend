@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import type { ThemeColors } from '../hooks/useProfileTheme'
 import { getPrendas, deletePrenda, actualizarCategoria, reanalizarPrend } from '../api/prendas'
-import ImageModal from '../components/ImageModal'
 import type { Prenda } from '../types'
 import { type CategoriaSeccion, SECCIONES_ADULTO, SECCIONES_BEBE, SECCIONES_NINO, FILTROS_CATEGORIA, FILTROS_CATEGORIA_BEBE, FILTROS_CATEGORIA_NINO, CATEGORIA_LABELS } from '../types'
 import { isBabyTheme, isChildTheme } from '../hooks/useProfileTheme'
@@ -206,6 +205,139 @@ function EditCategoriaModal({
   )
 }
 
+// ── PrendaDetailModal ────────────────────────────────────────
+function PrendaDetailModal({
+  prenda,
+  colors,
+  reanalizing,
+  onClose,
+  onReanalizar,
+  onEditCategoria,
+  onEliminar,
+}: {
+  prenda: Prenda
+  colors: ThemeColors
+  reanalizing: boolean
+  onClose: () => void
+  onReanalizar: () => void
+  onEditCategoria: () => void
+  onEliminar: () => void
+}) {
+  const label = CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria
+  const ocasionLabel = prenda.ocasion ? OCASION_LABEL[prenda.ocasion] ?? prenda.ocasion : null
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 40, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ width: '100%', maxWidth: '430px', backgroundColor: colors.bg, borderRadius: '24px 24px 0 0', maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
+        {/* Handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px', flexShrink: 0 }}>
+          <div style={{ width: '36px', height: '4px', borderRadius: '2px', backgroundColor: 'rgba(0,0,0,0.15)' }} />
+        </div>
+
+        {/* Contenido scrollable */}
+        <div style={{ overflowY: 'auto', flex: 1 }}>
+          {/* Foto */}
+          <div style={{ aspectRatio: '4/5', width: '100%' }}>
+            <img
+              src={prenda.fotoUrl}
+              alt={label}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          </div>
+
+          {/* Info y acciones */}
+          <div style={{ padding: '20px 20px 40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+            {/* Categoría + color + ocasión */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '30px', fontWeight: 600, color: colors.primary, margin: 0, lineHeight: 1.1 }}>
+                {label}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div style={{ width: '13px', height: '13px', borderRadius: '50%', backgroundColor: prenda.colorPrincipal, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: colors.primary }}>
+                    {prenda.colorPrincipal}
+                  </span>
+                </div>
+                {ocasionLabel && (
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '11px', fontWeight: 500, color: colors.accent, backgroundColor: `${colors.accent}20`, padding: '3px 10px', borderRadius: '20px' }}>
+                    {ocasionLabel}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Descripción */}
+            <div style={{ backgroundColor: colors.surface, borderRadius: '14px', padding: '14px 16px' }}>
+              <p style={{
+                fontFamily: 'Jost, sans-serif', fontSize: '13px', lineHeight: 1.65, margin: 0,
+                color: prenda.descripcionIa ? colors.primary : '#9E9690',
+                fontStyle: prenda.descripcionIa ? 'normal' : 'italic',
+              }}>
+                {prenda.descripcionIa ?? 'Sin descripción disponible'}
+              </p>
+            </div>
+
+            {/* Acciones */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={onReanalizar}
+                disabled={reanalizing}
+                style={{
+                  width: '100%', padding: '13px', borderRadius: '12px',
+                  border: `1.5px solid ${colors.accent}`, backgroundColor: 'transparent',
+                  fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500,
+                  color: colors.accent, cursor: reanalizing ? 'not-allowed' : 'pointer',
+                  opacity: reanalizing ? 0.6 : 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                }}
+              >
+                {reanalizing ? (
+                  <>
+                    <div style={{ width: '14px', height: '14px', border: `2px solid ${colors.accent}40`, borderTopColor: colors.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                    Re-analizando...
+                  </>
+                ) : '🔄 Re-analizar descripción'}
+              </button>
+
+              <button
+                onClick={onEditCategoria}
+                style={{
+                  width: '100%', padding: '13px', borderRadius: '12px',
+                  border: `1.5px solid ${colors.accent}`, backgroundColor: 'transparent',
+                  fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500,
+                  color: colors.accent, cursor: 'pointer',
+                }}
+              >
+                ✏️ Cambiar categoría
+              </button>
+
+              <button
+                onClick={onEliminar}
+                style={{
+                  width: '100%', padding: '13px', borderRadius: '12px',
+                  border: 'none', backgroundColor: '#FFF0F0',
+                  fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 500,
+                  color: '#E05555', cursor: 'pointer',
+                }}
+              >
+                🗑️ Eliminar prenda
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── PrendaCard ───────────────────────────────────────────────
 function PrendaCard({
   prenda,
@@ -388,7 +520,7 @@ export default function ClosetPage() {
   const [error,           setError]           = useState('')
   const [deletingId,      setDeletingId]      = useState<number | null>(null)
   const [confirmDelete,   setConfirmDelete]   = useState<number | null>(null)
-  const [modalImg,        setModalImg]        = useState<{ src: string; alt: string } | null>(null)
+  const [detailPrendaId,  setDetailPrendaId]  = useState<number | null>(null)
   const [favoritos,       setFavoritos]       = useState<Set<number>>(new Set())
   const [editingPrenda,   setEditingPrenda]   = useState<Prenda | null>(null)
   const [savingCat,       setSavingCat]       = useState(false)
@@ -406,6 +538,8 @@ export default function ClosetPage() {
   const secciones        = isBabyTheme(themeMode)  ? SECCIONES_BEBE
                          : isChildTheme(themeMode) ? SECCIONES_NINO
                          : SECCIONES_ADULTO
+
+  const detailPrenda = prendas.find(p => p.id === detailPrendaId) ?? null
 
   const cargar = useCallback(async () => {
     setLoading(true)
@@ -621,7 +755,7 @@ export default function ClosetPage() {
                 favorito={favoritos.has(prenda.id)}
                 reanalizing={reanalizingId === prenda.id}
                 onToggleFav={() => toggleFav(prenda.id)}
-                onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
+                onZoom={() => setDetailPrendaId(prenda.id)}
                 onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                 onEliminar={() => setConfirmDelete(prenda.id)}
                 onEditCategoria={() => setEditingPrenda(prenda)}
@@ -695,7 +829,7 @@ export default function ClosetPage() {
                     favorito={favoritos.has(prenda.id)}
                     reanalizing={reanalizingId === prenda.id}
                     onToggleFav={() => toggleFav(prenda.id)}
-                    onZoom={() => setModalImg({ src: prenda.fotoUrl, alt: CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria })}
+                    onZoom={() => setDetailPrendaId(prenda.id)}
                     onCrearLook={() => navigate('/outfits', { state: { prendaAncla: prenda } })}
                     onEliminar={() => setConfirmDelete(prenda.id)}
                     onEditCategoria={() => setEditingPrenda(prenda)}
@@ -727,8 +861,18 @@ export default function ClosetPage() {
         </svg>
       </button>
 
-      {/* ── ImageModal ──────────────────────────────────────── */}
-      {modalImg && <ImageModal src={modalImg.src} alt={modalImg.alt} onClose={() => setModalImg(null)} />}
+      {/* ── PrendaDetailModal ───────────────────────────────── */}
+      {detailPrenda && (
+        <PrendaDetailModal
+          prenda={detailPrenda}
+          colors={colors}
+          reanalizing={reanalizingId === detailPrenda.id}
+          onClose={() => setDetailPrendaId(null)}
+          onReanalizar={() => handleReanalizar(detailPrenda.id)}
+          onEditCategoria={() => setEditingPrenda(detailPrenda)}
+          onEliminar={() => { setDetailPrendaId(null); setConfirmDelete(detailPrenda.id) }}
+        />
+      )}
 
       {/* ── Modal confirmar eliminación ──────────────────────── */}
       {confirmDelete !== null && (

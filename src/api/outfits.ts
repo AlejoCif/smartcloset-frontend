@@ -39,8 +39,8 @@ export const sugerirOutfitsStream = async (
     for (const event of events) {
       let eventName = '', data = ''
       for (const line of event.split('\n')) {
-        if (line.startsWith('event: ')) eventName = line.slice(7).trim()
-        if (line.startsWith('data: ')) data = line.slice(6)
+        if (line.startsWith('event:')) eventName = line.slice(6).trimStart()
+        if (line.startsWith('data:')) data = line.slice(5).trimStart()
       }
       if (!data) continue
       if (eventName === 'outfit') { try { onOutfit(JSON.parse(data) as OutfitSugerido) } catch { /* malformed */ } }

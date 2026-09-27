@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
-  sugerirOutfitsAvanzado, guardarOutfit, getOutfits,
+  sugerirOutfitsAvanzado, sugerirOutfitsStream, guardarOutfit, getOutfits,
   getCapsule, eliminarOutfit, chatOutfit, analizarLook,
 } from '../api/outfits'
 import { getPrendas } from '../api/prendas'
@@ -345,6 +345,7 @@ export default function OutfitsPage() {
   const navigate   = useNavigate()
   const prendaAncla = (location.state as { prendaAncla?: { id: number; categoria: string; colorPrincipal: string } } | null)?.prendaAncla
   const autoRef    = useRef(false)
+  const abortRef   = useRef<AbortController | null>(null)
   const weather    = useWeather()
 
   const { activeProfile } = useProfile()
@@ -394,35 +395,33 @@ export default function OutfitsPage() {
     evento: nombreEvento || nivelFormalidad ? { nombreEvento: nombreEvento || undefined, nivelFormalidad: nivelFormalidad || undefined } : undefined,
   })
 
-  const handleSugerir = async () => {
-    setLoadingSugerir(true); setError(''); setSugerencias([]); setIds([])
-    try { const r = await sugerirOutfitsAvanzado(buildRequest([])); setSugerencias(r.data); setIds(r.data.flatMap(o => o.prendaIds)) }
-    catch (err: unknown) {
-      const isTimeout = (err as { code?: string })?.code === 'ECONNABORTED'
-      setError(isTimeout ? 'La IA tardó demasiado. Intenta de nuevo en un momento.' : 'No pudimos generar sugerencias. Verifica que tengas prendas en tu closet.')
-    }
-    finally { setLoadingSugerir(false) }
-  }
-
-  const handleSugerirAncla = async () => {
-    if (!prendaAncla) return
-    setLoadingSugerir(true); setError(''); setSugerencias([])
-    try { const r = await sugerirOutfitsAvanzado({ estilo, limit: 2, prendaAnclaId: prendaAncla.id, prendaIdsExcluir: [], considerarColorimetria }); setSugerencias(r.data); setIds(r.data.flatMap(o => o.prendaIds)) }
-    catch (err: unknown) {
-      const isTimeout = (err as { code?: string })?.code === 'ECONNABORTED'
-      setError(isTimeout ? 'La IA tardó demasiado. Intenta de nuevo en un momento.' : 'No pudimos generar outfits con esa prenda.')
-    }
-    finally { setLoadingSugerir(false) }
-  }
-
-  const handleGenerarMas = async () => {
+  const streamOutfits = async (request: SugerirRequest, append = false) => {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
     setLoadingSugerir(true); setError('')
-    try { const r = await sugerirOutfitsAvanzado(buildRequest(idsYaMostrados)); setSugerencias(prev => [...prev, ...r.data]); setIds(prev => [...prev, ...r.data.flatMap(o => o.prendaIds)]) }
-    catch (err: unknown) {
-      const isTimeout = (err as { code?: string })?.code === 'ECONNABORTED'
-      setError(isTimeout ? 'La IA tardó demasiado. Intenta de nuevo en un momento.' : 'No se pudieron generar más outfits.')
-    }
-    finally { setLoadingSugerir(false) }
+    if (!append) { setSugerencias([]); setIds([]) }
+    try {
+      await sugerirOutfitsStream(
+        request,
+        (outfit) => {
+          setSugerencias(prev => [...prev, outfit])
+          setIds(prev => [...prev, ...outfit.prendaIds])
+        },
+        () => {},
+        (msg) => setError(msg),
+        abortRef.current.signal
+      )
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name !== 'AbortError')
+        setError('No pudimos generar sugerencias. Verifica que tengas prendas en tu closet.')
+    } finally { setLoadingSugerir(false) }
+  }
+
+  const handleSugerir      = () => streamOutfits(buildRequest([]))
+  const handleGenerarMas   = () => streamOutfits(buildRequest(idsYaMostrados), true)
+  const handleSugerirAncla = () => {
+    if (!prendaAncla) return
+    streamOutfits({ estilo, limit: 2, prendaAnclaId: prendaAncla.id, prendaIdsExcluir: [], considerarColorimetria })
   }
 
   const cargarGuardados = async () => {

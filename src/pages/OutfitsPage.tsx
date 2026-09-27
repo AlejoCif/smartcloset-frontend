@@ -397,7 +397,10 @@ export default function OutfitsPage() {
   const handleSugerir = async () => {
     setLoadingSugerir(true); setError(''); setSugerencias([]); setIds([])
     try { const r = await sugerirOutfitsAvanzado(buildRequest([])); setSugerencias(r.data); setIds(r.data.flatMap(o => o.prendaIds)) }
-    catch { setError('No pudimos generar sugerencias. Verifica que tengas prendas en tu closet.') }
+    catch (err: unknown) {
+      const isTimeout = (err as { code?: string })?.code === 'ECONNABORTED'
+      setError(isTimeout ? 'La IA tardó demasiado. Intenta de nuevo en un momento.' : 'No pudimos generar sugerencias. Verifica que tengas prendas en tu closet.')
+    }
     finally { setLoadingSugerir(false) }
   }
 
@@ -405,14 +408,20 @@ export default function OutfitsPage() {
     if (!prendaAncla) return
     setLoadingSugerir(true); setError(''); setSugerencias([])
     try { const r = await sugerirOutfitsAvanzado({ estilo, limit: 2, prendaAnclaId: prendaAncla.id, prendaIdsExcluir: [], considerarColorimetria }); setSugerencias(r.data); setIds(r.data.flatMap(o => o.prendaIds)) }
-    catch { setError('No pudimos generar outfits con esa prenda.') }
+    catch (err: unknown) {
+      const isTimeout = (err as { code?: string })?.code === 'ECONNABORTED'
+      setError(isTimeout ? 'La IA tardó demasiado. Intenta de nuevo en un momento.' : 'No pudimos generar outfits con esa prenda.')
+    }
     finally { setLoadingSugerir(false) }
   }
 
   const handleGenerarMas = async () => {
     setLoadingSugerir(true); setError('')
     try { const r = await sugerirOutfitsAvanzado(buildRequest(idsYaMostrados)); setSugerencias(prev => [...prev, ...r.data]); setIds(prev => [...prev, ...r.data.flatMap(o => o.prendaIds)]) }
-    catch { setError('No se pudieron generar más outfits.') }
+    catch (err: unknown) {
+      const isTimeout = (err as { code?: string })?.code === 'ECONNABORTED'
+      setError(isTimeout ? 'La IA tardó demasiado. Intenta de nuevo en un momento.' : 'No se pudieron generar más outfits.')
+    }
     finally { setLoadingSugerir(false) }
   }
 

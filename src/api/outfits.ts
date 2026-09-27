@@ -5,7 +5,7 @@ export const sugerirOutfits = (estilo: Estilo) =>
   client.get<SugerenciaOutfit[]>('/api/outfits/sugerir', { params: { estilo } })
 
 export const sugerirOutfitsAvanzado = (request: SugerirRequest) =>
-  client.post<OutfitSugerido[]>('/api/outfits/sugerir', request)
+  client.post<OutfitSugerido[]>('/api/outfits/sugerir', request, { timeout: 90000 })
 
 export const guardarOutfit = (nombre: string, prendaIds: number[], estilo: string, metadata?: object) =>
   client.post<OutfitGuardado>('/api/outfits/guardar', { nombre, prendaIds, estilo, metadata })

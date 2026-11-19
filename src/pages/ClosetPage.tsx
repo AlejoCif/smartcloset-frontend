@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import type { ThemeColors } from '../hooks/useProfileTheme'
@@ -521,7 +521,12 @@ export default function ClosetPage() {
   const [deletingId,      setDeletingId]      = useState<number | null>(null)
   const [confirmDelete,   setConfirmDelete]   = useState<number | null>(null)
   const [detailPrendaId,  setDetailPrendaId]  = useState<number | null>(null)
-  const [favoritos,       setFavoritos]       = useState<Set<number>>(new Set())
+  const [favoritos,       setFavoritos]       = useState<Set<number>>(() => {
+    try {
+      const saved = localStorage.getItem('closet_favoritos')
+      return saved ? new Set<number>(JSON.parse(saved)) : new Set<number>()
+    } catch { return new Set<number>() }
+  })
   const [editingPrenda,   setEditingPrenda]   = useState<Prenda | null>(null)
   const [savingCat,       setSavingCat]       = useState(false)
   const [reanalizingId,   setReanalizingId]   = useState<number | null>(null)
@@ -545,14 +550,20 @@ export default function ClosetPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await getPrendas(filtro || undefined)
+      const res = await getPrendas()
       setPrendas(res.data)
     } catch {
       setError('No pudimos cargar tu closet.')
     } finally {
       setLoading(false)
     }
-  }, [filtro])
+  }, [])
+
+  const prendasFiltradas = useMemo(() => {
+    if (!filtro) return prendas
+    const cats = new Set(filtro.split(',').map(s => s.trim()))
+    return prendas.filter(p => cats.has(p.categoria))
+  }, [prendas, filtro])
 
   useEffect(() => { cargar() }, [cargar])
 
@@ -608,7 +619,12 @@ export default function ClosetPage() {
   }
 
   const toggleFav = (id: number) =>
-    setFavoritos(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
+    setFavoritos(prev => {
+      const s = new Set(prev)
+      s.has(id) ? s.delete(id) : s.add(id)
+      try { localStorage.setItem('closet_favoritos', JSON.stringify([...s])) } catch {}
+      return s
+    })
 
   // Insight: categoría con más prendas
   const topCat = prendas.length > 0
@@ -641,14 +657,12 @@ export default function ClosetPage() {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingTop: '4px' }}>
-          <button style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-          </button>
-          <button style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4A3420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+          <button
+            onClick={() => navigate('/agregar-prenda')}
+            style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#C4956A', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
         </div>
@@ -746,9 +760,9 @@ export default function ClosetPage() {
         {/* ── Grid de prendas ─────────────────────────────── */}
 
         {/* Vista plana — cuando hay filtro activo */}
-        {!loading && prendas.length > 0 && filtro !== '' && (
+        {!loading && prendasFiltradas.length > 0 && filtro !== '' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            {prendas.map(prenda => (
+            {prendasFiltradas.map(prenda => (
               <PrendaCard
                 key={prenda.id}
                 prenda={prenda}

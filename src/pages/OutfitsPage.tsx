@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
-  sugerirOutfitsAvanzado, sugerirOutfitsStream, guardarOutfit, getOutfits,
+  sugerirOutfitsStream, guardarOutfit, getOutfits,
   getCapsule, eliminarOutfit, chatOutfit, analizarLook,
 } from '../api/outfits'
 import { getPrendas } from '../api/prendas'
@@ -23,8 +23,18 @@ type Tab = 'sugerir' | 'guardados' | 'capsule' | 'semana'
 interface WeatherData { temp: number; city: string; desc: string; icon: string }
 
 // ── Hook de clima ────────────────────────────────────────────
+const WEATHER_CACHE_KEY = 'weather_cache'
+const WEATHER_TTL_MS    = 15 * 60 * 1000
+
 function useWeather() {
-  const [weather, setWeather] = useState<WeatherData | null>(null)
+  const [weather, setWeather] = useState<WeatherData | null>(() => {
+    try {
+      const raw = sessionStorage.getItem(WEATHER_CACHE_KEY)
+      if (!raw) return null
+      const { data, ts } = JSON.parse(raw)
+      return Date.now() - ts < WEATHER_TTL_MS ? data : null
+    } catch { return null }
+  })
 
   const fetchWeather = async (lat: number, lon: number) => {
     const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY
@@ -37,11 +47,14 @@ function useWeather() {
         : /nieve|snow/i.test(desc) ? '❄️'
         : /tormenta|thunder/i.test(desc) ? '⛈️'
         : '☀️'
-      setWeather({ temp: Math.round(data.main?.temp ?? 0), city: data.name ?? '', desc, icon })
+      const w = { temp: Math.round(data.main?.temp ?? 0), city: data.name ?? '', desc, icon }
+      try { sessionStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ data: w, ts: Date.now() })) } catch { /* ignore */ }
+      setWeather(w)
     } catch { /* silencioso */ }
   }
 
   useEffect(() => {
+    if (weather) return
     navigator.geolocation?.getCurrentPosition(
       pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
       ()  => fetchWeather(4.71, -74.07),
@@ -300,12 +313,24 @@ function SemanaTab() {
   const [estilo, setEstilo]           = useState<Estilo>('CASUAL')
   const [savingIndex, setSavingIndex] = useState<number | null>(null)
   const [savedIndices, setSaved]      = useState<Set<number>>(new Set())
+  const abortRef                      = useRef<AbortController | null>(null)
 
   const generar = async () => {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
     setLoading(true); setError(''); setOutfits([]); setSaved(new Set())
-    try { const r = await sugerirOutfitsAvanzado({ estilo, limit: 5 }); setOutfits(r.data.slice(0, 5)) }
-    catch { setError('No pudimos generar el plan. Verifica que tengas prendas en tu closet.') }
-    finally { setLoading(false) }
+    try {
+      await sugerirOutfitsStream(
+        { estilo, limit: 5, prendaIdsExcluir: [], considerarColorimetria: true },
+        (outfit) => setOutfits(prev => prev.length < 5 ? [...prev, outfit] : prev),
+        () => {},
+        (msg) => setError(msg),
+        abortRef.current.signal
+      )
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name !== 'AbortError')
+        setError('No pudimos generar el plan. Verifica que tengas prendas en tu closet.')
+    } finally { setLoading(false) }
   }
   const handleGuardar = async (outfit: OutfitSugerido, index: number) => {
     setSavingIndex(index)
@@ -379,7 +404,11 @@ export default function OutfitsPage() {
     localStorage.getItem('colorimetria_activa') !== 'false'
   )
 
-  useEffect(() => { getPrendas().then(r => setClosetPrendas(r.data)).catch(() => {}) }, [])
+  useEffect(() => {
+    let alive = true
+    getPrendas().then(r => { if (alive) setClosetPrendas(r.data) }).catch(() => {})
+    return () => { alive = false }
+  }, [])
   useEffect(() => { if (tab === 'guardados') cargarGuardados() }, [tab])
   useEffect(() => { localStorage.setItem('colorimetria_activa', String(considerarColorimetria)) }, [considerarColorimetria])
   useEffect(() => {

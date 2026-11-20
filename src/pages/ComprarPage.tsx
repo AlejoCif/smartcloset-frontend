@@ -6,6 +6,17 @@ import { confirmarPrenda } from '../api/prendas'
 import AppBottomNav from '../components/AppBottomNav'
 import type { AnalizarCompraResponse } from '../types'
 
+function renderMd(text: string) {
+  const parts = text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>
+    return part
+  })
+}
+
 // ── Configuración de veredictos (lógica existente intacta) ───
 const VEREDICTO_CONFIG = {
   NECESARIO:      { label: 'Lo necesitas ✅', score: 92, bg: 'rgba(107,143,94,0.1)',  border: 'rgba(107,143,94,0.3)',  color: '#6B8F5E' },
@@ -201,7 +212,7 @@ export default function ComprarPage() {
               }
             </button>
           </div>
-          {chatRes && <div style={{ marginTop: '10px', backgroundColor: colors.bg, borderRadius: '12px', padding: '12px 14px' }}><p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#1A1A1A', margin: 0, lineHeight: 1.6 }}>{chatRes}</p></div>}
+          {chatRes && <div style={{ marginTop: '10px', backgroundColor: colors.bg, borderRadius: '12px', padding: '12px 14px' }}><p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#1A1A1A', margin: 0, lineHeight: 1.6 }}>{renderMd(chatRes)}</p></div>}
         </div>
 
         {/* Acciones */}

@@ -1,4 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type ReactNode } from 'react'
+
+function renderMd(text: string): ReactNode[] {
+  const parts = text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={i}>{part.slice(1, -1)}</em>
+    return part
+  })
+}
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   sugerirOutfitsStream, guardarOutfit, getOutfits,
@@ -223,7 +234,7 @@ function OutfitGuardadoCard({ outfit, onEliminar }: { outfit: OutfitGuardado; on
           <input type="text" value={chatMsg} onChange={e => { setChatMsg(e.target.value); setChatRes('') }} onKeyDown={e => e.key === 'Enter' && handleChat()} placeholder="¿Le puedo agregar un cinturón?" className="flex-1 bg-surface border border-surface rounded-xl px-3 py-2 font-body text-sm text-primary placeholder:text-primary/30 outline-none focus:border-accent/40" />
           <button onClick={handleChat} disabled={chatLoading || !chatMsg.trim()} className="bg-accent text-white font-body text-xs px-3 py-2 rounded-xl disabled:opacity-40">{chatLoading ? '...' : 'Ask'}</button>
         </div>
-        {chatRes && <p className="text-primary/70 font-body text-sm mt-2 bg-surface rounded-xl px-3 py-2 leading-relaxed">{chatRes}</p>}
+        {chatRes && <p className="text-primary/70 font-body text-sm mt-2 bg-surface rounded-xl px-3 py-2 leading-relaxed">{renderMd(chatRes)}</p>}
       </div>
       <div className="border-t border-primary/10 pt-3">
         <p className="text-xs font-body text-primary/50 mb-2">📸 Sube una foto y analizo el look</p>
@@ -369,9 +380,10 @@ export default function OutfitsPage() {
   const location   = useLocation()
   const navigate   = useNavigate()
   const prendaAncla = (location.state as { prendaAncla?: { id: number; categoria: string; colorPrincipal: string } } | null)?.prendaAncla
-  const autoRef    = useRef(false)
-  const abortRef   = useRef<AbortController | null>(null)
-  const weather    = useWeather()
+  const autoRef     = useRef(false)
+  const abortRef    = useRef<AbortController | null>(null)
+  const resultRef   = useRef<HTMLDivElement>(null)
+  const weather     = useWeather()
 
   const { activeProfile } = useProfile()
   const themeMode  = useProfileTheme()
@@ -411,6 +423,9 @@ export default function OutfitsPage() {
   }, [])
   useEffect(() => { if (tab === 'guardados') cargarGuardados() }, [tab])
   useEffect(() => { localStorage.setItem('colorimetria_activa', String(considerarColorimetria)) }, [considerarColorimetria])
+  useEffect(() => {
+    if (sugerencias.length === 1) resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [sugerencias.length])
   useEffect(() => {
     if (prendaAncla && !autoRef.current) { autoRef.current = true; handleSugerirAncla() }
   }, [prendaAncla])
@@ -776,6 +791,7 @@ export default function OutfitsPage() {
           {loadingSugerir && <LoadingSpinner text="La IA está creando tus combinaciones..." />}
 
           {/* Resultados */}
+          <div ref={resultRef} />
           {sugerencias.map((sug, i) => (
             <OutfitSugeridoCard key={`${sug.nombre}-${i}`} outfit={sug} onGuardar={() => handleGuardar(sug, i)} saving={savingIndex === i} />
           ))}

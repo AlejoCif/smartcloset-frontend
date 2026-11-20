@@ -36,8 +36,9 @@ export default function TryOnSection({ garmentImageUrl, garmentDescription = '' 
       const base64 = await fileToBase64(personFile)
       const res    = await tryOn(base64, garmentImageUrl, garmentDescription)
       setResult(res.data.resultImageUrl)
-    } catch {
-      setError('No se pudo generar el try-on. Intenta con otra foto.')
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || ''
+      setError(msg ? `Error: ${msg}` : 'No se pudo generar el try-on. Intenta con otra foto.')
     } finally {
       setLoading(false)
     }

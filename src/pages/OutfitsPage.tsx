@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react'
+import TryOnSection from '../components/TryOnSection'
 
 function renderMd(text: string): ReactNode[] {
   const parts = text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*)/g)
@@ -180,6 +181,17 @@ function OutfitSugeridoCard({ outfit, onGuardar, saving }: { outfit: OutfitSuger
           <p className="text-primary font-body text-xs leading-relaxed"><span className="font-medium">Para completar:</span> {outfit.prendaFaltante.toLowerCase()}</p>
         </div>
       )}
+      {/* Try-On: usar primera prenda superior, o la primera disponible */}
+      {(() => {
+        const tryPrenda = g.parteSuperior[0] ?? g.parteInferior[0] ?? outfit.prendas[0]
+        return tryPrenda ? (
+          <TryOnSection
+            garmentImageUrl={tryPrenda.fotoUrl}
+            garmentDescription={CATEGORIA_LABELS[tryPrenda.categoria] ?? tryPrenda.categoria}
+          />
+        ) : null
+      })()}
+
       <button onClick={onGuardar} disabled={saving} className="w-full border border-accent text-accent font-body font-medium py-3 rounded-xl text-sm hover:bg-accent hover:text-white transition-colors disabled:opacity-60">
         {saving ? 'Guardando...' : 'Guardar outfit'}
       </button>

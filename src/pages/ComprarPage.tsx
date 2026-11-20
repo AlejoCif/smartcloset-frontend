@@ -4,6 +4,7 @@ import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 import { analizarCompra, chatCompra } from '../api/compras'
 import { confirmarPrenda } from '../api/prendas'
 import AppBottomNav from '../components/AppBottomNav'
+import TryOnSection from '../components/TryOnSection'
 import type { AnalizarCompraResponse } from '../types'
 
 function renderMd(text: string) {
@@ -194,6 +195,9 @@ export default function ComprarPage() {
             </div>
           </div>
         )}
+
+        {/* Try-On virtual */}
+        <TryOnSection garmentImageUrl={resultado.fotoUrl} garmentDescription={resultado.titulo} />
 
         {/* Chat */}
         <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '16px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>

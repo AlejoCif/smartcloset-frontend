@@ -610,8 +610,9 @@ export default function ClosetPage() {
     try {
       await deletePrenda(id)
       setPrendas(prev => prev.filter(p => p.id !== id))
+      setToastMsg('Prenda eliminada ✓')
     } catch {
-      setError('No se pudo eliminar la prenda.')
+      setToastMsg('No se pudo eliminar la prenda.')
     } finally {
       setDeletingId(null)
       setConfirmDelete(null)
@@ -658,7 +659,7 @@ export default function ClosetPage() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingTop: '4px' }}>
           <button
-            onClick={() => navigate('/agregar-prenda')}
+            onClick={() => navigate('/closet/agregar')}
             style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#C4956A', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -744,15 +745,25 @@ export default function ClosetPage() {
 
         {/* ── Vacío ───────────────────────────────────────── */}
         {!loading && !error && prendas.length === 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 0', textAlign: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '48px' }}>👗</span>
-            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: 400, color: '#1A1A1A', margin: 0 }}>Tu closet está vacío</p>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: 0 }}>Comienza agregando tu primera prenda</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 24px', textAlign: 'center', gap: '0' }}>
+            <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: colors.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+              <span style={{ fontSize: '44px' }}>👗</span>
+            </div>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', fontWeight: 400, color: colors.primary, margin: '0 0 8px' }}>Tu closet está vacío</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '13px', color: '#9E9690', margin: '0 0 28px', lineHeight: 1.5 }}>
+              Agrega tu primera prenda y la IA<br/>empezará a crear outfits para ti
+            </p>
             <button
               onClick={() => navigate('/closet/agregar')}
-              style={{ marginTop: '16px', backgroundColor: '#C4956A', color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '13px', fontWeight: 500, padding: '12px 28px', borderRadius: '12px', border: 'none', cursor: 'pointer' }}
+              style={{ backgroundColor: colors.accent, color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '14px', fontWeight: 600, padding: '14px 36px', borderRadius: '14px', border: 'none', cursor: 'pointer', boxShadow: `0 4px 16px ${colors.accent}40` }}
             >
-              Agregar prenda
+              + Agregar primera prenda
+            </button>
+            <button
+              onClick={() => navigate('/outfits')}
+              style={{ marginTop: '12px', background: 'none', border: 'none', fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#9E9690', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              ¿Cómo funciona SmartCloset?
             </button>
           </div>
         )}

@@ -189,6 +189,7 @@ export default function HomePage() {
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '52px 16px 8px' }}>
         <button
+          onClick={() => navigate('/perfil')}
           style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#F2EBE0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
         >
           <IcMenu size={20} color="#4A3420" />
@@ -208,7 +209,11 @@ export default function HomePage() {
           }
           {/* Badge si es perfil infantil */}
           {activeProfile?.tipo === 'NINO' && (
-            <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', fontSize: '12px', lineHeight: 1 }}>👧</span>
+            <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', fontSize: '12px', lineHeight: 1 }}>
+              {(activeProfile as { genero?: string }).genero === 'MASCULINO' ? '👦'
+               : (activeProfile as { genero?: string }).genero === 'FEMENINO' ? '👧'
+               : '🧒'}
+            </span>
           )}
         </button>
       </header>

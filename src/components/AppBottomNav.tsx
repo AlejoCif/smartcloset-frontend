@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
 
 const sk = { fill: 'none', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
 
@@ -27,8 +28,10 @@ const NAV = [
 ]
 
 export default function AppBottomNav() {
-  const navigate   = useNavigate()
+  const navigate     = useNavigate()
   const { pathname } = useLocation()
+  const themeMode    = useProfileTheme()
+  const colors       = getThemeColors(themeMode)
 
   return (
     <nav
@@ -38,7 +41,7 @@ export default function AppBottomNav() {
       <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', paddingTop: '8px', paddingBottom: '4px' }}>
         {NAV.map(({ to, label, Icon, center }) => {
           const active = pathname === to
-          const col    = active ? '#C4956A' : '#9E9690'
+          const col    = active ? colors.accent : '#9E9690'
 
           if (center) {
             return (
@@ -53,13 +56,13 @@ export default function AppBottomNav() {
               >
                 <div style={{
                   width: '50px', height: '50px', borderRadius: '50%',
-                  backgroundColor: active ? '#C4956A' : '#3D2B1F',
+                  backgroundColor: active ? colors.accent : colors.tabActive,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(61,43,31,0.3)',
+                  boxShadow: `0 4px 16px ${colors.tabActive}60`,
                 }}>
                   <Icon size={22} color="#fff" />
                 </div>
-                <span style={{ fontSize: '10px', fontFamily: 'Jost, sans-serif', fontWeight: 500, color: active ? '#C4956A' : '#9E9690' }}>
+                <span style={{ fontSize: '10px', fontFamily: 'Jost, sans-serif', fontWeight: 500, color: col }}>
                   {label}
                 </span>
               </button>

@@ -135,6 +135,15 @@ export default function PerfilPage() {
           {user?.temporadaColor ? 'Rehacer análisis de colorimetría' : 'Hacer análisis de colorimetría'}
         </button>
 
+        {/* Gestionar perfiles */}
+        <button
+          onClick={() => navigate('/perfiles')}
+          className="w-full py-4 rounded-xl font-body font-medium text-sm transition-colors"
+          style={{ border: '1px solid #D4BFA4', color: '#C4956A', backgroundColor: 'transparent' }}
+        >
+          Gestionar perfiles
+        </button>
+
         {/* Cerrar sesión */}
         <button
           onClick={logout}

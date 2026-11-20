@@ -145,7 +145,15 @@ export default function AgregarPrendaPage() {
             <div className="text-center">
               <p className="font-display text-2xl text-primary">Analizando...</p>
               <p className="text-primary/50 text-sm font-body mt-2">La IA está identificando tu prenda</p>
+              <p className="text-primary/30 text-xs font-body mt-1">Esto tarda unos segundos</p>
             </div>
+            <button
+              onClick={() => setStep('upload')}
+              className="font-body text-sm"
+              style={{ color: '#9E9690', background: 'none', border: '1px solid #E0D5C8', borderRadius: '20px', padding: '8px 20px', cursor: 'pointer' }}
+            >
+              Cancelar
+            </button>
           </div>
         )}
 

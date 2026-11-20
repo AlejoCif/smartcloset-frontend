@@ -28,6 +28,8 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [forgotSent, setForgotSent] = useState(false)
   const { setToken } = useAuth()
   const navigate = useNavigate()
 
@@ -129,7 +131,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
 
           <div className="mb-8">
             <h2 className="font-display text-3xl font-light text-primary mb-1">
-              {mode === 'login' ? 'Bienvenida' : 'Crea tu cuenta'}
+              {mode === 'login' ? '¡Hola de nuevo!' : 'Crea tu cuenta'}
             </h2>
             <p className="font-body text-sm text-primary/40">
               {mode === 'login'
@@ -215,14 +217,52 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
               <label className="block text-xs font-body text-primary/60 mb-1.5 tracking-wider uppercase">
                 Contraseña
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                className="w-full bg-surface border border-surface focus:border-accent rounded-xl px-4 py-3.5 text-primary font-body text-sm outline-none transition-colors placeholder:text-primary/30"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  className="w-full bg-surface border border-surface focus:border-accent rounded-xl px-4 py-3.5 text-primary font-body text-sm outline-none transition-colors placeholder:text-primary/30"
+                  style={{ paddingRight: '44px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9E9690', padding: '4px' }}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {mode === 'login' && (
+                <div style={{ textAlign: 'right', marginTop: '6px' }}>
+                  {forgotSent ? (
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#C4956A' }}>
+                      Escríbenos a hola@smartcloset.app para recuperar tu cuenta.
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setForgotSent(true)}
+                      style={{ fontFamily: 'Jost, sans-serif', fontSize: '12px', color: '#9E9690', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {error && (

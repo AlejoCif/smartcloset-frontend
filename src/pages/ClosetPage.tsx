@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProfileTheme, getThemeColors } from '../hooks/useProfileTheme'
+import TryOnSection from '../components/TryOnSection'
 import type { ThemeColors } from '../hooks/useProfileTheme'
 import { getPrendas, deletePrenda, actualizarCategoria, reanalizarPrend } from '../api/prendas'
 import type { Prenda } from '../types'
@@ -284,6 +285,12 @@ function PrendaDetailModal({
                 {prenda.descripcionIa ?? 'Sin descripción disponible'}
               </p>
             </div>
+
+            {/* Try-on virtual */}
+            <TryOnSection
+              garmentImageUrl={prenda.fotoUrl}
+              garmentDescription={CATEGORIA_LABELS[prenda.categoria] ?? prenda.categoria}
+            />
 
             {/* Acciones */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
